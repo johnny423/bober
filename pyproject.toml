@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "bober"
+version = "0.1.0"
+description = ""
+authors = ["jonny <johnnybarda423@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+alembic = "^1.13.1"
+asyncpg = "^0.29.0"
+fastapi = "^0.110.0"
+pydantic = "^2.6.4"
+pydantic-settings = "^2.2.1"
+sqlalchemy = "^2.0.31"
+python-multipart = "^0.0.9"
+loguru = "^0.7.2"
+uvicorn = "^0.29.0"
+httpx = "^0.27.0"
+python-dotenv = "^1.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.3.0"
+ruff = "^0.3.3"
+pytest = "^8.1.1"
+pre-commit = "^3.6.2"
+mypy = "^1.9.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+skip-string-normalization = true
+line-length = 120
+
+[tool.ruff]
+# Same as Black.
+line-length = 120
+select = [
+    "E", # pycodestyle errors (settings from FastAPI, thanks, @tiangolo!)
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long, handled by black
+    "C901", # too complex
+]
+
+[tool.ruff.isort]
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+extra-standard-library = ["typing"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+known-first-party = []
+
+[tool.pytest.ini_options]
+#addopts = "-vv -n auto --cov --cov-report xml --cov-report term-missing --cov-fail-under=100"
+asyncio_mode = "auto"
+testpaths = ["bober/tests"]
+
+[tool.coverage.run]
+concurrency = ["gevent"]
+omit = ["bober/tests/*"]
+source = ["bober"]
+
+[tool.mypy]
+exclude= '^bober/tests'
+strict = true
+plugins = "sqlalchemy.ext.mypy.plugin"

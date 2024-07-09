@@ -1,0 +1,10 @@
+.mypy_cache
+.pytest_cache
+.coverage
+.gitignore
+*.md
+.dockerignore
+**/__pycache__
+**/Dockerfile
+docker-compose.yaml
+bober/tests
