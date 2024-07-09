@@ -7,9 +7,25 @@ from bober.src.doc_parsing import parsing_utils
 WORDS_AND_SPLITS = (
     (
         'The sun, shining brightly, cast warm rays across the tranquil, azure sea!',
-        ['The', 'sun', 'shining', 'brightly', 'cast', 'warm', 'rays', 'across', 'the', 'tranquil', 'azure', 'sea'],
+        [
+            'The',
+            'sun',
+            'shining',
+            'brightly',
+            'cast',
+            'warm',
+            'rays',
+            'across',
+            'the',
+            'tranquil',
+            'azure',
+            'sea',
+        ],
     ),
-    ('Birds chirped ,melodiously! filling. the crisp', ['Birds', 'chirped', 'melodiously', 'filling', 'the', 'crisp']),
+    (
+        'Birds chirped ,melodiously! filling. the crisp',
+        ['Birds', 'chirped', 'melodiously', 'filling', 'the', 'crisp'],
+    ),
 )
 
 
@@ -21,4 +37,6 @@ def test_split_line(input_line: str, split_line: List[str]) -> None:
 def test_parse_by_word_position() -> None:
     full_text = '\n'.join([word for word, _ in WORDS_AND_SPLITS])
     expected_split_text = [split_word for _, split_word in WORDS_AND_SPLITS]
-    assert parsing_utils.parse_by_word_position(full_text) == expected_split_text
+    assert (
+        parsing_utils.parse_by_word_position(full_text) == expected_split_text
+    )

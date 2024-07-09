@@ -33,11 +33,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 skip-string-normalization = true
-line-length = 120
+line-length = 80
 
 [tool.ruff]
 # Same as Black.
-line-length = 120
+line-length = 80
 select = [
     "E", # pycodestyle errors (settings from FastAPI, thanks, @tiangolo!)
     "W", # pycodestyle warnings

@@ -16,7 +16,10 @@ def initialize_backend_application() -> fastapi.FastAPI:
 
     fastapi_app.add_middleware(
         CORSMiddleware,
-        allow_origins=[str(origin) for origin in get_settings().security.BACKEND_CORS_ORIGINS],
+        allow_origins=[
+            str(origin)
+            for origin in get_settings().security.BACKEND_CORS_ORIGINS
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -41,9 +44,7 @@ if __name__ == "__main__":
     POSTGRES_PORT = os.getenv("POSTGRES_PORT")
     POSTGRES_SCHEMA = os.getenv("POSTGRES_SCHEMA")
     POSTGRES_USERNAME = os.getenv("POSTGRES_USERNAME")
-    DATABASE_URL = (
-        f"{POSTGRES_SCHEMA}://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@localhost:{POSTGRES_PORT}/{POSTGRES_DB}"
-    )
+    DATABASE_URL = f"{POSTGRES_SCHEMA}://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@localhost:{POSTGRES_PORT}/{POSTGRES_DB}"
     engine = create_engine(DATABASE_URL)
 
     Base.metadata.create_all(engine)
