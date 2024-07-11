@@ -7,8 +7,10 @@ from sqlalchemy.orm import sessionmaker
 
 from bober.src.db_models import Base
 from bober.src.loader import load_examples
-from bober.src.phrases import save_new_phrase, find_phrase_occurrences
-from bober.src.rfc_search.search_rfc import search_rfcs, SearchRFCQuery
+from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
+
+# from bober.src.phrases import save_new_phrase, find_phrase_occurrences
+# from bober.src.rfc_search.search_rfc import search_rfcs, SearchRFCQuery
 
 # def initialize_backend_application() -> fastapi.FastAPI:
 #     fastapi_app = fastapi.FastAPI()
@@ -60,7 +62,7 @@ if __name__ == "__main__":
     Session = sessionmaker(engine)
 
     with Session() as session:
-        # # reload data and tables
+        # reload data and tables
         for tbl in reversed(Base.metadata.sorted_tables):
             session.execute(tbl.delete())
         session.commit()
@@ -72,9 +74,9 @@ if __name__ == "__main__":
         # text = rebuild_content(content)
         # print(text)
 
-        # # search_rfcs
-        # r = search_rfcs(session, SearchRFCQuery(tokens=["host"]))
-        # pprint(r)
+        # search_rfcs
+        r = search_rfcs(session, SearchRFCQuery(tokens=["protocols"]))
+        pprint(r)
 
         # # phrase
         # save_new_phrase(session, "xxx", "espresso machines")

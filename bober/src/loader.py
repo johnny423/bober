@@ -5,7 +5,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 from bober.src.db_models import Rfc, Author, Token
-from bober.src.rfc_ingest.parsing import parse_content
+from bober.src.rfc_ingest.parsing import parse_content, STEMMER
 
 
 def load_examples(session: Session):
@@ -35,7 +35,8 @@ def load_examples(session: Session):
 
     tzs = []
     for token, poses in tokens.items():
-        token = Token(token=token, stem=token, token_positions=poses)
+        stem = STEMMER.stem(token)
+        token = Token(token=token, stem=stem, token_positions=poses)
         tzs.append(token)
 
     session.add_all(rfcs)

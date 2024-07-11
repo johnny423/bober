@@ -1,9 +1,15 @@
 import re
+import string
 from typing import Iterator, Iterable
 
 from pydantic import BaseModel
 
 from bober.src.db_models import TokenPosition, RfcSection
+import nltk
+from nltk.stem import PorterStemmer
+
+nltk.download("punkt")
+STEMMER = PorterStemmer()
 
 
 class Paragraph(BaseModel):
@@ -14,7 +20,7 @@ class Paragraph(BaseModel):
 
 
 def parse_content(
-    rfc_num: int, content: str
+        rfc_num: int, content: str
 ) -> Iterator[tuple[str, TokenPosition]]:
     for index, paragraph in enumerate(into_paragraphs(content)):
         section = RfcSection(
@@ -38,7 +44,8 @@ def parse_content(
 
 
 def tokenize(line: str) -> Iterable[str]:
-    return re.findall(r'\b\w+\b', line.lower())
+    without_punc = line.translate(str.maketrans("", "", string.punctuation))
+    return nltk.word_tokenize(without_punc)
 
 
 def into_paragraphs(text: str) -> Iterator[Paragraph]:
