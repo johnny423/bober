@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Text, Date
+from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Text, Date, Index
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -69,8 +69,8 @@ class Token(Base):
     token_groups: Mapped[list["TokenToGroup"]] = relationship(
         "TokenToGroup", back_populates="token"
     )
-    phrase_tokens: Mapped[list["LinguisticPhraseToken"]] = relationship(
-        "LinguisticPhraseToken", back_populates="token"
+    phrase_tokens: Mapped[list["PhraseToken"]] = relationship(
+        "PhraseToken", back_populates="token"
     )
 
 
@@ -132,34 +132,32 @@ class TokenToGroup(Base):
     )
 
 
-class LinguisticPhrase(Base):
-    __tablename__ = 'linguistic_phrase'
+class Phrase(Base):
+    __tablename__ = 'phrase'
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
     phrase_name: Mapped[str] = mapped_column(String, unique=True)
 
-    tokens: Mapped[list["LinguisticPhraseToken"]] = relationship(
-        "LinguisticPhraseToken", back_populates="phrase"
+    content: Mapped[str] = mapped_column(Text)
+
+    tokens: Mapped[list["PhraseToken"]] = relationship(
+        "PhraseToken", back_populates="phrase"
     )
 
 
-class LinguisticPhraseToken(Base):
-    __tablename__ = 'linguistic_phrase_tokens'
+class PhraseToken(Base):
+    __tablename__ = 'phrase_tokens'
 
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, autoincrement=True
     )
-    phrase_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('linguistic_phrase.id')
-    )
+    phrase_id: Mapped[int] = mapped_column(Integer, ForeignKey('phrase.id'))
     token_id: Mapped[int] = mapped_column(Integer, ForeignKey('token.id'))
     index: Mapped[int] = mapped_column(Integer)
 
-    phrase: Mapped["LinguisticPhrase"] = relationship(
-        "LinguisticPhrase", back_populates="tokens"
-    )
+    phrase: Mapped["Phrase"] = relationship("Phrase", back_populates="tokens")
     token: Mapped["Token"] = relationship(
         "Token", back_populates="phrase_tokens"
     )
