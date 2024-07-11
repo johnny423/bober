@@ -5,8 +5,14 @@ from sqlalchemy import desc, and_
 from sqlalchemy.orm import Session
 
 from bober.src.db_models import Rfc, Author
-from bober.src.dtos import RFCMeta
-from bober.src.tfidf import build_tfid_query
+from bober.src.rfc_search.tfidf import build_tfid_query
+
+
+class RFCMeta(BaseModel):
+    num: int
+    title: str
+    published_at: datetime
+    authors: list[str]
 
 
 class SearchRFCQuery(BaseModel):

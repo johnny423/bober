@@ -1,59 +1,34 @@
 import json
-import os
-import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Iterator
 
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from bober.src.db_models import Rfc, Author, RfcSection, TokenPosition, Token
-
-
-class Section(BaseModel):
-    lines: list[str]
-    row_start: int
-    indentation: int
-    page: int
+from bober.src.db_models import Rfc, Author, Token
+from bober.src.rfc_ingest.parsing import parse_content
 
 
 def load_examples(session: Session):
     tokens = defaultdict(list)
 
     with open("examples/examples.json") as f:
-        d = json.load(f)
+        rfcs_metadata = json.load(f)
 
     rfcs = []
-    for xx in d:
-        number = int(xx["num"])
-        content = Path(f"examples/{number}.txt").read_text()
+    for rfc_metadata in rfcs_metadata:
+        rfc_num = int(rfc_metadata["num"])
+        content = Path(f"examples/{rfc_num}.txt").read_text()
 
-        for index, paragraph in enumerate(into_paragraphs(content)):
-            section = RfcSection(
-                rfc_num=number,
-                index=index,
-                content="\n".join(paragraph.lines),
-                row_start=paragraph.row_start,
-                row_end=paragraph.row_start + len(paragraph.lines),
-                indentation=paragraph.indentation,
-            )
-
-            for line_num, line in enumerate(paragraph.lines, 0):
-                for token in re.findall(r'\b\w+\b', line.lower()):
-                    pos = TokenPosition(
-                        rfc_num=number,
-                        page=paragraph.page,
-                        row=paragraph.row_start + line_num,
-                        section=section,
-                    )
-                    tokens[token].append(pos)
+        for token, position in parse_content(rfc_num, content):
+            tokens[token].append(position)
 
         rfc = Rfc(
-            num=number,
-            title=xx["title"],
-            published_at=xx["publish_at"],
-            authors=[Author(author_name=name) for name in xx["authors"]],
+            num=rfc_num,
+            title=rfc_metadata["title"],
+            published_at=rfc_metadata["publish_at"],
+            authors=[
+                Author(author_name=name) for name in rfc_metadata["authors"]
+            ],
         )
 
         rfcs.append(rfc)
@@ -66,56 +41,3 @@ def load_examples(session: Session):
     session.add_all(rfcs)
     session.add_all(tzs)
     session.commit()
-
-
-def into_paragraphs(text: str) -> Iterator[Section]:
-    lines = text.splitlines()
-
-    current_paragraph = []
-    start_row = None
-    current_indentation = None
-    current_page = 1
-    page_end_pattern = re.compile(r'(?:(?:\S+\s+)?\S+\s+)?\[Page \d+\]\s*$')
-
-    for i, line in enumerate(lines, 1):
-        stripped_line = line.strip()
-        if stripped_line:
-            if not current_paragraph:
-                start_row = i
-                current_indentation = len(line) - len(line.lstrip())
-            current_paragraph.append(line)
-
-            # Check if this line is a page ending
-            if page_end_pattern.search(line):
-                if current_paragraph:
-                    yield Section(
-                        lines=current_paragraph,
-                        row_start=start_row,
-                        indentation=current_indentation,
-                        page=current_page,
-                    )
-
-                    current_paragraph = []
-                    start_row = None
-                    current_indentation = None
-                current_page += 1
-
-        elif current_paragraph:
-            yield Section(
-                lines=current_paragraph,
-                row_start=start_row,
-                indentation=current_indentation,
-                page=current_page,
-            )
-
-            current_paragraph = []
-            start_row = None
-            current_indentation = None
-
-    if current_paragraph:
-        yield Section(
-            lines=current_paragraph,
-            row_start=start_row,
-            indentation=current_indentation,
-            page=current_page,
-        )

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from bober.src.db_models import RfcSection
-from bober.src.rfc_content import RFCSection
+from bober.src.rfc_view.rfc_content import RFCSection
 
 
 def fetch_rfc_sections(session: Session, rfc_num: int) -> list[RFCSection]:
