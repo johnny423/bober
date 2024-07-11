@@ -2,10 +2,11 @@ from sqlalchemy import func, Float
 from sqlalchemy.orm import Session, Query
 
 from bober.src.db_models import TokenPosition, Token, Rfc
+from bober.src.rfc_ingest.parsing import STEMMER
 
 
 def build_tfid_query(session: Session, tokens: list[str]) -> Query:
-    stems = [func.lower(token) for token in tokens]
+    stems = [STEMMER.stem(token.lower()) for token in tokens]
     term_frequency = (
         session.query(
             TokenPosition.rfc_num,

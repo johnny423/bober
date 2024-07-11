@@ -30,15 +30,18 @@ def print_rfc_head(number: int, content: str, top: int) -> None:
     print("")
 
 
-async def main(rfc_range: Iterable[int], top: int = 10) -> None:
+async def main(rfc_range: Iterable[int]) -> None:
     for rfc_number in rfc_range:
         try:
             rfc_content = await fetch_rfc(rfc_number)
         except Exception as e:
             print(f"Error fetching RFC {rfc_number}: {e}")
-        else:
-            print_rfc_head(rfc_number, rfc_content, top)
+            continue
+
+        with open(f"examples/{rfc_number}.txt", "w+") as f:
+            f.write(rfc_content)
+        # print_rfc_head(rfc_number, rfc_content, top)
 
 
 if __name__ == "__main__":
-    asyncio.run(main(range(100, 110)))
+    asyncio.run(main(range(1, 20)))

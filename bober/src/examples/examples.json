@@ -1,0 +1,122 @@
+[
+  {
+    "num": 1,
+    "title": "Host Software",
+    "publish_at": "1969/04/07",
+    "authors": [
+      "Steve Crocker"
+    ]
+  },
+  {
+    "num": 3,
+    "title": "DOCUMENTATION CONVENTIONS",
+    "publish_at": "1969/04/01",
+    "authors": [
+      "Steve Crocker"
+    ]
+  },
+  {
+    "num": 4,
+    "title": "Network Timetable",
+    "publish_at": "1969/03/24",
+    "authors": [
+      "Elmer B. Shapiro"
+    ]
+  },
+  {
+    "num": 6,
+    "title": "CONVERSATION WITH BOB KAHN",
+    "publish_at": "1969/04/01",
+    "authors": [
+      "Steve Crocker"
+    ]
+  },
+  {
+    "num": 7,
+    "title": "Host-Imp Interface",
+    "publish_at": "1969/05/01",
+    "authors": [
+      "G. Deloche"
+    ]
+  },
+  {
+    "num": 10,
+    "title": "DOCUMENTATION CONVENTIONS",
+    "publish_at": "1969/07/29",
+    "authors": [
+      "S. Crocker"
+    ]
+  },
+  {
+    "num": 11,
+    "title": "Implementation of the Host - Host Software Procedures in GORDO",
+    "publish_at": "1969/08/01",
+    "authors": [
+      "G. Deloche"
+    ]
+  },
+  {
+    "num": 12,
+    "title": "IMP-HOST INTERFACE FLOW DIAGRAMS",
+    "publish_at": "1969/08/26",
+    "authors": [
+      "M. Wingfield"
+    ]
+  },
+  {
+    "num": 13,
+    "title": "",
+    "publish_at": "1969/08/20",
+    "authors": [
+      "Vint Cerf"
+    ]
+  },
+  {
+    "num": 15,
+    "title": "Network Subsystem for Time Sharing Hosts",
+    "publish_at": "1969/09/25",
+    "authors": [
+      "C. Stephen Carr"
+    ]
+  },
+  {
+    "num": 16,
+    "title": "M.I.T.",
+    "publish_at": "1969/08/27",
+    "authors": [
+      "Steve Crocker"
+    ]
+  },
+  {
+    "num": 17,
+    "title": "Some Questions Re: HOST-IMP Protocol",
+    "publish_at": "1969/08/27",
+    "authors": [
+      "J. Kreznar"
+    ]
+  },
+  {
+    "num": 18,
+    "title": "",
+    "publish_at": "1969/09/01",
+    "authors": [
+      "Vint Cerf"
+    ]
+  },
+  {
+    "num": 19,
+    "title": "Two Protocol Suggestions to Reduce Congestion at Swap-Bound Nodes",
+    "publish_at": "1969/10/07",
+    "authors": [
+      "John E. Kreznar"
+    ]
+  },
+  {
+    "num": 2324,
+    "title": "Hyper Text Coffee Pot Control Protocol (HTCPCP/1.0)",
+    "publish_at": "1998/04/01",
+    "authors": [
+      "L. Masinter"
+    ]
+  }
+]

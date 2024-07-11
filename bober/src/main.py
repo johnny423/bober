@@ -1,39 +1,49 @@
 import os
+from pprint import pprint
 
-import fastapi
-import uvicorn
 from dotenv import load_dotenv
-from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
-from starlette.middleware.trustedhost import TrustedHostMiddleware
+from sqlalchemy.orm import sessionmaker
 
-from bober.src.config import get_settings
 from bober.src.db_models import Base
+from bober.src.loader import load_examples
+from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
 
+# from bober.src.phrases import save_new_phrase, find_phrase_occurrences
+# from bober.src.rfc_search.search_rfc import search_rfcs, SearchRFCQuery
 
-def initialize_backend_application() -> fastapi.FastAPI:
-    fastapi_app = fastapi.FastAPI()
+# def initialize_backend_application() -> fastapi.FastAPI:
+#     fastapi_app = fastapi.FastAPI()
+#
+#     fastapi_app.add_middleware(
+#         CORSMiddleware,
+#         allow_origins=[
+#             str(origin)
+#             for origin in get_settings().security.BACKEND_CORS_ORIGINS
+#         ],
+#         allow_credentials=True,
+#         allow_methods=["*"],
+#         allow_headers=["*"],
+#     )
+#
+#     fastapi_app.add_middleware(
+#         TrustedHostMiddleware,
+#         allowed_hosts=get_settings().security.ALLOWED_HOSTS,
+#     )
+#
+#     return fastapi_app
+#
+#
+# backend_app: fastapi.FastAPI = initialize_backend_application()
 
-    fastapi_app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            str(origin)
-            for origin in get_settings().security.BACKEND_CORS_ORIGINS
-        ],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    fastapi_app.add_middleware(
-        TrustedHostMiddleware,
-        allowed_hosts=get_settings().security.ALLOWED_HOSTS,
-    )
-
-    return fastapi_app
-
-
-backend_app: fastapi.FastAPI = initialize_backend_application()
+# settings = get_settings()
+# uvicorn.run(
+#     app="main:backend_app",
+#     host=settings.server.SERVER_HOST,
+#     port=settings.server.SERVER_PORT,
+#     reload=settings.server.DEBUG,
+#     workers=settings.server.SERVER_WORKERS,
+# )
 
 if __name__ == "__main__":
     # todo: move to pydantic
@@ -49,11 +59,27 @@ if __name__ == "__main__":
 
     Base.metadata.create_all(engine)
 
-    settings = get_settings()
-    uvicorn.run(
-        app="main:backend_app",
-        host=settings.server.SERVER_HOST,
-        port=settings.server.SERVER_PORT,
-        reload=settings.server.DEBUG,
-        workers=settings.server.SERVER_WORKERS,
-    )
+    Session = sessionmaker(engine)
+
+    with Session() as session:
+        # reload data and tables
+        for tbl in reversed(Base.metadata.sorted_tables):
+            session.execute(tbl.delete())
+        session.commit()
+
+        load_examples(session)
+
+        # select content
+        # content = fetch_rfc_sections(session, 2324)
+        # text = rebuild_content(content)
+        # print(text)
+
+        # search_rfcs
+        r = search_rfcs(session, SearchRFCQuery(tokens=["protocols"]))
+        pprint(r)
+
+        # # phrase
+        # save_new_phrase(session, "xxx", "espresso machines")
+        # a = find_phrase_occurrences(session, "xxx")
+        # print(a[0].content)
+        #
