@@ -20,7 +20,7 @@ class Paragraph(BaseModel):
 
 
 def parse_content(
-        rfc_num: int, content: str
+    rfc_num: int, content: str
 ) -> Iterator[tuple[str, TokenPosition]]:
     for index, paragraph in enumerate(into_paragraphs(content)):
         section = RfcSection(

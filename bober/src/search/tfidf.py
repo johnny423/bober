@@ -37,10 +37,10 @@ def build_tfid_query(session: Session, tokens: list[str]) -> Query:
             document_frequency.c.df,
             total_documents.label('total_docs'),
             (
-                    term_frequency.c.tf
-                    * func.log(
-                total_documents.cast(Float) / document_frequency.c.df
-            )
+                term_frequency.c.tf
+                * func.log(
+                    total_documents.cast(Float) / document_frequency.c.df
+                )
             ).label('tfidf_score'),
         )
         .join(

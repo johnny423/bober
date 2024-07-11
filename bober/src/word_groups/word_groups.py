@@ -6,7 +6,7 @@ from bober.src.db_models import TokenGroup, Token, TokenToGroup
 
 @commit
 def create_word_group(
-        session: Session, group_name: str, words: list[str]
+    session: Session, group_name: str, words: list[str]
 ) -> TokenGroup:
     new_group = TokenGroup(group_name=group_name)
     session.add(new_group)
@@ -19,7 +19,7 @@ def create_word_group(
 
 @commit
 def add_words_to_group(
-        session: Session, group_name: str, words: list[str]
+    session: Session, group_name: str, words: list[str]
 ) -> None:
     group = session.query(TokenGroup).filter_by(group_name=group_name).first()
     if not group:
@@ -50,14 +50,14 @@ def add_words_to_group(
         TokenToGroup(token=existing_token_dict[word], group=group)
         for word in words
         if (existing_token_dict[word].id, group.id)
-           not in existing_association_set
+        not in existing_association_set
     ]
     session.add_all(new_associations)
 
 
 @commit
 def remove_words_from_group(
-        session: Session, group_name: str, words: list[str]
+    session: Session, group_name: str, words: list[str]
 ) -> None:
     group = session.query(TokenGroup).filter_by(group_name=group_name).first()
     if not group:
