@@ -1,14 +1,17 @@
 import os
+from pprint import pprint
 
 import fastapi
-import uvicorn
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from bober.src.config import get_settings
 from bober.src.db_models import Base
+from bober.src.loader import load_examples
+from bober.src.search_rfc import search_rfcs, SearchRFCQuery
 
 
 def initialize_backend_application() -> fastapi.FastAPI:
@@ -49,11 +52,29 @@ if __name__ == "__main__":
 
     Base.metadata.create_all(engine)
 
-    settings = get_settings()
-    uvicorn.run(
-        app="main:backend_app",
-        host=settings.server.SERVER_HOST,
-        port=settings.server.SERVER_PORT,
-        reload=settings.server.DEBUG,
-        workers=settings.server.SERVER_WORKERS,
-    )
+    Session = sessionmaker(engine)
+
+    with Session() as session:
+        # # reload data and tables
+        # for tbl in reversed(Base.metadata.sorted_tables):
+        #     session.execute(tbl.delete())
+        # session.commit()
+        #
+        # load_examples(session)
+
+        # select content
+        # content = fetch_rfc_sections(session, 2324)
+        # text = rebuild_content(content)
+        # print(text)
+        # search_rfcs
+        r = search_rfcs(session, SearchRFCQuery(tokens=["coffee"]))
+        pprint(r)
+
+    # settings = get_settings()
+    # uvicorn.run(
+    #     app="main:backend_app",
+    #     host=settings.server.SERVER_HOST,
+    #     port=settings.server.SERVER_PORT,
+    #     reload=settings.server.DEBUG,
+    #     workers=settings.server.SERVER_WORKERS,
+    # )

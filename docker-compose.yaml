@@ -2,9 +2,9 @@ volumes:
   postgresql_db_data:
 
 services:
-  db:
+  boberdb:
     image: postgres:latest
-    container_name: db
+    container_name: boberdb
     restart: always
     environment:
       - POSTGRES_USER=${POSTGRES_USERNAME}
@@ -33,7 +33,7 @@ services:
     ports:
       - 8081:8080
     depends_on:
-      - db
+      - boberdb
 
   bober:
     container_name: bober
@@ -44,4 +44,4 @@ services:
     ports:
       - 8001:8000
     depends_on:
-      - db
+      - boberdb

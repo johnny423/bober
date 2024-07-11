@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Text
+from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Text, Date
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -9,7 +9,7 @@ class Rfc(Base):
 
     num: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String)
-    published_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP, index=True)
+    published_at: Mapped[Date] = mapped_column(Date, index=True)
 
     authors: Mapped[list["Author"]] = relationship(
         "Author", back_populates="rfc", cascade="all, delete-orphan"

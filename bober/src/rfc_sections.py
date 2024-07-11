@@ -1,11 +1,13 @@
+from sqlalchemy.orm import Session
+
 from bober.src.db_models import RfcSection
-from bober.src.dtos import RFCSection
+from bober.src.rfc_content import RFCSection
 
 
-def fetch_rfc_sections(session, rfc_num) -> list[RFCSection]:
+def fetch_rfc_sections(session: Session, rfc_num: int) -> list[RFCSection]:
     results = (
-        session.query(RfcSection.content)
-        .filter(RfcSection.rfc_num in rfc_num)
+        session.query(RfcSection)
+        .filter(RfcSection.rfc_num == rfc_num)
         .order_by(RfcSection.index)
     )
 

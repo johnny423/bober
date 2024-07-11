@@ -1,4 +1,11 @@
-from bober.src.dtos import RFCSection
+from pydantic import BaseModel
+
+
+class RFCSection(BaseModel):
+    content: str
+    row_start: int
+    row_end: int
+    indentation: int
 
 
 def rebuild_content(sections: list[RFCSection]) -> str:
@@ -16,7 +23,7 @@ def rebuild_content(sections: list[RFCSection]) -> str:
         result.extend([""] * (section.row_start - current_row))
 
         # Add the section content with proper indentation
-        indent = "\t" * section.indentation
+        indent = " " * section.indentation
         result.extend(indent + line for line in section.content.splitlines())
 
         current_row = section.row_end + 1
