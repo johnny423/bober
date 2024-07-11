@@ -1,4 +1,7 @@
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from bober.src.db_models import RfcSection
 
 
 class RFCSection(BaseModel):
@@ -30,3 +33,23 @@ def rebuild_content(sections: list[RFCSection]) -> str:
 
     result.extend([""] * (max_row - current_row + 1))
     return "\n".join(result)
+
+
+def fetch_rfc_sections(session: Session, rfc_num: int) -> list[RFCSection]:
+    results = (
+        session.query(RfcSection)
+        .filter(RfcSection.rfc_num == rfc_num)
+        .order_by(RfcSection.index)
+    )
+
+    output = []
+    for row in results:
+        section = RFCSection(
+            content=row.content,
+            row_start=row.row_start,
+            row_end=row.row_end,
+            indentation=row.indentation,
+        )
+        output.append(section)
+
+    return output
