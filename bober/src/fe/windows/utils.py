@@ -79,6 +79,13 @@ def create_label(parent, text, placement='pack', placement_args=None, **kwargs):
     return label
 
 
+def callback_mock(*args):
+    print('printing args')
+    for arg in args:
+        print(arg)
+    print('done printing args')
+
+
 def add_input_field(parent, label_text, row, column):  # todo remove
     label = ttk.Label(parent, text=label_text)
     label.grid(row=row, column=column, padx=5, pady=5)

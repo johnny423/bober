@@ -8,6 +8,30 @@ from bober.src.db_models import Rfc, Author, Token
 from bober.src.rfc_ingest.parsing import parse_content, STEMMER
 
 
+def load_single_file(session: Session, file_path: str, rfc_metadata: dict):
+    tokens = defaultdict(list)
+    content = Path(file_path).read_text()
+    rfc_num = int(rfc_metadata["num"])
+    for token, position in parse_content(rfc_num, content):
+        tokens[token].append(position)
+    rfc = Rfc(
+        num=rfc_num,
+        title=rfc_metadata["title"],
+        published_at=rfc_metadata["publish_at"],
+        authors=[
+            Author(author_name=name) for name in rfc_metadata["authors"]
+        ],
+    )
+    tzs = []
+    for token, poses in tokens.items():
+        stem = STEMMER.stem(token)
+        token = Token(token=token, stem=stem, token_positions=poses)
+        tzs.append(token)
+    session.add(rfc)
+    session.add_all(tzs)
+    session.commit()
+
+
 def load_examples(session: Session):
     tokens = defaultdict(list)
 

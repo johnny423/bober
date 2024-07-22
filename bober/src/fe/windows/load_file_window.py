@@ -5,15 +5,8 @@ from datetime import datetime
 from bober.src.fe.windows.utils import create_button, create_label
 
 
-def loaded_file_callback_mock(*args):
-    print('printing args')
-    for arg in args:
-        print(arg)
-    print('done printing args')
-
-
 class LoadFileWindow(tk.Toplevel):
-    def __init__(self, parent, file_loaded_callback=loaded_file_callback_mock):
+    def __init__(self, parent, file_loaded_callback):
         super().__init__(parent)
         self.title("Load File")
         # self.geometry("400x500")
@@ -48,7 +41,7 @@ class LoadFileWindow(tk.Toplevel):
         self.title_entry = tk.Entry(self)
         self.title_entry.pack(pady=5)
 
-        create_label(self, text="Published at (DD/MM/YYYY):", placement='pack', placement_args={'pady': 5})
+        create_label(self, text="Published at (YYYY/MM/DD):", placement='pack', placement_args={'pady': 5})
         self.published_at_entry = tk.Entry(self)
         self.published_at_entry.pack(pady=5)
 
@@ -116,9 +109,10 @@ class LoadFileWindow(tk.Toplevel):
         else:
             messagebox.showwarning("Warning", "Please select an author to remove.", parent=self)
 
-    def validate_date(self, date_string):
+    @staticmethod
+    def validate_date(date_string):
         try:
-            datetime.strptime(date_string, "%d/%m/%Y")
+            datetime.strptime(date_string, "%Y/%m/%d")
             return True
         except ValueError:
             return False
@@ -129,16 +123,19 @@ class LoadFileWindow(tk.Toplevel):
 
         if not self.filepath:
             missing_fields.append("File")
-        if not self.rfc_number_entry.get():
+
+        if not (rfc_num := self.rfc_number_entry.get()):
             missing_fields.append("RFC Number")
-        if not self.title_entry.get():
+        elif not rfc_num.isdigit():
+            invalid_fields.append("Rfc Number must be an integer")
+
+        if not (title := self.title_entry.get()):
             missing_fields.append("Title")
 
-        published_at = self.published_at_entry.get()
-        if not published_at:
+        if not (published_at := self.published_at_entry.get()):
             missing_fields.append("Published at")
         elif not self.validate_date(published_at):
-            invalid_fields.append("Published at (should be DD/MM/YYYY)")
+            invalid_fields.append("Published at (should be YYYY/MM/DD)")
 
         if self.authors_listbox.size() == 0:
             missing_fields.append("Authors")
@@ -153,12 +150,11 @@ class LoadFileWindow(tk.Toplevel):
             return
 
         metadata = {
-            "rfc_number": self.rfc_number_entry.get(),
-            "title": self.title_entry.get(),
-            "published_at": published_at,
+            "num": rfc_num,
+            "title": title,
+            "publish_at": published_at,
             "authors": list(self.authors_listbox.get(0, tk.END))
         }
-
         self.file_loaded_callback(self.filepath, metadata)
         self.destroy()
 

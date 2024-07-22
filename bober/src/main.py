@@ -69,7 +69,7 @@ if __name__ == "__main__":
         session.commit()
 
         load_examples(session)
-        launch_gui()
+        launch_gui(session)
 
         # select content
         # content = fetch_rfc_sections(session, 2324)
