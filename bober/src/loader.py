@@ -11,7 +11,7 @@ from bober.src.rfc_ingest.parsing import parse_content, STEMMER
 def load_examples(session: Session):
     tokens = defaultdict(list)
 
-    example_dir_path = Path("examples")
+    example_dir_path = Path("../resources/examples")
     with open(example_dir_path / "examples.json") as f:
         rfcs_metadata = json.load(f)
 
