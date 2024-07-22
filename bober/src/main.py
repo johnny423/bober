@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from bober.src.db_models import Base
 from bober.src.loader import load_examples
 from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
+from bober.src.fe.launch_gui import launch_gui
 
 # from bober.src.phrases import save_new_phrase, find_phrase_occurrences
 # from bober.src.rfc_search.search_rfc import search_rfcs, SearchRFCQuery
@@ -68,6 +69,7 @@ if __name__ == "__main__":
         session.commit()
 
         load_examples(session)
+        launch_gui()
 
         # select content
         # content = fetch_rfc_sections(session, 2324)
@@ -75,7 +77,7 @@ if __name__ == "__main__":
         # print(text)
 
         # search_rfcs
-        r = search_rfcs(session, SearchRFCQuery(tokens=["protocols"]))
+        r = search_rfcs(session, SearchRFCQuery(tokens=["coffee"]))
         pprint(r)
 
         # # phrase
