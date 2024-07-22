@@ -46,7 +46,40 @@ def create_button(parent, text, command, placement='pack', placement_args=None, 
     return button
 
 
-def add_input_field(parent, label_text, row, column):
+def create_label(parent, text, placement='pack', placement_args=None, **kwargs):
+    """
+    Create, configure, and place a label with default styling and the given parameters.
+
+    :param parent: The parent widget
+    :param text: Text to display on the label
+    :param placement: Method to use for placing the label ('pack' or 'grid')
+    :param placement_args: Dictionary of arguments for the placement method
+    :param kwargs: Additional keyword arguments for the Label constructor
+    :return: tk.Label object
+    """
+    default_config = {
+        'fg': 'black',
+        'font': ('Arial', 10),
+        'wraplength': 350,  # Default wrap length
+    }
+
+    default_config.update(kwargs)
+
+    label = tk.Label(parent, text=text, **default_config)
+
+    if placement == 'pack':
+        pack_args = placement_args or {'pady': 5}
+        label.pack(**pack_args)
+    elif placement == 'grid':
+        grid_args = placement_args or {}
+        label.grid(**grid_args)
+    else:
+        raise ValueError("Placement must be either 'pack' or 'grid'")
+
+    return label
+
+
+def add_input_field(parent, label_text, row, column):  # todo remove
     label = ttk.Label(parent, text=label_text)
     label.grid(row=row, column=column, padx=5, pady=5)
     entry = ttk.Entry(parent, width=30)
