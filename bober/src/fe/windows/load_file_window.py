@@ -5,7 +5,7 @@ class LoadFileWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Load File")
-        self.geometry("300x200")  # Set a default size  todo check if redundant
+        self.geometry("300x200")  # Set a default size
 
         # Add some content to the window
         label = tk.Label(self, text="This is the Load File window")

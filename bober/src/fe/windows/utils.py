@@ -3,9 +3,46 @@ from tkinter import ttk
 from tkinter import scrolledtext
 
 
-def add_button(parent, text, command, row, column):
+def add_button(parent, text, command, row, column):  # todo remove
     button = ttk.Button(parent, text=text, command=command)
     button.grid(row=row, column=column, padx=5, pady=5)
+    return button
+
+
+def create_button(parent, text, command, placement='pack', placement_args=None, **kwargs):
+    """
+    Create, configure, and place a button with default styling and the given parameters.
+
+    :param parent: The parent widget
+    :param text: Text to display on the button
+    :param command: Function to call when the button is clicked
+    :param placement: Method to use for placing the button ('pack' or 'grid')
+    :param placement_args: Dictionary of arguments for the placement method
+    :param kwargs: Additional keyword arguments for the Button constructor
+    :return: tk.Button object
+    """
+    default_config = {
+        'bg': 'lightblue',
+        'fg': 'black',
+        'padx': 10,
+        'pady': 5,
+        'font': ('Arial', 10),
+        'relief': tk.RAISED,
+    }
+
+    default_config.update(kwargs)
+
+    button = tk.Button(parent, text=text, command=command, **default_config)
+
+    if placement == 'pack':
+        pack_args = placement_args or {'pady': 10}
+        button.pack(**pack_args)
+    elif placement == 'grid':
+        grid_args = placement_args or {}
+        button.grid(**grid_args)
+    else:
+        raise ValueError("Placement must be either 'pack' or 'grid'")
+
     return button
 
 
