@@ -14,7 +14,7 @@ def load_single_file(session: Session, file_path: str, rfc_metadata: dict):
     rfc_num = int(rfc_metadata["num"])
     for token, position in parse_content(rfc_num, content):
         tokens[token].append(position)
-    rfc = Rfc(
+    rfc = Rfc(  # todo handle rfc already exists in db
         num=rfc_num,
         title=rfc_metadata["title"],
         published_at=rfc_metadata["publish_at"],
@@ -23,7 +23,7 @@ def load_single_file(session: Session, file_path: str, rfc_metadata: dict):
         ],
     )
     tzs = []
-    for token, poses in tokens.items():
+    for token, poses in tokens.items():  # todo handle token already exists in db
         stem = STEMMER.stem(token)
         token = Token(token=token, stem=stem, token_positions=poses)
         tzs.append(token)
