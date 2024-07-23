@@ -6,7 +6,7 @@ from bober.src.fe.windows.utils import create_button, create_label
 
 
 class SearchFileWindow(tk.Toplevel):
-    def __init__(self, parent, file_loaded_callback):
+    def __init__(self, parent, search_files_callback):
         super().__init__(parent)
         self.title("Search File")
         # self.geometry("400x500")
@@ -16,24 +16,12 @@ class SearchFileWindow(tk.Toplevel):
         self.transient(parent)
 
         self.parent = parent
-        self.file_loaded_callback = file_loaded_callback
+        self.search_files_callback = search_files_callback
 
-        self.filepath = ""
-
-        create_label(self, text="Select a file to load:", placement='pack', placement_args={'pady': 10})
-
-        create_button(
-            self,
-            text="Browse",
-            command=self.browse_file,
-            placement='pack',
-            placement_args={'pady': 5}
-        )
-
-        self.file_label = create_label(self, text="No file selected", placement='pack', placement_args={'pady': 5})
+        create_label(self, text="Filters to apply (fill relevant):", placement='pack', placement_args={'pady': 5})
 
         # Metadata input fields
-        create_label(self, text="RFC Number:", placement='pack', placement_args={'pady': 5})
+        create_label(self, text="RFC Number (TODO - not working right now):", placement='pack', placement_args={'pady': 5})  # todo support this filter
         self.rfc_number_entry = tk.Entry(self)
         self.rfc_number_entry.pack(pady=5)
 
@@ -41,13 +29,21 @@ class SearchFileWindow(tk.Toplevel):
         self.title_entry = tk.Entry(self)
         self.title_entry.pack(pady=5)
 
-        create_label(self, text="Published at (YYYY/MM/DD):", placement='pack', placement_args={'pady': 5})
-        self.published_at_entry = tk.Entry(self)
-        self.published_at_entry.pack(pady=5)
+        create_label(self, text="Published after (YYYY/MM/DD):", placement='pack', placement_args={'pady': 5})
+        self.published_after_entry = tk.Entry(self)
+        self.published_after_entry.pack(pady=5)
+
+        create_label(self, text="Published before (YYYY/MM/DD):", placement='pack', placement_args={'pady': 5})
+        self.published_before_entry = tk.Entry(self)
+        self.published_before_entry.pack(pady=5)
 
         create_label(self, text="Authors:", placement='pack', placement_args={'pady': 5})
         self.author_entry = tk.Entry(self)
         self.author_entry.pack(pady=5)
+
+        create_label(self, text="Contains tokens(space separated):", placement='pack', placement_args={'pady': 5})
+        self.contains_tokens = tk.Entry(self)
+        self.contains_tokens.pack(pady=5)
 
         create_button(
             self,
@@ -70,8 +66,8 @@ class SearchFileWindow(tk.Toplevel):
 
         create_button(
             self,
-            text="Load File",
-            command=self.load_file,
+            text="Search files",
+            command=self.search_files,
             placement='pack',
             placement_args={'pady': 10}
         )
@@ -85,15 +81,7 @@ class SearchFileWindow(tk.Toplevel):
             placement_args={'pady': 5}
         )
 
-    def browse_file(self):
-        self.filepath = filedialog.askopenfilename(
-            title="Select a file",
-            filetypes=(("All files", "*.*"),),
-            parent=self  # Specify the parent window
-        )
-        if self.filepath:
-            self.file_label.config(text=f"Selected file: {self.filepath}")
-
+    # todo remove boiler palate code copied from load file window
     def add_author(self):
         author = self.author_entry.get().strip()
         if author:
@@ -117,45 +105,34 @@ class SearchFileWindow(tk.Toplevel):
         except ValueError:
             return False
 
-    def load_file(self):
-        missing_fields = []
-        invalid_fields = []
+    def search_files(self):
+        rfc_num = self.rfc_number_entry.get()
+        title = self.title_entry.get()
+        published_after = self.published_after_entry.get()
+        published_before = self.published_before_entry.get()
+        tokens = self.contains_tokens.get().split()
+        authors = list(self.authors_listbox.get(0, tk.END))
+        
+        # if not any([  # todo add back if needed
+        #     rfc_num,
+        #     title,
+        #     published_at,
+        #     self.authors_listbox.size() == 0,
+        # ]):
+        #     messagebox.showerror("Error", 'Fill at least one filter', parent=self)
+        #     return
 
-        if not self.filepath:
-            missing_fields.append("File")
-
-        if not (rfc_num := self.rfc_number_entry.get()):
-            missing_fields.append("RFC Number")
-        elif not rfc_num.isdigit():
-            invalid_fields.append("Rfc Number must be an integer")
-
-        if not (title := self.title_entry.get()):
-            missing_fields.append("Title")
-
-        if not (published_at := self.published_at_entry.get()):
-            missing_fields.append("Published at")
-        elif not self.validate_date(published_at):
-            invalid_fields.append("Published at (should be YYYY/MM/DD)")
-
-        if self.authors_listbox.size() == 0:
-            missing_fields.append("Authors")
-
-        if missing_fields or invalid_fields:
-            error_message = ""
-            if missing_fields:
-                error_message += f"Please fill in the following fields: {', '.join(missing_fields)}\n"
-            if invalid_fields:
-                error_message += f"Invalid format for: {', '.join(invalid_fields)}"
-            messagebox.showerror("Error", error_message.strip(), parent=self)
-            return
-
-        metadata = {
-            "num": rfc_num,
+        authors: list[str] | None = None
+        date_range: tuple[datetime, datetime] | None = None
+        title: str | None = None
+        tokens: list[str] | None = None
+        filters = {
             "title": title,
-            "publish_at": published_at,
+            "date_range": published_at,
+            "authors": list(self.authors_listbox.get(0, tk.END))
             "authors": list(self.authors_listbox.get(0, tk.END))
         }
-        self.file_loaded_callback(self.filepath, metadata)
+        self.search_files_callback(filters)
         self.destroy()
 
     def destroy(self):
