@@ -87,32 +87,32 @@ class WordIndexWindow(tk.Toplevel):
 
         add_dict_display(
             self.results_frame,
-            dictionary=setup_for_display(words_index),
+            dictionary=self._setup_for_display(words_index),
             key_header="what?",  # todo: better
             value_header="the hell?"  # todo: better
         )
 
+    @staticmethod
+    def _setup_for_display(word_index: dict[str, WordIndex]) -> dict[str, dict[str, dict[str, str]]]:
+        formatted_result = {}
+        for stem, word_data in word_index.items():
+            formatted_token = f"{stem} ({word_data.total_count} occurrences)"
+            formatted_result[formatted_token] = {}
 
-def setup_for_display(word_index: dict[str, WordIndex]) -> dict[str, dict[str, dict[str, str]]]:
-    formatted_result = {}
-    for stem, word_data in word_index.items():
-        formatted_token = f"{stem} ({word_data.total_count} occurrences)"
-        formatted_result[formatted_token] = {}
+            for rfc_num, rfc_data in word_data.rfc_occurrences.items():
+                formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
+                formatted_result[formatted_token][formatted_title] = {}
 
-        for rfc_num, rfc_data in word_data.rfc_occurrences.items():
-            formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
-            formatted_result[formatted_token][formatted_title] = {}
+                for occurrence in rfc_data.occurrences:
+                    position_key = (f"section {occurrence.section_index}, "
+                                    f"word {occurrence.index + 1} ; "
+                                    f"page {occurrence.page}, row {occurrence.row}")
 
-            for occurrence in rfc_data.occurrences:
-                position_key = (f"section {occurrence.section_index}, "
-                                f"word {occurrence.index + 1} ; "
-                                f"page {occurrence.page}, row {occurrence.row}")
+                    shorten = ellipsis_around(
+                        occurrence.context,
+                        occurrence.position,
+                        50
+                    )
+                    formatted_result[formatted_token][formatted_title][position_key] = shorten
 
-                shorten = ellipsis_around(
-                    occurrence.context,
-                    occurrence.position,
-                    50
-                )
-                formatted_result[formatted_token][formatted_title][position_key] = shorten
-
-    return formatted_result
+        return formatted_result
