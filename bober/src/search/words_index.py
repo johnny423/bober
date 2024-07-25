@@ -12,6 +12,8 @@ class WordOccurrence:
     section_index: int
     page: int
     row: int
+    position: int
+    index: int
     context: str
 
 
@@ -59,37 +61,38 @@ def query_word_index(
         sort_by: SortBy = SortBy.OCCURRENCES,
         sort_order: SortOrder = SortOrder.DESC
 ) -> dict[str, WordIndex]:
-    token_alias = aliased(Token)
     query = (
         select(
-            token_alias.token,
+            Token.stem,
             Rfc.num,
             Rfc.title,
             Rfc.published_at,
             RfcSection.index.label('section_index'),
             TokenPosition.page,
             TokenPosition.row,
+            TokenPosition.position,
+            TokenPosition.index,
             RfcSection.content,
-            func.count().over(partition_by=token_alias.token).label('token_count')
+            func.count().over(partition_by=Token.token).label('token_count')
         )
-        .join(token_alias.token_positions)
+        .join(Token.token_positions)
         .join(TokenPosition.rfc)
         .join(TokenPosition.section)
     )
 
     if token_groups is not None:
-        query = query.join(token_alias.token_groups).join(TokenToGroup.group)
+        query = query.join(Token.token_groups).join(TokenToGroup.group)
         query = query.filter(TokenGroup.group_name.in_(token_groups))
 
     if rfc_titles is not None:
         query = query.filter(Rfc.title.in_(rfc_titles))
 
     if partial_token is not None:
-        query = query.filter(token_alias.token.ilike(f'%{partial_token}%'))
+        query = query.filter(Token.token.ilike(f'%{partial_token}%'))
 
     order_by_clause = {
-        SortBy.OCCURRENCES: func.count().over(partition_by=token_alias.token),
-        SortBy.ALPHABETICAL: token_alias.token,
+        SortBy.OCCURRENCES: func.count().over(partition_by=Token.token),
+        SortBy.ALPHABETICAL: Token.token,
         SortBy.RFC_DATE: Rfc.published_at
     }[sort_by]
 
@@ -100,7 +103,7 @@ def query_word_index(
 
     result: dict[str, WordIndex] = {}
     for (token, rfc_num, rfc_title, published_at, section_index,
-         page, row, section_content, token_count) in session.execute(query):
+         page, row, position, index, section_content, token_count) in session.execute(query):
 
         if token not in result:
             result[token] = WordIndex(token=token)
@@ -113,6 +116,8 @@ def query_word_index(
             page=page,
             row=row,
             context=section_content,
+            position=position,
+            index=index
         )
 
         result[token].rfc_occurrences[rfc_num].occurrences.append(occurrence)

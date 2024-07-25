@@ -8,7 +8,7 @@ from bober.src.rfc_ingest.parsing import tokenize
 
 @commit
 def save_new_phrase(session: Session, phrase_name: str, phrase: str):
-    words = tokenize(phrase)
+    words = [token for token, _ in tokenize(phrase)]
 
     existing_tokens = {
         token.token: token.id

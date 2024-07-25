@@ -1,10 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from bober.src.fe.windows.utils import create_button, create_label, add_dict_display, highlight_token, ellipsis_around
+from bober.src.fe.windows.utils import add_dict_display, ellipsis_around
 from bober.src.search.words_index import query_word_index
 
 
@@ -28,8 +26,8 @@ def get_word_occurrences(session: Session) -> dict[str, dict[str, dict[str, str]
     word_index = query_word_index(session)
 
     formatted_result = {}
-    for token, word_data in word_index.items():
-        formatted_token = f"{token} ({word_data.total_count} occurrences)"
+    for stem, word_data in word_index.items():
+        formatted_token = f"{stem} ({word_data.total_count} occurrences)"
         formatted_result[formatted_token] = {}
 
         for rfc_num, rfc_data in word_data.rfc_occurrences.items():
@@ -38,13 +36,13 @@ def get_word_occurrences(session: Session) -> dict[str, dict[str, dict[str, str]
 
             for occurrence in rfc_data.occurrences:
                 position_key = (f"section {occurrence.section_index}, "
-                                f"word {occurrence.row} ; "  # todo: add the token index to parsing
+                                f"word {occurrence.index + 1} ; "
                                 f"page {occurrence.page}, row {occurrence.row}")
 
-                # todo: add token position in the content so we can reach it easily
-                shorten = highlight_token(
+                # todo: still have bugs with this
+                shorten = ellipsis_around(
                     occurrence.context,
-                    token,
+                    occurrence.position,
                     50
                 )
                 formatted_result[formatted_token][formatted_title][position_key] = shorten

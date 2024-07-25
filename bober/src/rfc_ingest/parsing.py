@@ -20,32 +20,48 @@ class Paragraph(BaseModel):
 
 
 def parse_content(
-    rfc_num: int, content: str
+        rfc_num: int, content: str
 ) -> Iterator[tuple[str, TokenPosition]]:
-    for index, paragraph in enumerate(into_paragraphs(content)):
+    for section_index, paragraph in enumerate(into_paragraphs(content)):
         section = RfcSection(
             rfc_num=rfc_num,
-            index=index,
+            index=section_index,
             content="\n".join(paragraph.lines),
             row_start=paragraph.row_start,
             row_end=paragraph.row_start + len(paragraph.lines),
             indentation=paragraph.indentation,
         )
 
+        line_start_index = 0
         for line_num, line in enumerate(paragraph.lines, 0):
-            for token in tokenize(line):
+            for index, (token, position) in enumerate(tokenize(line)):
                 pos = TokenPosition(
                     rfc_num=rfc_num,
                     page=paragraph.page,
                     row=paragraph.row_start + line_num,
                     section=section,
+                    position=line_start_index + position,
+                    index=index,
                 )
                 yield token, pos
 
+            line_start_index += len(line)
 
-def tokenize(line: str) -> Iterable[str]:
+
+def tokenize(line: str) -> Iterable[tuple[str, int]]:
+    # Remove punctuation
     without_punc = line.translate(str.maketrans("", "", string.punctuation))
-    return nltk.word_tokenize(without_punc)
+    tokens = nltk.word_tokenize(without_punc)
+
+    # Find positions of each token
+    token_positions = []
+    current_pos = 0
+    for token in tokens:
+        pos = line.find(token, current_pos)
+        token_positions.append((token, pos))
+        current_pos = pos + len(token)
+
+    return token_positions
 
 
 def into_paragraphs(text: str) -> Iterator[Paragraph]:
@@ -99,3 +115,9 @@ def into_paragraphs(text: str) -> Iterator[Paragraph]:
             indentation=current_indentation,
             page=current_page,
         )
+
+
+if __name__ == '__main__':
+    line = "Hello, world! This is a test."
+    for t, i in tokenize(line):
+        print(line[i:].startswith(t))

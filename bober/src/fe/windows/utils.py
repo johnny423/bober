@@ -240,18 +240,3 @@ def ellipsis_around(text: str, position: int, length: int) -> str:
         return f"...{text[-(length - 3):]}"
     return f"...{text[start:end]}..."
 
-
-def highlight_token(text: str, token: str, length: int) -> str | None:
-    start = text.find(token)
-    if start == -1:
-        return None
-
-    mid_position = start + len(token) // 2
-    result = ellipsis_around(text, mid_position, length)
-
-    start_in_result = result.find(token)
-    if start_in_result != -1:
-        end_in_result = start_in_result + len(token)
-        return f"{result[:start_in_result]}*{result[start_in_result:end_in_result]}*{result[end_in_result:]}"
-
-    return result
