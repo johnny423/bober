@@ -26,7 +26,7 @@ class MainWindow(tk.Tk):
         LoadFileWindow(self, load_file_callback)
 
     def open_word_index(self):
-        WordIndexWindow(self)
+        WordIndexWindow(self, self.session)
 
 
 def launch_gui(session):

@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session
 
 from bober.src.db_models import Token, Rfc, RfcSection, TokenPosition, TokenGroup, TokenToGroup
 
@@ -48,12 +48,7 @@ class SortOrder(StrEnum):
     DESC = "desc"
 
 
-# todo: handle uppercase vs lowercase
-# todo: use stem instead?
-# todo: add the token index to parsing
-# todo: add token position in the content so we can reach it easily
-
-def query_word_index(
+def query_words_index(
         session: Session,
         token_groups: None | list[str] = None,
         rfc_titles: None | list[str] = None,

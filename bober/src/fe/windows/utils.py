@@ -141,7 +141,7 @@ def highlight_strings(text_area: scrolledtext.ScrolledText, to_highlight: list[s
             start_idx = end_idx
 
 
-def add_dict_display(parent: tk.Widget, dictionary: dict[Any, Any], key_header: str, value_header: str) -> ttk.Treeview:
+def add_dict_display(parent: tk.Widget, dictionary: dict[Any, Any], key_header: str, value_header: str):
     """
     Create and return a Treeview widget displaying a dictionary.
 
@@ -163,7 +163,6 @@ def add_dict_display(parent: tk.Widget, dictionary: dict[Any, Any], key_header: 
     tree.pack(fill=tk.BOTH, expand=True)
 
     _populate_tree(tree, dictionary)
-    return tree
 
 
 def _populate_tree(tree: ttk.Treeview, data: Any, parent: str = '') -> None:
@@ -239,4 +238,3 @@ def ellipsis_around(text: str, position: int, length: int) -> str:
     if end >= len(text):
         return f"...{text[-(length - 3):]}"
     return f"...{text[start:end]}..."
-
