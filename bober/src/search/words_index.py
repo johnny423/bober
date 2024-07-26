@@ -12,7 +12,8 @@ class WordOccurrence:
     section_index: int
     page: int
     row: int
-    position: int
+    start_position: int
+    end_position: int
     index: int
     context: str
 
@@ -65,7 +66,8 @@ def query_words_index(
             RfcSection.index.label('section_index'),
             TokenPosition.page,
             TokenPosition.row,
-            TokenPosition.position,
+            TokenPosition.start_position,
+            TokenPosition.end_position,
             TokenPosition.index,
             RfcSection.content,
             func.count().over(partition_by=Token.token).label('token_count')
@@ -98,7 +100,7 @@ def query_words_index(
 
     result: dict[str, WordIndex] = {}
     for (token, rfc_num, rfc_title, published_at, section_index,
-         page, row, position, index, section_content, token_count) in session.execute(query):
+         page, row, start_position, end_position, index, section_content, token_count) in session.execute(query):
 
         if token not in result:
             result[token] = WordIndex(token=token)
@@ -111,7 +113,8 @@ def query_words_index(
             page=page,
             row=row,
             context=section_content,
-            position=position,
+            start_position=start_position,
+            end_position=end_position,
             index=index
         )
 

@@ -110,7 +110,8 @@ class WordIndexWindow(tk.Toplevel):
 
                     shorten = ellipsis_around(
                         occurrence.context,
-                        occurrence.position,
+                        occurrence.start_position,
+                        occurrence.end_position,
                         50
                     )
                     formatted_result[formatted_token][formatted_title][position_key] = shorten

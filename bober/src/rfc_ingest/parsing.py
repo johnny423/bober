@@ -35,12 +35,14 @@ def parse_content(
         line_start_index = 0
         for line_num, line in enumerate(paragraph.lines, 0):
             for index, (token, position) in enumerate(tokenize(line)):
+                token_position = line_start_index + line_num + position
                 pos = TokenPosition(
                     rfc_num=rfc_num,
                     page=paragraph.page,
                     row=paragraph.row_start + line_num,
                     section=section,
-                    position=line_start_index + line_num + position,
+                    start_position=token_position,
+                    end_position=token_position + len(token),
                     index=index,
                 )
                 yield token, pos
@@ -138,6 +140,6 @@ Error Checking
 
 """
     for t, i in parse_content(1, line):
-        position = i.position
+        position = i.start_position
         if not i.section.content[position:].startswith(t):
             print(t, "=>", f"'{i.section.content[position: position + 50]}'")

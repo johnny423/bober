@@ -189,52 +189,63 @@ def dummy_button_command():
     print('dummy command for button executed')
 
 
-def ellipsis_around(text: str, position: int, length: int) -> str:
+def ellipsis_around(text: str, start_position: int, end_position: int, length: int) -> str:
     """
-    Create a substring of 'text' centered around 'position' with given 'length',
-    adding ellipses where text is truncated.
+    Create a substring of 'text' centered around the range from 'start_position' to 'end_position'
+    with given 'length', adding ellipses where text is truncated and highlighting the given range.
 
     Args:
     text (str): The original text.
-    position (int): The position to center around (0-indexed).
+    start_position (int): The start position of the range to highlight (0-indexed).
+    end_position (int): The end position of the range to highlight (0-indexed).
     length (int): The desired length of the output string, including ellipses.
 
     Returns:
-    str: The shortened text with ellipses.
+    str: The shortened text with ellipses and highlighted range.
 
-        Examples:
-    >>> ellipsis_around("This is a long piece of text that we want to shorten.", 20, 20)
-    '...piece of text th...'
+    Examples:
+    >>> ellipsis_around("This is a long piece of text that we want to shorten.", 10, 15, 30)
+    '...is a long [piece] of text th...'
 
-    >>> ellipsis_around("Short text", 5, 20)
-    'Short text'
+    >>> ellipsis_around("Short text", 6, 10, 20)
+    'Short [text]'
 
-    >>> ellipsis_around("Another example of a long string for ellipsis", 12, 15)
-    '...example of...'
+    >>> ellipsis_around("Another example of a long string for ellipsis", 8, 15, 25)
+    '...er [example of] a lon...'
 
-    >>> ellipsis_around("Start of the text", 0, 10)
-    'Start of...'
+    >>> ellipsis_around("Start of the text", 0, 5, 15)
+    '[Start] of the...'
 
-    >>> ellipsis_around("End of the text", 13, 10)
-    '...the text'
+    >>> ellipsis_around("End of the text", 11, 15, 15)
+    '...of [the text]'
 
-    >>> ellipsis_around("Very short", 4, 5)
-    'short'
+    >>> ellipsis_around("Very short", 5, 10, 10)
+    'Very [short]'
 
-    >>> ellipsis_around("Exactly twenty chars.", 10, 20)
-    'Exactly twenty chars.'
+    >>> ellipsis_around("Exactly twenty chars.", 8, 14, 20)
+    'Exactly [twenty] chars.'
     """
     if len(text) <= length:
-        return text
+        return text[:start_position] + f"[{text[start_position:end_position]}]" + text[end_position:]
 
-    length = max(length, 5)  # Ensure minimum length for ellipses and content
-    half_length = (length - 3) // 2  # Subtract 3 for potential ellipses
+    length = max(length, 7)  # Ensure minimum length for ellipses, content, and brackets
+    highlight_length = end_position - start_position
+    available_length = length - 5 - highlight_length  # Subtract 5 for ellipses and brackets
 
-    start = max(0, min(position - half_length, len(text) - length + 3))
-    end = start + length - 3
+    left_context = (available_length) // 2
 
-    if start == 0:
-        return f"{text[:end]}..."
-    if end >= len(text):
-        return f"...{text[-(length - 3):]}"
-    return f"...{text[start:end]}..."
+    start = max(0, min(start_position - left_context, len(text) - length + 5))
+    end = min(len(text), start + length - 5)
+
+    result = ""
+    if start > 0:
+        result += "..."
+
+    result += text[start:start_position]
+    result += f"[{text[start_position:end_position]}]"
+    result += text[end_position:end]
+
+    if end < len(text):
+        result += "..."
+
+    return result
