@@ -64,9 +64,9 @@ class WordIndexWindow(tk.Toplevel):
         self.update_results()
 
     def update_results(self, event=None):
-        # todo: would probably be better if we would fetch groups and titles for the user
+        # todo: would probably be better if we would fetch groups
         token_groups = self.token_groups_entry.get().split() or None
-        rfc_titles = self.rfc_titles_entry.get().split() or None
+        rfc_title = self.rfc_titles_entry.get() or None
         partial_token = self.partial_token_entry.get() or None
         sort_by = SortBy(self.sort_by_combobox.get())
         sort_order = SortOrder(self.sort_order_combobox.get())
@@ -75,7 +75,7 @@ class WordIndexWindow(tk.Toplevel):
         words_index = query_words_index(
             self.session,
             token_groups,
-            rfc_titles,
+            rfc_title,
             partial_token,
             sort_by,
             sort_order

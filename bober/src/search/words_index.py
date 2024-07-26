@@ -51,7 +51,7 @@ class SortOrder(StrEnum):
 def query_words_index(
         session: Session,
         token_groups: None | list[str] = None,
-        rfc_titles: None | list[str] = None,
+        rfc_title: None | str = None,
         partial_token: None | str = None,
         sort_by: SortBy = SortBy.OCCURRENCES,
         sort_order: SortOrder = SortOrder.DESC
@@ -79,8 +79,8 @@ def query_words_index(
         query = query.join(Token.token_groups).join(TokenToGroup.group)
         query = query.filter(TokenGroup.group_name.in_(token_groups))
 
-    if rfc_titles is not None:
-        query = query.filter(Rfc.title.in_(rfc_titles))
+    if rfc_title is not None:
+        query = query.filter(Rfc.title.ilike(f"'%{rfc_title}%'"))
 
     if partial_token is not None:
         query = query.filter(Token.token.ilike(f'%{partial_token}%'))
