@@ -28,11 +28,11 @@ if __name__ == "__main__":
 
     with Session() as session:
         # reload data and tables
-        for tbl in reversed(Base.metadata.sorted_tables):
-            session.execute(tbl.delete())
-        session.commit()
+        # for tbl in reversed(Base.metadata.sorted_tables):
+        #     session.execute(tbl.delete())
+        # session.commit()
 
-        load_examples(session)
+        # load_examples(session)
         launch_gui(session)
 
         # select content

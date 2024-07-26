@@ -1,7 +1,8 @@
 import tkinter as tk
+from collections import namedtuple
 from tkinter import ttk
 from tkinter import scrolledtext
-from typing import Any
+from typing import Any, Callable
 
 
 def add_button(parent, text, command, row, column):  # todo remove
@@ -127,7 +128,7 @@ def create_scroll_region(
     if to_highlight:
         highlight_strings(text_area, to_highlight)
 
-    return text_area
+    return frame
 
 
 def highlight_strings(text_area: scrolledtext.ScrolledText, to_highlight: list[str]):
@@ -141,19 +142,17 @@ def highlight_strings(text_area: scrolledtext.ScrolledText, to_highlight: list[s
             start_idx = end_idx
 
 
-def add_dict_display(parent: tk.Widget, dictionary: dict[Any, Any], key_header: str, value_header: str):
-    """
-    Create and return a Treeview widget displaying a dictionary.
+Leaf = namedtuple("Lead", ("value", "metadata"))
+Tree = dict[str, Leaf] | dict[str, "Tree"]
 
-    Args:
-        parent (tk.Widget): The parent widget.
-        dictionary (Dict[Any, Any]): The dictionary to display.
-        key_header (str): The header text for the key column.
-        value_header (str): The header text for the value column.
 
-    Returns:
-        ttk.Treeview: The created Treeview widget.
-    """
+def add_dict_display(
+        parent: tk.Widget,
+        dictionary: Tree,
+        key_header: str,
+        value_header: str,
+        callback: Callable[[Any], None] = None
+):
     frame = ttk.Frame(parent, padding=10)
     frame.pack(fill=tk.BOTH, expand=True)
 
@@ -164,25 +163,31 @@ def add_dict_display(parent: tk.Widget, dictionary: dict[Any, Any], key_header: 
 
     _populate_tree(tree, dictionary)
 
+    if callback:
+        tree.bind("<Double-1>", lambda event: _on_item_click(event, tree, callback))
 
-def _populate_tree(tree: ttk.Treeview, data: Any, parent: str = '') -> None:
-    """
-    Recursively populate the Treeview with dictionary data.
 
-    Args:
-        tree (ttk.Treeview): The Treeview to populate.
-        data (Any): The data to add to the Treeview.
-        parent (str): The parent node identifier.
-    """
+def _populate_tree(tree: ttk.Treeview, data: Tree | Leaf, parent: str = '') -> None:
     if isinstance(data, dict):
         for key, value in data.items():
             node = tree.insert(parent, 'end', text=str(key))
             _populate_tree(tree, value, node)
-    elif isinstance(data, (list, tuple)):
-        for item in data:
-            _populate_tree(tree, item, parent)
     else:
-        tree.insert(parent, 'end', text='', values=(str(data),))
+        node = tree.insert(parent, 'end', text='', values=data)
+        tree.item(node, tags=('leaf',))
+        # tree.item(node, values=(data.metadata,))
+
+
+def _on_item_click(
+        event,
+        tree: ttk.Treeview,
+        callback: Callable[[Any], None]
+):
+    item = tree.identify('item', event.x, event.y)
+    if item and 'leaf' in tree.item(item, 'tags'):
+        values = tree.item(item, 'values')
+        if values:
+            callback(*values[1:])
 
 
 def dummy_button_command():

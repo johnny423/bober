@@ -3,13 +3,16 @@ from tkinter import ttk
 
 from sqlalchemy.orm import Session
 
-from bober.src.fe.windows.utils import ellipsis_around, add_dict_display
+from bober.src.fe.windows.rfc_window import RFCWindow
+from bober.src.fe.windows.utils import ellipsis_around, add_dict_display, create_scroll_region
+from bober.src.search.rfc_content import fetch_rfc_sections, rebuild_content
 from bober.src.search.words_index import query_words_index, SortBy, SortOrder, WordIndex
 
 
 class WordIndexWindow(tk.Toplevel):
     def __init__(self, parent, session: Session):
         super().__init__(parent)
+        self.text_frame = None
         self.session = session
         self.title("Word Index")
 
@@ -89,7 +92,8 @@ class WordIndexWindow(tk.Toplevel):
             self.results_frame,
             dictionary=self._setup_for_display(words_index),
             key_header="what?",  # todo: better
-            value_header="the hell?"  # todo: better
+            value_header="the hell?",  # todo: better
+            callback=self.do
         )
 
     @staticmethod
@@ -114,6 +118,11 @@ class WordIndexWindow(tk.Toplevel):
                         occurrence.end_position,
                         50
                     )
-                    formatted_result[formatted_token][formatted_title][position_key] = shorten
+
+                    formatted_result[formatted_token][formatted_title][position_key] = (
+                        shorten, rfc_num, word_data.token)
 
         return formatted_result
+
+    def do(self, rfc, token):
+        RFCWindow(self, self.session, int(rfc), token)
