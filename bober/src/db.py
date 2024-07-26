@@ -14,6 +14,6 @@ def commit(func: Callable) -> Callable:
             return result
         except Exception as e:
             session.rollback()
-            raise ValueError(f"Failed to commit in {func.__name__}") from e
+            raise e
 
     return wrapper
