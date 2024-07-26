@@ -1,5 +1,7 @@
 import tkinter as tk
+from functools import partial
 
+from bober.src.fe.windows.word_groups_window import WordGroupManager
 from bober.src.fe.windows.word_index_window import WordIndexWindow
 from bober.src.loader import load_single_file
 from bober.src.fe.windows import utils
@@ -15,7 +17,7 @@ class MainWindow(tk.Tk):
         utils.create_button(self, "Find document", utils.dummy_button_command)  # todo
         utils.create_button(self, "Word index", self.open_word_index)
         utils.create_button(self, "Find word by index", utils.dummy_button_command)  # todo
-        utils.create_button(self, "Manage word groups", utils.dummy_button_command)  # todo
+        utils.create_button(self, "Manage word groups", self.open_word_group_manager)
         utils.create_button(self, "Manage linguistic expressions", utils.dummy_button_command)  # todo
         utils.create_button(self, "Exit", self.destroy)
 
@@ -27,6 +29,9 @@ class MainWindow(tk.Tk):
 
     def open_word_index(self):
         WordIndexWindow(self, self.session)
+
+    def open_word_group_manager(self):
+        WordGroupManager(self, self.session)
 
 
 def launch_gui(session):
