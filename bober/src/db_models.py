@@ -88,6 +88,11 @@ class TokenPosition(Base):
     )
     page: Mapped[int] = mapped_column(Integer, index=True)
     row: Mapped[int] = mapped_column(Integer, index=True)
+
+    start_position: Mapped[int] = mapped_column(Integer)
+    end_position: Mapped[int] = mapped_column(Integer)
+    index: Mapped[int] = mapped_column(Integer)
+
     section_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('rfc_section.id'), index=True
     )
