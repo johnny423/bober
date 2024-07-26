@@ -40,7 +40,7 @@ def parse_content(
                     page=paragraph.page,
                     row=paragraph.row_start + line_num,
                     section=section,
-                    position=line_start_index + position,
+                    position=line_start_index + line_num + position,
                     index=index,
                 )
                 yield token, pos
@@ -79,7 +79,7 @@ def into_paragraphs(text: str) -> Iterator[Paragraph]:
             if not current_paragraph:
                 start_row = i
                 current_indentation = len(line) - len(line.lstrip())
-            current_paragraph.append(line)
+            current_paragraph.append(stripped_line)
 
             # Check if this line is a page ending
             if page_end_pattern.search(line):
@@ -118,6 +118,26 @@ def into_paragraphs(text: str) -> Iterator[Paragraph]:
 
 
 if __name__ == '__main__':
-    line = "Hello, world! This is a test."
-    for t, i in tokenize(line):
-        print(line[i:].startswith(t))
+    line = """
+    
+   When we consider using graphics stations or other sophisticated
+   terminals under the control of a remote HOST, the problem becomes more
+   severe. We must look for some method which allows us to use our most
+   sophisticated equipment as much as possible as if we were connected
+   directly to the remote computer.
+
+Error Checking
+
+   The point is made by Jeff Rulifson at SRI that error checking at major
+   software interfaces is always a good thing. He points to some
+   experience at SRI where it has saved much dispute and wasted effort.
+   On these grounds, we would like to see some HOST to HOST checking.
+   Besides checking the software interface, it would also check the
+   HOST-IMP transmission hardware.  (BB&N claims the HOST-IMP hardware
+   will be as reliable as the internal registers of the HOST.  We believe
+
+"""
+    for t, i in parse_content(1, line):
+        position = i.position
+        if not i.section.content[position:].startswith(t):
+            print(t, "=>", f"'{i.section.content[position: position + 50]}'")
