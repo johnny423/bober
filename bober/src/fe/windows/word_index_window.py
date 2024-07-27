@@ -12,7 +12,6 @@ from bober.src.search.words_index import query_words_index, SortBy, SortOrder, W
 class WordIndexWindow(tk.Toplevel):
     def __init__(self, parent, session: Session):
         super().__init__(parent)
-        self.text_frame = None
         self.session = session
         self.title("Word Index")
 
@@ -20,51 +19,48 @@ class WordIndexWindow(tk.Toplevel):
         self.grab_set()
         self.transient(parent)
 
+        self.create_widgets()
+
+        # Initial results display
+        self.update_results()
+
+    def create_widgets(self):
         # Token Groups Filter
         self.token_groups_label = tk.Label(self, text="Token Groups:")
         self.token_groups_label.pack(pady=5)
         self.token_groups_entry = tk.Entry(self)
         self.token_groups_entry.pack(pady=5)
-
         # RFC Titles Filter
         self.rfc_titles_label = tk.Label(self, text="RFC Titles:")
         self.rfc_titles_label.pack(pady=5)
         self.rfc_titles_entry = tk.Entry(self)
         self.rfc_titles_entry.pack(pady=5)
-
         # Partial Token Filter
         self.partial_token_label = tk.Label(self, text="Partial Token:")
         self.partial_token_label.pack(pady=5)
         self.partial_token_entry = tk.Entry(self)
         self.partial_token_entry.pack(pady=5)
-
         # Sort By Option
         self.sort_by_label = tk.Label(self, text="Sort By:")
         self.sort_by_label.pack(pady=5)
         self.sort_by_combobox = ttk.Combobox(self, values=list(SortBy))
         self.sort_by_combobox.set(SortBy.OCCURRENCES.value)
         self.sort_by_combobox.pack(pady=5)
-
         # Sort Order Option
         self.sort_order_label = tk.Label(self, text="Sort Order:")
         self.sort_order_label.pack(pady=5)
         self.sort_order_combobox = ttk.Combobox(self, values=list(SortOrder))
         self.sort_order_combobox.set(SortOrder.DESC.value)
         self.sort_order_combobox.pack(pady=5)
-
         # Results Display
         self.results_frame = tk.Frame(self)
         self.results_frame.pack(pady=5, fill=tk.BOTH, expand=True)
-
         # Bind entries and comboboxes to update results on change
         self.token_groups_entry.bind("<KeyRelease>", self.update_results)
         self.rfc_titles_entry.bind("<KeyRelease>", self.update_results)
         self.partial_token_entry.bind("<KeyRelease>", self.update_results)
         self.sort_by_combobox.bind("<<ComboboxSelected>>", self.update_results)
         self.sort_order_combobox.bind("<<ComboboxSelected>>", self.update_results)
-
-        # Initial results display
-        self.update_results()
 
     def update_results(self, event=None):
         # todo: would probably be better if we would fetch groups
