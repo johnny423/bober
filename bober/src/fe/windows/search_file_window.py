@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox
 from datetime import datetime
 
-from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime
+from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime, add_dict_display
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
@@ -73,6 +73,29 @@ class SearchFileWindow(tk.Toplevel):
             placement_args={'pady': 10}
         )
 
+        # Create the Treeview widget for displaying search results
+        self.tree = ttk.Treeview(self, columns=("num", "title", "published_at", "authors", "open_file"),
+                                 show="headings")
+        self.tree.heading("num", text="RFC Number")
+        self.tree.heading("title", text="Title")
+        self.tree.heading("published_at", text="Published At")
+        self.tree.heading("authors", text="Authors")
+        self.tree.heading("open_file", text="Open File")
+
+        self.tree.column("num", width=100)
+        self.tree.column("title", width=300)
+        self.tree.column("published_at", width=150)
+        self.tree.column("authors", width=250)
+        self.tree.column("open_file", width=100)
+
+        # Add scrollbar to the Treeview
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
+
+        # Pack the Treeview and scrollbar
+        self.tree.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
         create_button(
             self,
             text="Cancel",
@@ -97,14 +120,6 @@ class SearchFileWindow(tk.Toplevel):
             self.authors_listbox.delete(selected)
         else:
             messagebox.showwarning("Warning", "Please select an author to remove.", parent=self)
-
-    @staticmethod
-    def validate_date(date_string):
-        try:
-            datetime.strptime(date_string, "%Y/%m/%d")
-            return True
-        except ValueError:
-            return False
 
     def search_files(self):
         rfc_num = self.rfc_number_entry.get()
@@ -142,8 +157,43 @@ class SearchFileWindow(tk.Toplevel):
             authors=authors or None,
             tokens=tokens or None,
         )
-        search_rfcs(self.session, search_query)
-        self.destroy()
+        filtered_rfcs = search_rfcs(self.session, search_query)
+        print(f'Found {len(filtered_rfcs)} rfcs')  # todo remove
+        self.display_search_results(filtered_rfcs)
+
+    def display_search_results(self, filtered_rfcs):
+        # Clear previous results
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert new results
+        for rfc in filtered_rfcs:
+            item = self.tree.insert("", "end", values=(
+                rfc.num,
+                rfc.title,
+                rfc.published_at.strftime("%Y-%m-%d"),
+                ", ".join(rfc.authors),
+                ""  # Leave this empty, we'll place a button here
+            ))
+
+            # Create a button for the "Open file" column
+            open_button = tk.Button(self.tree, text="Open", command=lambda num=rfc.num: self.open_file(num))
+            self.tree.set(item, "open_file", "")
+            self.tree.item(item, tags=(item,))
+            self.tree.tag_bind(item, "<<TreeviewSelect>>",
+                               lambda event, btn=open_button, itemid=item: self.place_button(event, btn, itemid))
+
+    def place_button(self, event, button, item):
+        selection = self.tree.selection()
+        if selection and item == selection[0]:
+            bbox = self.tree.bbox(item, "open_file")
+            if bbox:
+                button.place(x=bbox[0], y=bbox[1], width=bbox[2], height=bbox[3])
+        else:
+            button.place_forget()
+
+    def open_file(self, rfc_num):
+        print(f"Open file clicked for RFC number: {rfc_num}")
 
     def destroy(self):
         self.grab_release()
