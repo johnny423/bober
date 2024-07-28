@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 from datetime import datetime
 
 from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime, add_dict_display
+from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
@@ -193,7 +194,8 @@ class SearchFileWindow(tk.Toplevel):
             button.place_forget()
 
     def open_file(self, rfc_num):
-        print(f"Open file clicked for RFC number: {rfc_num}")
+        print(f"Open file clicked for RFC number: {rfc_num}")  # todo remove
+        RFCWindow(self, self.session, rfc_num)
 
     def destroy(self):
         self.grab_release()
