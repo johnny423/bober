@@ -7,7 +7,7 @@ from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
-class SearchFileWindow(tk.Toplevel):
+class SearchFileWindow(tk.Toplevel):  # todo fix "open" buttons not appearing until click
     def __init__(self, parent, session):
         super().__init__(parent)
         self.title("Search File")
