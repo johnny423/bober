@@ -2,11 +2,12 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 
-from bober.src.fe.windows.utils import create_button, create_label
+from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime
+from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
 class SearchFileWindow(tk.Toplevel):
-    def __init__(self, parent, search_files_callback):
+    def __init__(self, parent, session):
         super().__init__(parent)
         self.title("Search File")
         # self.geometry("400x500")
@@ -16,7 +17,7 @@ class SearchFileWindow(tk.Toplevel):
         self.transient(parent)
 
         self.parent = parent
-        self.search_files_callback = search_files_callback
+        self.session = session
 
         create_label(self, text="Filters to apply (fill relevant):", placement='pack', placement_args={'pady': 5})
 
@@ -112,7 +113,20 @@ class SearchFileWindow(tk.Toplevel):
         published_before = self.published_before_entry.get()
         tokens = self.contains_tokens.get().split()
         authors = list(self.authors_listbox.get(0, tk.END))
-        
+
+        if published_after:
+            if not (date_range_min := convert_to_datetime(published_after)):
+                messagebox.showerror("Error", 'Published after (should be YYYY/MM/DD)', parent=self)
+                return
+        else:
+            date_range_min = datetime.min
+        if published_before:
+            if not (date_range_max := convert_to_datetime(published_before)):
+                messagebox.showerror("Error", 'Published before (should be YYYY/MM/DD)', parent=self)
+                return
+        else:
+            date_range_max = datetime.max
+
         # if not any([  # todo add back if needed
         #     rfc_num,
         #     title,
@@ -122,17 +136,13 @@ class SearchFileWindow(tk.Toplevel):
         #     messagebox.showerror("Error", 'Fill at least one filter', parent=self)
         #     return
 
-        authors: list[str] | None = None
-        date_range: tuple[datetime, datetime] | None = None
-        title: str | None = None
-        tokens: list[str] | None = None
-        filters = {
-            "title": title,
-            "date_range": published_at,
-            "authors": list(self.authors_listbox.get(0, tk.END))
-            "authors": list(self.authors_listbox.get(0, tk.END))
-        }
-        self.search_files_callback(filters)
+        search_query = SearchRFCQuery(
+            title=title or None,
+            date_range=(date_range_min, date_range_max),
+            authors=authors or None,
+            tokens=tokens or None,
+        )
+        search_rfcs(self.session, search_query)
         self.destroy()
 
     def destroy(self):

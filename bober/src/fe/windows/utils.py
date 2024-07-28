@@ -3,6 +3,7 @@ from collections import namedtuple
 from tkinter import ttk
 from tkinter import scrolledtext
 from typing import Any, Callable
+from datetime import datetime
 
 
 def add_button(parent, text, command, row, column):  # todo remove
@@ -254,3 +255,10 @@ def ellipsis_around(text: str, start_position: int, end_position: int, length: i
         result += "..."
 
     return result
+
+
+def convert_to_datetime(date_string):
+    try:
+        return datetime.strptime(date_string, "%Y/%m/%d")
+    except ValueError:
+        return False
