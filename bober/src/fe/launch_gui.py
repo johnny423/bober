@@ -4,6 +4,7 @@ from functools import partial
 from bober.src.fe.windows.index_search_window import IndexSearchWindow
 from bober.src.fe.windows.word_groups_window import WordGroupManager
 from bober.src.fe.windows.word_index_window import WordIndexWindow
+from bober.src.fe.windows.search_file_window import SearchFileWindow
 from bober.src.loader import load_single_file
 from bober.src.fe.windows import utils
 from bober.src.fe.windows.load_file_window import LoadFileWindow
@@ -15,7 +16,7 @@ class MainWindow(tk.Tk):
         self.session = session
         self.title("Main Window")
         utils.create_button(self, "Load new file", self.open_load_file_window)
-        utils.create_button(self, "Find document", utils.dummy_button_command)  # todo
+        utils.create_button(self, "Find document", self.open_rfc_search)  # todo
         utils.create_button(self, "Word index", self.open_word_index)
         utils.create_button(self, "Find word by index", self.open_index_search)  # todo
         utils.create_button(self, "Manage word groups", self.open_word_group_manager)
@@ -27,6 +28,9 @@ class MainWindow(tk.Tk):
             return load_single_file(self.session, *args)
 
         LoadFileWindow(self, load_file_callback)
+
+    def open_rfc_search(self):
+        SearchFileWindow(self, self.session)
 
     def open_word_index(self):
         WordIndexWindow(self, self.session)

@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from datetime import datetime
 
-from bober.src.fe.windows.utils import create_button, create_label
+from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime
 
 
 class LoadFileWindow(tk.Toplevel):
@@ -109,14 +109,6 @@ class LoadFileWindow(tk.Toplevel):
         else:
             messagebox.showwarning("Warning", "Please select an author to remove.", parent=self)
 
-    @staticmethod
-    def validate_date(date_string):
-        try:
-            datetime.strptime(date_string, "%Y/%m/%d")
-            return True
-        except ValueError:
-            return False
-
     def load_file(self):
         missing_fields = []
         invalid_fields = []
@@ -134,7 +126,7 @@ class LoadFileWindow(tk.Toplevel):
 
         if not (published_at := self.published_at_entry.get()):
             missing_fields.append("Published at")
-        elif not self.validate_date(published_at):
+        elif not convert_to_datetime(published_at):
             invalid_fields.append("Published at (should be YYYY/MM/DD)")
 
         if self.authors_listbox.size() == 0:
