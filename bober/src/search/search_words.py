@@ -1,41 +1,46 @@
 from datetime import date
+from typing import List, Optional
 
-from sqlalchemy import func, distinct
+from sqlalchemy import distinct, func
+from sqlalchemy.orm import Session
 
 from bober.src.db_models import (
-    Token,
-    TokenPosition,
-    Rfc,
     Author,
-    TokenToGroup,
-    TokenGroup,
+    Rfc,
+    RfcLine,
     RfcSection,
+    Token,
+    TokenGroup,
+    TokenPosition,
+    TokenToGroup,
 )
 
 
 def search_words(
-    session,
-    rfc_title: None | str = None,
-    author_name: None | str = None,
-    date_from: None | date = None,
-    date_to: None | date = None,
-    word_groups: None | list[str] = None,
-) -> list:
+    session: Session,
+    rfc_title: Optional[str] = None,
+    author_name: Optional[str] = None,
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    word_groups: Optional[List[str]] = None,
+) -> List:
     query = (
         session.query(
             Token.token,
-            func.count(distinct(TokenPosition.rfc_num)).label('rfc_count'),
+            func.count(distinct(Rfc.num)).label('rfc_count'),
             func.count(TokenPosition.id).label('total_occurrences'),
         )
-        .join(TokenPosition)
-        .join(Rfc)
+        .join(Token.positions)
+        .join(TokenPosition.line)
+        .join(RfcLine.section)
+        .join(RfcSection.rfc)
     )
 
     # Apply filters
     if rfc_title:
         query = query.filter(Rfc.title.ilike(f"%{rfc_title}%"))
     if author_name:
-        query = query.join(Author).filter(
+        query = query.join(Rfc.authors).filter(
             Author.author_name.ilike(f"%{author_name}%")
         )
     if date_from:
@@ -44,8 +49,8 @@ def search_words(
         query = query.filter(Rfc.published_at <= date_to)
     if word_groups:
         query = (
-            query.join(TokenToGroup)
-            .join(TokenGroup)
+            query.join(Token.token_groups)
+            .join(TokenToGroup.group)
             .filter(TokenGroup.group_name.in_(word_groups))
         )
 
@@ -56,24 +61,27 @@ def search_words(
 
 
 def get_token_positions(
-    session, tokens: list[str], rfc_ids: list[int] | None = None
+    session: Session, tokens: List[str], rfc_ids: Optional[List[int]] = None
 ):
     query = (
         session.query(
             Token.token,
-            TokenPosition.rfc_num,
-            TokenPosition.page,
-            TokenPosition.row,
-            RfcSection.id,
-            RfcSection.index,
+            Rfc.num.label('rfc_num'),
+            RfcLine.id.label('line_id'),
+            RfcSection.id.label('section_id'),
+            RfcSection.index.label('section_index'),
+            TokenPosition.start_position,
+            TokenPosition.end_position,
         )
-        .join(Token)
-        .join(RfcSection)
+        .join(Token.positions)
+        .join(TokenPosition.line)
+        .join(RfcLine.section)
+        .join(RfcSection.rfc)
     )
 
     query = query.filter(Token.token.in_(tokens))
 
     if rfc_ids:
-        query = query.filter(TokenPosition.rfc_num.in_(rfc_ids))
+        query = query.filter(Rfc.num.in_(rfc_ids))
 
     return query.all()

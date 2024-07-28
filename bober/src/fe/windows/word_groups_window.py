@@ -1,11 +1,12 @@
 import tkinter as tk
-from functools import partial
-from tkinter import ttk, messagebox
+from tkinter import messagebox, ttk
 
-from sqlalchemy.orm import Session
-
-from bober.src.word_groups.word_groups import add_words_to_group, remove_words_from_group, create_word_group, \
-    list_groups
+from bober.src.word_groups.word_groups import (
+    add_words_to_group,
+    create_word_group,
+    list_groups,
+    remove_words_from_group,
+)
 
 
 class WordGroupManager(tk.Toplevel):
@@ -39,19 +40,27 @@ class WordGroupManager(tk.Toplevel):
         self.group_name_entry.grid(row=1, column=0, pady=5, sticky="ew")
 
         # Words entry
-        self.words_label = ttk.Label(left_frame, text="Words (comma-separated):")
+        self.words_label = ttk.Label(
+            left_frame, text="Words (comma-separated):"
+        )
         self.words_label.grid(row=2, column=0, pady=5, sticky="w")
         self.words_entry = ttk.Entry(left_frame)
         self.words_entry.grid(row=3, column=0, pady=5, sticky="ew")
 
         # Buttons
-        self.create_group_button = ttk.Button(left_frame, text="Create Group", command=self.create_group)
+        self.create_group_button = ttk.Button(
+            left_frame, text="Create Group", command=self.create_group
+        )
         self.create_group_button.grid(row=4, column=0, pady=5, sticky="ew")
 
-        self.add_words_button = ttk.Button(left_frame, text="Add Words", command=self.add_words)
+        self.add_words_button = ttk.Button(
+            left_frame, text="Add Words", command=self.add_words
+        )
         self.add_words_button.grid(row=5, column=0, pady=5, sticky="ew")
 
-        self.remove_words_button = ttk.Button(left_frame, text="Remove Words", command=self.remove_words)
+        self.remove_words_button = ttk.Button(
+            left_frame, text="Remove Words", command=self.remove_words
+        )
         self.remove_words_button.grid(row=6, column=0, pady=5, sticky="ew")
 
         # Configure left_frame grid
@@ -62,12 +71,16 @@ class WordGroupManager(tk.Toplevel):
         right_frame.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
 
         # Treeview
-        self.tree = ttk.Treeview(right_frame, columns=('Words'), show='tree headings')
+        self.tree = ttk.Treeview(
+            right_frame, columns=('Words'), show='tree headings'
+        )
         self.tree.heading('Words', text='Words')
         self.tree.grid(row=0, column=0, sticky="nsew")
 
         # Scrollbar for treeview
-        scrollbar = ttk.Scrollbar(right_frame, orient="vertical", command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(
+            right_frame, orient="vertical", command=self.tree.yview
+        )
         scrollbar.grid(row=0, column=1, sticky="ns")
         self.tree.configure(yscrollcommand=scrollbar.set)
 

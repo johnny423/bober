@@ -11,7 +11,10 @@ def parse_line(line: str) -> ParsedLine:
     current_position = 0
     for word in words:
         start = striped.index(word, current_position)
-        token = ParsedToken(word=word, start=start, )
+        token = ParsedToken(
+            word=word,
+            start=start,
+        )
         tokens.append(token)
         current_position = start + len(word)
 

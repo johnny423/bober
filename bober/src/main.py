@@ -6,9 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from bober.src.db_models import Base
-from bober.src.loader import load_examples
-from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
 from bober.src.fe.launch_gui import launch_gui
+from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 if __name__ == "__main__":
     # todo: move to pydantic

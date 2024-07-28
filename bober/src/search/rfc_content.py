@@ -1,7 +1,8 @@
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from bober.src.db_models import RfcSection
+from bober.src.db_models import RfcLine, RfcSection
 
 
 class RFCSection(BaseModel):
@@ -37,8 +38,16 @@ def rebuild_content(sections: list[RFCSection]) -> str:
 
 def fetch_rfc_sections(session: Session, rfc_num: int) -> list[RFCSection]:
     results = (
-        session.query(RfcSection)
+        session.query(
+            RfcSection.id,
+            func.min(RfcLine.id).label('row_start'),
+            func.max(RfcLine.id).label('row_end'),
+            func.min(RfcLine.indentation).label('indentation'),
+            func.group_concat(RfcLine.line, '\n').label('content'),
+        )
+        .join(RfcSection.lines)
         .filter(RfcSection.rfc_num == rfc_num)
+        .group_by(RfcSection.id)
         .order_by(RfcSection.index)
     )
 

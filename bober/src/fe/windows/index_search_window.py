@@ -1,10 +1,16 @@
+import tkinter as tk
 from tkinter import ttk
 
 from sqlalchemy.orm import Session
-import tkinter as tk
 
-from bober.src.search.index_search import SearchCriteria, SearchResult, index_1_search, index_2_search
-from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
+from bober.src.search.index_search import (
+    Index1Criteria,
+    Index2Criteria,
+    SearchResult,
+    index_1_search,
+    index_2_search,
+)
+from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
 class IndexSearchWindow(tk.Toplevel):
@@ -35,18 +41,41 @@ class IndexSearchWindow(tk.Toplevel):
         self.title_var = tk.StringVar()
         self.create_rfc_dropdown(input_frame)
 
-        self.index_1_page_entry = self.create_entry(input_frame, "Index 1 page:")
+        self.index_1_page_entry = self.create_entry(
+            input_frame, "Index 1 page:"
+        )
         self.index_1_row_entry = self.create_entry(input_frame, "Index 1 row:")
-        self.index_2_section_entry = self.create_entry(input_frame, "Index 2 section:")
-        self.index_2_word_entry = self.create_entry(input_frame, "Index 2 word:")
+        self.index_1_position_entry = self.create_entry(
+            input_frame, "Index 1 position:"
+        )
+
+        self.index_2_section_entry = self.create_entry(
+            input_frame, "Index 2 section:"
+        )
+        self.index_2_row_entry = self.create_entry(input_frame, "Index 2 row:")
+        self.index_2_position_entry = self.create_entry(
+            input_frame, "Index 2 position:"
+        )
 
         # Create buttons
-        ttk.Button(button_frame, text="Search by index 1", command=self.search_by_index_1).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Search by index 2", command=self.search_by_index_2).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Back", command=self.master.quit).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            button_frame,
+            text="Search by index 1",
+            command=self.search_by_index_1,
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(
+            button_frame,
+            text="Search by index 2",
+            command=self.search_by_index_2,
+        ).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Back", command=self.master.quit).pack(
+            side=tk.LEFT, padx=5
+        )
 
         # Create results table
-        self.tree = ttk.Treeview(results_frame, columns=("Word", "Link for source"), show="headings")
+        self.tree = ttk.Treeview(
+            results_frame, columns=("Word", "Link for source"), show="headings"
+        )
         self.tree.heading("Word", text="Word")
         self.tree.heading("Link for source", text="Link for source")
         self.tree.pack(fill=tk.BOTH, expand=True)
@@ -66,17 +95,12 @@ class IndexSearchWindow(tk.Toplevel):
 
         ttk.Label(frame, text="RFC:", width=15).pack(side=tk.LEFT)
         rfcs = search_rfcs(self.session, SearchRFCQuery())
-        rfc_dropdown = ttk.Combobox(frame, textvariable=self.title_var, values=[rfc.title for rfc in rfcs])
-        rfc_dropdown.pack(side=tk.LEFT, expand=True, fill=tk.X)
-
-    def get_search_criteria(self) -> SearchCriteria:
-        return SearchCriteria(
-            title=self.title_var.get(),
-            index_1_page=int(self.index_1_page_entry.get()) if self.index_1_page_entry.get() else None,
-            index_1_row=int(self.index_1_row_entry.get()) if self.index_1_row_entry.get() else None,
-            index_2_section=int(self.index_2_section_entry.get()) if self.index_2_section_entry.get() else None,
-            index_2_word=self.index_2_word_entry.get()
+        rfc_dropdown = ttk.Combobox(
+            frame,
+            textvariable=self.title_var,
+            values=[rfc.title for rfc in rfcs],
         )
+        rfc_dropdown.pack(side=tk.LEFT, expand=True, fill=tk.X)
 
     def display_results(self, results: list[SearchResult]):
         self.tree.delete(*self.tree.get_children())
@@ -84,11 +108,45 @@ class IndexSearchWindow(tk.Toplevel):
             self.tree.insert("", "end", values=(result.word, result.context))
 
     def search_by_index_1(self):
-        criteria = self.get_search_criteria()
+        criteria = Index1Criteria(
+            title=self.title_var.get(),
+            page=(
+                int(self.index_1_page_entry.get())
+                if self.index_1_page_entry.get()
+                else None
+            ),
+            line=(
+                int(self.index_1_row_entry.get())
+                if self.index_1_row_entry.get()
+                else None
+            ),
+            position=(
+                int(self.index_1_position_entry.get())
+                if self.index_1_position_entry.get()
+                else None
+            ),
+        )
         results = index_1_search(self.session, criteria)
         self.display_results(results)
 
     def search_by_index_2(self):
-        criteria = self.get_search_criteria()
+        criteria = Index2Criteria(
+            title=self.title_var.get(),
+            section=(
+                int(self.index_2_section_entry.get())
+                if self.index_2_section_entry.get()
+                else None
+            ),
+            line=(
+                int(self.index_2_row_entry.get())
+                if self.index_2_row_entry.get()
+                else None
+            ),
+            position=(
+                int(self.index_2_position_entry.get())
+                if self.index_2_position_entry.get()
+                else None
+            ),
+        )
         results = index_2_search(self.session, criteria)
         self.display_results(results)

@@ -1,17 +1,25 @@
 from dataclasses import dataclass
-from sqlalchemy.orm import Session
-from sqlalchemy import select
 
-from bober.src.db_models import Token, TokenPosition, Rfc, RfcSection
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
+from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition
 
 
 @dataclass
-class SearchCriteria:
+class Index1Criteria:
     title: None | str = None
-    index_1_page: None | int = None
-    index_1_row: None | int = None
-    index_2_section: None | int = None
-    index_2_word: None | str = None
+    page: None | int = None
+    line: None | int = None
+    position: None | int = None
+
+
+@dataclass
+class Index2Criteria:
+    title: None | str = None
+    section: None | int = None
+    line: None | int = None
+    position: None | int = None
 
 
 @dataclass
@@ -20,51 +28,74 @@ class SearchResult:
     context: str
 
 
-def index_1_search(session, criteria: SearchCriteria) -> list[SearchResult]:
+def index_1_search(
+    session: Session, criteria: Index1Criteria
+) -> list[SearchResult]:
     query = (
-        select(Token.token, TokenPosition, Rfc.title)
+        select(
+            Token.token,
+            TokenPosition,
+            Rfc.title,
+            RfcLine.id.label('line_number'),
+        )
         .join(TokenPosition, Token.id == TokenPosition.token_id)
-        .join(Rfc, TokenPosition.rfc_num == Rfc.num)
-        .order_by(TokenPosition.row, TokenPosition.index)
+        .join(RfcLine, TokenPosition.line_id == RfcLine.id)
+        .join(RfcSection, RfcLine.section_id == RfcSection.id)
+        .join(Rfc, RfcSection.rfc_num == Rfc.num)
+        .order_by(RfcSection.page, RfcLine.id, TokenPosition.start_position)
     )
 
     if criteria.title:
         query = query.where(Rfc.title.ilike(f"%{criteria.title}%"))
-    if criteria.index_1_page:
-        query = query.where(TokenPosition.page == criteria.index_1_page)
-    if criteria.index_1_row:
-        query = query.where(TokenPosition.row == criteria.index_1_row)
+    if criteria.page is not None:
+        query = query.where(RfcSection.page == criteria.page)
+    if criteria.line is not None:
+        query = query.where(RfcLine.id == criteria.line)
+    if criteria.position is not None:
+        query = query.where(TokenPosition.start_position == criteria.position)
 
     results = session.execute(query).all()
     return [
         SearchResult(
             word=result.token,
-            context=f"Page {result.TokenPosition.page}, Row {result.TokenPosition.row}",
+            context=f"Page {result.TokenPosition.page}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
         )
         for result in results
     ]
 
 
-def index_2_search(session, criteria: SearchCriteria) -> list[SearchResult]:
+def index_2_search(
+    session: Session, criteria: Index2Criteria
+) -> list[SearchResult]:
     query = (
-        select(Token.token, RfcSection, Rfc.title)
+        select(
+            Token.token,
+            TokenPosition,
+            RfcSection,
+            RfcLine.id.label('line_number'),
+            Rfc.title,
+        )
         .join(TokenPosition, Token.id == TokenPosition.token_id)
-        .join(RfcSection, TokenPosition.section_id == RfcSection.id)
+        .join(RfcLine, TokenPosition.line_id == RfcLine.id)
+        .join(RfcSection, RfcLine.section_id == RfcSection.id)
         .join(Rfc, RfcSection.rfc_num == Rfc.num)
-        .order_by(TokenPosition.row, TokenPosition.index)
+        .order_by(RfcSection.index, RfcLine.id, TokenPosition.start_position)
     )
+
     if criteria.title:
         query = query.where(Rfc.title.ilike(f"%{criteria.title}%"))
-    if criteria.index_2_section:
-        query = query.where(RfcSection.index == criteria.index_2_section)
-    if criteria.index_2_word:  # todo: whats the second index
-        query = query.where(Token.token.ilike(f"%{criteria.index_2_word}%"))
+    if criteria.section is not None:
+        query = query.where(RfcSection.index == criteria.section)
+    if criteria.line is not None:
+        query = query.where(RfcLine.id == criteria.line)
+    if criteria.position is not None:
+        query = query.where(TokenPosition.start_position == criteria.position)
 
     results = session.execute(query).all()
     return [
         SearchResult(
             word=result.token,
-            context=f"Section {result.RfcSection.index}",
+            context=f"Section {result.RfcSection.line_number}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
         )
         for result in results
     ]

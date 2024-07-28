@@ -2,7 +2,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from bober.src.db import commit
-from bober.src.db_models import Phrase, PhraseToken, Token, RfcSection
+from bober.src.db_models import Phrase, PhraseToken, RfcSection, Token
 from bober.src.rfc_ingest.parsing import tokenize
 
 
