@@ -1,10 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import desc, and_
+from sqlalchemy import and_, desc
 from sqlalchemy.orm import Session
 
-from bober.src.db_models import Rfc, Author
+from bober.src.db_models import Author, Rfc
 from bober.src.search.tfidf import build_tfid_query
 
 
@@ -25,9 +25,7 @@ class SearchRFCQuery(BaseModel):
 def search_rfcs(
     session: Session, search_query: SearchRFCQuery
 ) -> list[RFCMeta]:
-    query = session.query(
-        Rfc.num, Rfc.title, Rfc.published_at
-    )  # .options(joinedload(Rfc.authors))
+    query = session.query(Rfc.num, Rfc.title, Rfc.published_at)
 
     # Apply filters based on provided parameters
     if search_query.authors:
@@ -35,7 +33,7 @@ def search_rfcs(
             Author.author_name.ilike(f"%{author}%")
             for author in search_query.authors
         ]
-        query = query.join(Author).filter(and_(*author_filters))
+        query = query.join(Rfc.authors).filter(and_(*author_filters))
 
     if search_query.date_range:
         start_date, end_date = search_query.date_range
@@ -57,11 +55,19 @@ def search_rfcs(
 
     output = []
     for result in query.all():
+        # Fetch authors for each RFC
+        authors_query = (
+            session.query(Author.author_name)
+            .join(Rfc.authors)
+            .filter(Rfc.num == result.num)
+        )
+        authors = [author.author_name for author in authors_query.all()]
+
         rfc_dict = RFCMeta(
             num=result.num,
             title=result.title,
-            published_at=result.published_at.isoformat(),
-            authors=[],  # [author.author_name for author in result.authors],
+            published_at=result.published_at,
+            authors=authors,
         )
 
         output.append(rfc_dict)

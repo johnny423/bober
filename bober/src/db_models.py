@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, ForeignKey, Integer, String, Text, Date, Index
+from sqlalchemy import Date, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -17,9 +17,10 @@ class Rfc(Base):
     sections: Mapped[list["RfcSection"]] = relationship(
         "RfcSection", back_populates="rfc", cascade="all, delete-orphan"
     )
-    token_positions: Mapped[list["TokenPosition"]] = relationship(
-        "TokenPosition", back_populates="rfc", cascade="all, delete-orphan"
-    )
+    # todo: do we need it?
+    # token_positions: Mapped[list["TokenPosition"]] = relationship(
+    #     "TokenPosition", back_populates="rfc", cascade="all, delete-orphan"
+    # )
 
 
 class Author(Base):
@@ -43,14 +44,38 @@ class RfcSection(Base):
         Integer, ForeignKey('rfc.num'), index=True
     )
     index: Mapped[int] = mapped_column(Integer)
-    content: Mapped[str] = mapped_column(Text)
+    page: Mapped[int] = mapped_column(Integer)
     row_start: Mapped[int] = mapped_column(Integer)
     row_end: Mapped[int] = mapped_column(Integer)
-    indentation: Mapped[int] = mapped_column(Integer)
 
     rfc: Mapped["Rfc"] = relationship("Rfc", back_populates="sections")
-    token_positions: Mapped[list["TokenPosition"]] = relationship(
-        "TokenPosition", back_populates="section"
+    lines: Mapped[list["RfcLine"]] = relationship(
+        "RfcLine", back_populates="section", cascade="all, delete-orphan"
+    )
+
+
+class RfcLine(Base):
+    __tablename__ = 'rfc_line'
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True, autoincrement=True
+    )
+    section_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('rfc_section.id'), index=True
+    )
+    line: Mapped[str] = mapped_column(Text)
+
+    line_number: Mapped[int] = mapped_column(
+        Integer
+    )  # the number of the line in the section
+    indentation: Mapped[int] = mapped_column(Integer)
+
+    section: Mapped["RfcSection"] = relationship(
+        "RfcSection", back_populates="lines"
+    )
+
+    positions: Mapped[list["TokenPosition"]] = relationship(
+        "TokenPosition", back_populates="line", cascade="all, delete-orphan"
     )
 
 
@@ -63,8 +88,8 @@ class Token(Base):
     token: Mapped[str] = mapped_column(String, index=True)
     stem: Mapped[str] = mapped_column(String, index=True)
 
-    token_positions: Mapped[list["TokenPosition"]] = relationship(
-        "TokenPosition", back_populates="token"
+    positions: Mapped[list["TokenPosition"]] = relationship(
+        "TokenPosition", back_populates="token", cascade="all, delete-orphan"
     )
     token_groups: Mapped[list["TokenToGroup"]] = relationship(
         "TokenToGroup", back_populates="token"
@@ -83,26 +108,19 @@ class TokenPosition(Base):
     token_id: Mapped[int] = mapped_column(
         Integer, ForeignKey('token.id'), index=True
     )
-    rfc_num: Mapped[int] = mapped_column(
-        Integer, ForeignKey('rfc.num'), index=True
+    line_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('rfc_line.id'), index=True
     )
-    page: Mapped[int] = mapped_column(Integer, index=True)
-    row: Mapped[int] = mapped_column(Integer, index=True)
-
     start_position: Mapped[int] = mapped_column(Integer)
     end_position: Mapped[int] = mapped_column(Integer)
-    index: Mapped[int] = mapped_column(Integer)
 
-    section_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey('rfc_section.id'), index=True
-    )
+    index: Mapped[int] = mapped_column(
+        Integer
+    )  # the number of the token in the line
 
-    token: Mapped["Token"] = relationship(
-        "Token", back_populates="token_positions"
-    )
-    rfc: Mapped["Rfc"] = relationship("Rfc", back_populates="token_positions")
-    section: Mapped["RfcSection"] = relationship(
-        "RfcSection", back_populates="token_positions"
+    token: Mapped["Token"] = relationship("Token", back_populates="positions")
+    line: Mapped["RfcLine"] = relationship(
+        "RfcLine", back_populates="positions"
     )
 
 

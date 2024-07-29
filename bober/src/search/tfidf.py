@@ -1,37 +1,44 @@
-from sqlalchemy import func, Float
-from sqlalchemy.orm import Session, Query
+from sqlalchemy import Float, func
+from sqlalchemy.orm import Query, Session
 
-from bober.src.db_models import TokenPosition, Token, Rfc
+from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition
 from bober.src.rfc_ingest.parsing import STEMMER
 
 
 def build_tfid_query(session: Session, tokens: list[str]) -> Query:
     stems = [STEMMER.stem(token.lower()) for token in tokens]
+
     term_frequency = (
         session.query(
-            TokenPosition.rfc_num,
+            RfcLine.section_id,
             Token.stem,
             func.count(TokenPosition.id).label('tf'),
         )
-        .join(Token)
+        .join(TokenPosition.token)
+        .join(TokenPosition.line)
         .filter(Token.stem.in_(stems))
-        .group_by(TokenPosition.rfc_num, Token.stem)
+        .group_by(RfcLine.section_id, Token.stem)
         .subquery()
     )
+
     document_frequency = (
         session.query(
             Token.stem,
-            func.count(func.distinct(TokenPosition.rfc_num)).label('df'),
+            func.count(func.distinct(RfcSection.rfc_num)).label('df'),
         )
-        .join(TokenPosition)
+        .join(Token.positions)
+        .join(TokenPosition.line)
+        .join(RfcLine.section)
         .filter(Token.stem.in_(stems))
         .group_by(Token.stem)
         .subquery()
     )
+
     total_documents = session.query(func.count(Rfc.num)).scalar_subquery()
+
     tfidf = (
         session.query(
-            term_frequency.c.rfc_num,
+            RfcSection.rfc_num,
             term_frequency.c.stem,
             term_frequency.c.tf,
             document_frequency.c.df,
@@ -43,14 +50,17 @@ def build_tfid_query(session: Session, tokens: list[str]) -> Query:
                 )
             ).label('tfidf_score'),
         )
+        .join(RfcSection, RfcSection.id == term_frequency.c.section_id)
         .join(
             document_frequency,
             term_frequency.c.stem == document_frequency.c.stem,
         )
         .subquery()
     )
+
     tfidf_summary = session.query(
         tfidf.c.rfc_num,
         func.sum(tfidf.c.tfidf_score).label('total_tfidf_score'),
     ).group_by(tfidf.c.rfc_num)
+
     return tfidf_summary

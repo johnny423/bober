@@ -4,9 +4,16 @@ from tkinter import ttk
 from sqlalchemy.orm import Session
 
 from bober.src.fe.windows.rfc_window import RFCWindow
-from bober.src.fe.windows.utils import ellipsis_around, add_dict_display, create_scroll_region
-from bober.src.search.rfc_content import fetch_rfc_sections, rebuild_content
-from bober.src.search.words_index import query_words_index, SortBy, SortOrder, WordIndex
+from bober.src.fe.windows.utils import (
+    add_dict_display,
+    ellipsis_around,
+)
+from bober.src.search.words_index import (
+    SortBy,
+    SortOrder,
+    WordIndex,
+    query_words_index,
+)
 
 
 class WordIndexWindow(tk.Toplevel):
@@ -60,7 +67,9 @@ class WordIndexWindow(tk.Toplevel):
         self.rfc_titles_entry.bind("<KeyRelease>", self.update_results)
         self.partial_token_entry.bind("<KeyRelease>", self.update_results)
         self.sort_by_combobox.bind("<<ComboboxSelected>>", self.update_results)
-        self.sort_order_combobox.bind("<<ComboboxSelected>>", self.update_results)
+        self.sort_order_combobox.bind(
+            "<<ComboboxSelected>>", self.update_results
+        )
 
     def update_results(self, event=None):
         # todo: would probably be better if we would fetch groups
@@ -77,7 +86,7 @@ class WordIndexWindow(tk.Toplevel):
             rfc_title,
             partial_token,
             sort_by,
-            sort_order
+            sort_order,
         )
 
         # clear and reload
@@ -89,34 +98,41 @@ class WordIndexWindow(tk.Toplevel):
             dictionary=self._setup_for_display(words_index),
             key_header="what?",  # todo: better
             value_header="the hell?",  # todo: better
-            callback=self.do
+            callback=self.do,
         )
 
     @staticmethod
-    def _setup_for_display(word_index: dict[str, WordIndex]) -> dict[str, dict[str, dict[str, str]]]:
+    def _setup_for_display(
+        word_index: dict[str, WordIndex]
+    ) -> dict[str, dict[str, dict[str, str]]]:
         formatted_result = {}
         for stem, word_data in word_index.items():
             formatted_token = f"{stem} ({word_data.total_count} occurrences)"
             formatted_result[formatted_token] = {}
 
             for rfc_num, rfc_data in word_data.rfc_occurrences.items():
-                formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
+                formatted_title = (
+                    f"{rfc_data.title} ({rfc_data.count} occurrences)"
+                )
                 formatted_result[formatted_token][formatted_title] = {}
 
                 for occurrence in rfc_data.occurrences:
-                    position_key = (f"section {occurrence.section_index}, "
-                                    f"word {occurrence.index + 1} ; "
-                                    f"page {occurrence.page}, row {occurrence.row}")
+                    position_key = (
+                        f"section {occurrence.section_index}, "
+                        f"word {occurrence.index + 1} ; "
+                        f"page {occurrence.page}, row {occurrence.row}"
+                    )
 
                     shorten = ellipsis_around(
                         occurrence.context,
                         occurrence.start_position,
                         occurrence.end_position,
-                        50
+                        50,
                     )
 
-                    formatted_result[formatted_token][formatted_title][position_key] = (
-                        shorten, rfc_num, word_data.token)
+                    formatted_result[formatted_token][formatted_title][
+                        position_key
+                    ] = (shorten, rfc_num, word_data.token)
 
         return formatted_result
 
