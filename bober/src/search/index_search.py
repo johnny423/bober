@@ -29,7 +29,7 @@ class SearchResult:
 
 
 def index_1_search(
-    session: Session, criteria: Index1Criteria
+        session: Session, criteria: Index1Criteria
 ) -> list[SearchResult]:
     query = (
         select(
@@ -37,6 +37,7 @@ def index_1_search(
             TokenPosition,
             Rfc.title,
             RfcLine.id.label('line_number'),
+            RfcSection.page.label("page_number")
         )
         .join(TokenPosition, Token.id == TokenPosition.token_id)
         .join(RfcLine, TokenPosition.line_id == RfcLine.id)
@@ -58,14 +59,14 @@ def index_1_search(
     return [
         SearchResult(
             word=result.token,
-            context=f"Page {result.TokenPosition.page}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
+            context=f"Page {result.page_number}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
         )
         for result in results
     ]
 
 
 def index_2_search(
-    session: Session, criteria: Index2Criteria
+        session: Session, criteria: Index2Criteria
 ) -> list[SearchResult]:
     query = (
         select(
@@ -95,7 +96,7 @@ def index_2_search(
     return [
         SearchResult(
             word=result.token,
-            context=f"Section {result.RfcSection.line_number}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
+            context=f"Section {result.RfcSection.index}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
         )
         for result in results
     ]

@@ -2,7 +2,7 @@ from sqlalchemy import Float, func
 from sqlalchemy.orm import Query, Session
 
 from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition
-from bober.src.rfc_ingest.parsing import STEMMER
+from bober.src.parsing.parsed_types import STEMMER
 
 
 def build_tfid_query(session: Session, tokens: list[str]) -> Query:
@@ -44,10 +44,10 @@ def build_tfid_query(session: Session, tokens: list[str]) -> Query:
             document_frequency.c.df,
             total_documents.label('total_docs'),
             (
-                term_frequency.c.tf
-                * func.log(
-                    total_documents.cast(Float) / document_frequency.c.df
-                )
+                    term_frequency.c.tf
+                    * func.log(
+                total_documents.cast(Float) / document_frequency.c.df
+            )
             ).label('tfidf_score'),
         )
         .join(RfcSection, RfcSection.id == term_frequency.c.section_id)
