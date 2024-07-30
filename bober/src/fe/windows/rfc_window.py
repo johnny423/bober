@@ -7,6 +7,7 @@ from bober.src.fe.windows.utils import (
 from bober.src.search.rfc_content import load_rfc_content
 
 
+# todo: looks bad currently
 # todo: support scroll to specific section
 class RFCWindow(BaseWindow):
     def __init__(self, parent, session: Session, rfc, token=None):

@@ -42,19 +42,13 @@ class SearchFileWindow(BaseWindow):
         self.create_button(self.main_frame, "Search files", self.search_files)
 
         # Create the Treeview widget for displaying search results
-        self.tree = ttk.Treeview(self.main_frame, columns=("num", "title", "published_at", "authors", "open_file"),
-                                 show="headings")
-        self.tree.heading("num", text="RFC Number")
-        self.tree.heading("title", text="Title")
-        self.tree.heading("published_at", text="Published At")
-        self.tree.heading("authors", text="Authors")
-        self.tree.heading("open_file", text="Open File")
-
-        self.tree.column("num", width=100)
-        self.tree.column("title", width=300)
-        self.tree.column("published_at", width=150)
-        self.tree.column("authors", width=250)
-        self.tree.column("open_file", width=100)
+        columns = {
+            "num": ("RFC Number", 100),
+            "title": ("Title", 300),
+            "published_at": ("Published At", 150),
+            "authors": ("Authors", 250)
+        }
+        self.tree = self._make_table(columns)
 
         # Add scrollbar to the Treeview
         self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
@@ -65,6 +59,14 @@ class SearchFileWindow(BaseWindow):
         self.scrollbar.pack(side="right", fill="y")
 
         self.create_button(self.main_frame, "Cancel", self.destroy)
+
+    def _make_table(self, columns: dict[str, tuple[str, int]]) -> ttk.Treeview:
+        tree = ttk.Treeview(self.main_frame, columns=list(columns.keys()), show="headings")
+        for col, (text, width) in columns.items():
+            tree.heading(col, text=text)
+            tree.column(col, width=width)
+
+        return tree
 
     def add_author(self):
         author = self.author_entry.get().strip()
@@ -89,6 +91,7 @@ class SearchFileWindow(BaseWindow):
         tokens = self.contains_tokens.get().split()
         authors = list(self.authors_listbox.get(0, "end"))
 
+        # todo: calender selection
         if published_after:
             if not (date_range_min := convert_to_datetime(published_after)):
                 self.show_error('Published after (should be YYYY/MM/DD)')
@@ -102,8 +105,8 @@ class SearchFileWindow(BaseWindow):
         else:
             date_range_max = datetime.max
 
-        # todo: add rfc_num filter support
         search_query = SearchRFCQuery(
+            num=rfc_num or None,
             title=title or None,
             date_range=(date_range_min, date_range_max),
             authors=authors or None,
@@ -125,24 +128,12 @@ class SearchFileWindow(BaseWindow):
                 rfc.title,
                 rfc.published_at.strftime("%Y-%m-%d"),
                 ", ".join(rfc.authors),
-                ""  # Leave this empty, we'll place a button here
             ))
-
-            # Create a button for the "Open file" column
-            open_button = ttk.Button(self.tree, text="Open", command=lambda num=rfc.num: self.open_file(num))
-            self.tree.set(item, "open_file", "")
             self.tree.item(item, tags=(item,))
-            self.tree.tag_bind(item, "<<TreeviewSelect>>",
-                               lambda event, btn=open_button, itemid=item: self.place_button(event, btn, itemid))
 
-    def place_button(self, event, button, item):
-        selection = self.tree.selection()
-        if selection and item == selection[0]:
-            bbox = self.tree.bbox(item, "open_file")
-            if bbox:
-                button.place(x=bbox[0], y=bbox[1], width=bbox[2], height=bbox[3])
-        else:
-            button.place_forget()
+        self.tree.bind("<Double-1>", self._on_item_click)
 
-    def open_file(self, rfc_num):
-        RFCWindow(self, self.session, rfc_num)
+    def _on_item_click(self, event):
+        item = self.tree.identify('item', event.x, event.y)
+        (rfc, *_) = self.tree.item(item, 'values')
+        RFCWindow(self, self.session, int(rfc))

@@ -4,16 +4,17 @@ from collections import defaultdict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition
+from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition, Author
 from bober.src.parsing.parsed_types import ParsedDocument, ParsedToken
 
 
 def ingest_rfc(
-    session: Session,
-    rfc_num: int,
-    rfc_title: str,
-    rfc_published_at: datetime.date,
-    parsed_doc: ParsedDocument,
+        session: Session,
+        rfc_num: int,
+        rfc_title: str,
+        rfc_published_at: datetime.date,
+        rfc_authors: list[str],
+        parsed_doc: ParsedDocument,
 ) -> Rfc:
     # Create or get the Rfc object
     rfc = session.execute(
@@ -21,6 +22,9 @@ def ingest_rfc(
     ).scalar_one_or_none()
     if not rfc:
         rfc = Rfc(num=rfc_num, title=rfc_title, published_at=rfc_published_at)
+        rfc.authors = [
+            Author(author_name=name) for name in rfc_authors
+        ]
         session.add(rfc)
 
     # Collect all unique tokens
