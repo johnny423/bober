@@ -196,9 +196,6 @@ def _on_item_click(event, tree: ttk.Treeview, callback: Callable[[Any], None]):
             callback(*values[1:])
 
 
-def dummy_button_command():
-    print('dummy command for button executed')
-
 
 def ellipsis_around(
     text: str, start_position: int, end_position: int, length: int

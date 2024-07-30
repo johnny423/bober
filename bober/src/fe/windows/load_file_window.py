@@ -1,119 +1,48 @@
 import tkinter as tk
-from datetime import datetime
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
 
-from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime
+from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.windows.utils import convert_to_datetime
+from bober.src.rfc_ingest.load_from_file import load_single_file
 
 
-class LoadFileWindow(tk.Toplevel):
-    def __init__(self, parent, file_loaded_callback):
-        super().__init__(parent)
-        self.title("Load File")
-        # self.geometry("400x500")
+class LoadFileWindow(BaseWindow):
+    file_label: tk.Label
+    rfc_number_entry: tk.Entry
+    title_entry: tk.Entry
+    published_at_entry: tk.Entry
+    author_entry: tk.Entry
+    authors_listbox: tk.Listbox
 
-        # Make this window modal
-        self.grab_set()
-        self.transient(parent)
-
-        self.parent = parent
-        self.file_loaded_callback = file_loaded_callback
-
+    def __init__(self, parent, session):
+        super().__init__(parent, "Load File", session)
         self.filepath = ""
+        self.create_widgets()
 
-        create_label(
-            self,
-            text="Select a file to load:",
-            placement='pack',
-            placement_args={'pady': 10},
-        )
+    def create_widgets(self):
+        self.create_button(self.main_frame, "Browse", self.browse_file)
 
-        create_button(
-            self,
-            text="Browse",
-            command=self.browse_file,
-            placement='pack',
-            placement_args={'pady': 5},
-        )
+        self.file_label = tk.Label(self.main_frame, text="No file selected")
+        self.file_label.pack(pady=5)
 
-        self.file_label = create_label(
-            self,
-            text="No file selected",
-            placement='pack',
-            placement_args={'pady': 5},
-        )
+        self.rfc_number_entry = self.create_entry(self.main_frame, "RFC Number:")
+        self.title_entry = self.create_entry(self.main_frame, "Title:")
+        self.published_at_entry = self.create_entry(self.main_frame, "Published at (YYYY/MM/DD):")
+        self.author_entry = self.create_entry(self.main_frame, "Authors:")
 
-        # Metadata input fields
-        create_label(
-            self,
-            text="RFC Number:",
-            placement='pack',
-            placement_args={'pady': 5},
-        )
-        self.rfc_number_entry = tk.Entry(self)
-        self.rfc_number_entry.pack(pady=5)
+        self.create_button(self.main_frame, "Add Author", self.add_author)
 
-        create_label(
-            self, text="Title:", placement='pack', placement_args={'pady': 5}
-        )
-        self.title_entry = tk.Entry(self)
-        self.title_entry.pack(pady=5)
+        self.authors_listbox = self.create_listbox(self.main_frame)
 
-        create_label(
-            self,
-            text="Published at (YYYY/MM/DD):",
-            placement='pack',
-            placement_args={'pady': 5},
-        )
-        self.published_at_entry = tk.Entry(self)
-        self.published_at_entry.pack(pady=5)
-
-        create_label(
-            self, text="Authors:", placement='pack', placement_args={'pady': 5}
-        )
-        self.author_entry = tk.Entry(self)
-        self.author_entry.pack(pady=5)
-
-        create_button(
-            self,
-            text="Add Author",
-            command=self.add_author,
-            placement='pack',
-            placement_args={'pady': 5},
-        )
-
-        self.authors_listbox = tk.Listbox(self, height=5, width=40)
-        self.authors_listbox.pack(pady=5)
-
-        create_button(
-            self,
-            text="Remove Selected Author",
-            command=self.remove_author,
-            placement='pack',
-            placement_args={'pady': 5},
-        )
-
-        create_button(
-            self,
-            text="Load File",
-            command=self.load_file,
-            placement='pack',
-            placement_args={'pady': 10},
-        )
-
-        create_button(
-            self,
-            text="Cancel",
-            command=self.destroy,
-            bg="lightgray",
-            placement='pack',
-            placement_args={'pady': 5},
-        )
+        self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
+        self.create_button(self.main_frame, "Load File", self.load_file)
+        self.create_button(self.main_frame, "Cancel", self.destroy)
 
     def browse_file(self):
         self.filepath = filedialog.askopenfilename(
             title="Select a file",
             filetypes=(("All files", "*.*"),),
-            parent=self,  # Specify the parent window
+            parent=self,
         )
         if self.filepath:
             self.file_label.config(text=f"Selected file: {self.filepath}")
@@ -124,18 +53,14 @@ class LoadFileWindow(tk.Toplevel):
             self.authors_listbox.insert(tk.END, author)
             self.author_entry.delete(0, tk.END)
         else:
-            messagebox.showwarning(
-                "Warning", "Please enter an author name.", parent=self
-            )
+            self.show_warning("Please enter an author name.")
 
     def remove_author(self):
         selected = self.authors_listbox.curselection()
         if selected:
             self.authors_listbox.delete(selected)
         else:
-            messagebox.showwarning(
-                "Warning", "Please select an author to remove.", parent=self
-            )
+            self.show_warning("Please select an author to remove.")
 
     def load_file(self):
         missing_fields = []
@@ -144,15 +69,18 @@ class LoadFileWindow(tk.Toplevel):
         if not self.filepath:
             missing_fields.append("File")
 
-        if not (rfc_num := self.rfc_number_entry.get()):
+        rfc_num = self.rfc_number_entry.get()
+        if not rfc_num:
             missing_fields.append("RFC Number")
         elif not rfc_num.isdigit():
-            invalid_fields.append("Rfc Number must be an integer")
+            invalid_fields.append("RFC Number must be an integer")
 
-        if not (title := self.title_entry.get()):
+        title = self.title_entry.get()
+        if not title:
             missing_fields.append("Title")
 
-        if not (published_at := self.published_at_entry.get()):
+        published_at = self.published_at_entry.get()
+        if not published_at:
             missing_fields.append("Published at")
         elif not convert_to_datetime(published_at):
             invalid_fields.append("Published at (should be YYYY/MM/DD)")
@@ -165,10 +93,8 @@ class LoadFileWindow(tk.Toplevel):
             if missing_fields:
                 error_message += f"Please fill in the following fields: {', '.join(missing_fields)}\n"
             if invalid_fields:
-                error_message += (
-                    f"Invalid format for: {', '.join(invalid_fields)}"
-                )
-            messagebox.showerror("Error", error_message.strip(), parent=self)
+                error_message += f"Invalid format for: {', '.join(invalid_fields)}"
+            self.show_error(error_message.strip())
             return
 
         metadata = {
@@ -177,9 +103,5 @@ class LoadFileWindow(tk.Toplevel):
             "publish_at": published_at,
             "authors": list(self.authors_listbox.get(0, tk.END)),
         }
-        self.file_loaded_callback(self.filepath, metadata)
+        load_single_file(self.session, self.filepath, metadata)
         self.destroy()
-
-    def destroy(self):
-        self.grab_release()
-        super().destroy()

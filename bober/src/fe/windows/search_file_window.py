@@ -1,81 +1,48 @@
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
 from datetime import datetime
+import tkinter as tk
+from tkinter import ttk
 
-from bober.src.fe.windows.utils import create_button, create_label, convert_to_datetime, add_dict_display
+from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.windows.rfc_window import RFCWindow
+from bober.src.fe.windows.utils import convert_to_datetime, create_label
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
-class SearchFileWindow(tk.Toplevel):  # todo fix "open" buttons not appearing until click
+class SearchFileWindow(BaseWindow):
+    rfc_number_entry: tk.Entry
+    title_entry: tk.Entry
+    published_after_entry: tk.Entry
+    published_before_entry: tk.Entry
+    author_entry: tk.Entry
+    contains_tokens: tk.Entry
+    authors_listbox: tk.Listbox
+    tree: ttk.Treeview
+    scrollbar: ttk.Scrollbar
+
     def __init__(self, parent, session):
-        super().__init__(parent)
-        self.title("Search File")
-        # self.geometry("400x500")
+        super().__init__(parent, "Search File", session)
+        self.create_widgets()
 
-        # Make this window modal
-        self.grab_set()
-        self.transient(parent)
-
-        self.parent = parent
-        self.session = session
-
-        create_label(self, text="Filters to apply (fill relevant):", placement='pack', placement_args={'pady': 5})
-
-        # Metadata input fields
-        create_label(self, text="RFC Number (TODO - not working right now):", placement='pack', placement_args={'pady': 5})  # todo support this filter
-        self.rfc_number_entry = tk.Entry(self)
-        self.rfc_number_entry.pack(pady=5)
-
-        create_label(self, text="Title:", placement='pack', placement_args={'pady': 5})
-        self.title_entry = tk.Entry(self)
-        self.title_entry.pack(pady=5)
-
-        create_label(self, text="Published after (YYYY/MM/DD):", placement='pack', placement_args={'pady': 5})
-        self.published_after_entry = tk.Entry(self)
-        self.published_after_entry.pack(pady=5)
-
-        create_label(self, text="Published before (YYYY/MM/DD):", placement='pack', placement_args={'pady': 5})
-        self.published_before_entry = tk.Entry(self)
-        self.published_before_entry.pack(pady=5)
-
+    def create_widgets(self):
         create_label(self, text="Authors:", placement='pack', placement_args={'pady': 5})
-        self.author_entry = tk.Entry(self)
-        self.author_entry.pack(pady=5)
 
-        create_label(self, text="Contains tokens(space separated):", placement='pack', placement_args={'pady': 5})
-        self.contains_tokens = tk.Entry(self)
-        self.contains_tokens.pack(pady=5)
+        # todo: bad display
+        self.rfc_number_entry = self.create_entry(self.main_frame, "RFC Number (TODO - not working right now):")
+        self.title_entry = self.create_entry(self.main_frame, "Title:")
+        self.published_after_entry = self.create_entry(self.main_frame, "Published after (YYYY/MM/DD):")
+        self.published_before_entry = self.create_entry(self.main_frame, "Published before (YYYY/MM/DD):")
+        self.author_entry = self.create_entry(self.main_frame, "Authors:")
+        self.contains_tokens = self.create_entry(self.main_frame, "Contains tokens(space separated):")
 
-        create_button(
-            self,
-            text="Add Author",
-            command=self.add_author,
-            placement='pack',
-            placement_args={'pady': 5}
-        )
+        self.create_button(self.main_frame, "Add Author", self.add_author)
 
-        self.authors_listbox = tk.Listbox(self, height=5, width=40)
-        self.authors_listbox.pack(pady=5)
+        self.authors_listbox = self.create_listbox(self.main_frame, height=5, width=40)
 
-        create_button(
-            self,
-            text="Remove Selected Author",
-            command=self.remove_author,
-            placement='pack',
-            placement_args={'pady': 5}
-        )
-
-        create_button(
-            self,
-            text="Search files",
-            command=self.search_files,
-            placement='pack',
-            placement_args={'pady': 10}
-        )
+        self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
+        self.create_button(self.main_frame, "Search files", self.search_files)
 
         # Create the Treeview widget for displaying search results
-        self.tree = ttk.Treeview(self, columns=("num", "title", "published_at", "authors", "open_file"),
+        self.tree = ttk.Treeview(self.main_frame, columns=("num", "title", "published_at", "authors", "open_file"),
                                  show="headings")
         self.tree.heading("num", text="RFC Number")
         self.tree.heading("title", text="Title")
@@ -90,37 +57,29 @@ class SearchFileWindow(tk.Toplevel):  # todo fix "open" buttons not appearing un
         self.tree.column("open_file", width=100)
 
         # Add scrollbar to the Treeview
-        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+        self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
         # Pack the Treeview and scrollbar
         self.tree.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
-        create_button(
-            self,
-            text="Cancel",
-            command=self.destroy,
-            bg="lightgray",
-            placement='pack',
-            placement_args={'pady': 5}
-        )
+        self.create_button(self.main_frame, "Cancel", self.destroy)
 
-    # todo remove boiler palate code copied from load file window
     def add_author(self):
         author = self.author_entry.get().strip()
         if author:
-            self.authors_listbox.insert(tk.END, author)
-            self.author_entry.delete(0, tk.END)
+            self.authors_listbox.insert("end", author)
+            self.author_entry.delete(0, "end")
         else:
-            messagebox.showwarning("Warning", "Please enter an author name.", parent=self)
+            self.show_warning("Please enter an author name.")
 
     def remove_author(self):
         selected = self.authors_listbox.curselection()
         if selected:
             self.authors_listbox.delete(selected)
         else:
-            messagebox.showwarning("Warning", "Please select an author to remove.", parent=self)
+            self.show_warning("Please select an author to remove.")
 
     def search_files(self):
         rfc_num = self.rfc_number_entry.get()
@@ -128,38 +87,30 @@ class SearchFileWindow(tk.Toplevel):  # todo fix "open" buttons not appearing un
         published_after = self.published_after_entry.get()
         published_before = self.published_before_entry.get()
         tokens = self.contains_tokens.get().split()
-        authors = list(self.authors_listbox.get(0, tk.END))
+        authors = list(self.authors_listbox.get(0, "end"))
 
         if published_after:
             if not (date_range_min := convert_to_datetime(published_after)):
-                messagebox.showerror("Error", 'Published after (should be YYYY/MM/DD)', parent=self)
+                self.show_error('Published after (should be YYYY/MM/DD)')
                 return
         else:
             date_range_min = datetime.min
         if published_before:
             if not (date_range_max := convert_to_datetime(published_before)):
-                messagebox.showerror("Error", 'Published before (should be YYYY/MM/DD)', parent=self)
+                self.show_error('Published before (should be YYYY/MM/DD)')
                 return
         else:
             date_range_max = datetime.max
 
-        # if not any([  # todo add back if needed
-        #     rfc_num,
-        #     title,
-        #     published_at,
-        #     self.authors_listbox.size() == 0,
-        # ]):
-        #     messagebox.showerror("Error", 'Fill at least one filter', parent=self)
-        #     return
-
+        # todo: add rfc_num filter support
         search_query = SearchRFCQuery(
             title=title or None,
             date_range=(date_range_min, date_range_max),
             authors=authors or None,
             tokens=tokens or None,
         )
+
         filtered_rfcs = search_rfcs(self.session, search_query)
-        print(f'Found {len(filtered_rfcs)} rfcs')  # todo remove
         self.display_search_results(filtered_rfcs)
 
     def display_search_results(self, filtered_rfcs):
@@ -178,7 +129,7 @@ class SearchFileWindow(tk.Toplevel):  # todo fix "open" buttons not appearing un
             ))
 
             # Create a button for the "Open file" column
-            open_button = tk.Button(self.tree, text="Open", command=lambda num=rfc.num: self.open_file(num))
+            open_button = ttk.Button(self.tree, text="Open", command=lambda num=rfc.num: self.open_file(num))
             self.tree.set(item, "open_file", "")
             self.tree.item(item, tags=(item,))
             self.tree.tag_bind(item, "<<TreeviewSelect>>",
@@ -194,9 +145,4 @@ class SearchFileWindow(tk.Toplevel):  # todo fix "open" buttons not appearing un
             button.place_forget()
 
     def open_file(self, rfc_num):
-        print(f"Open file clicked for RFC number: {rfc_num}")  # todo remove
         RFCWindow(self, self.session, rfc_num)
-
-    def destroy(self):
-        self.grab_release()
-        super().destroy()

@@ -3,10 +3,9 @@ import tkinter as tk
 from bober.src.fe.windows import utils
 from bober.src.fe.windows.index_search_window import IndexSearchWindow
 from bober.src.fe.windows.load_file_window import LoadFileWindow
+from bober.src.fe.windows.search_file_window import SearchFileWindow
 from bober.src.fe.windows.word_groups_window import WordGroupManager
 from bober.src.fe.windows.word_index_window import WordIndexWindow
-from bober.src.fe.windows.search_file_window import SearchFileWindow
-from bober.src.rfc_ingest.load_from_file import load_single_file
 
 
 class MainWindow(tk.Tk):
@@ -14,39 +13,14 @@ class MainWindow(tk.Tk):
         super().__init__()
         self.session = session
         self.title("Main Window")
-        utils.create_button(self, "Load new file", self.open_load_file_window)
+        utils.create_button(self, "Load new file", lambda: LoadFileWindow(self, self.session))
+        utils.create_button(self, "Find document", lambda: SearchFileWindow(self, self.session))
+        utils.create_button(self, "Word index", lambda: WordIndexWindow(self, self.session))
+        utils.create_button(self, "Find word by index", lambda: IndexSearchWindow(self, self.session))
+        utils.create_button(self, "Manage word groups", lambda: WordGroupManager(self, self.session))
         utils.create_button(
-            self, "Find document", self.open_rfc_search
+            self, "Manage linguistic expressions", lambda: print('dummy command for button executed')
         )  # todo
-        utils.create_button(self, "Word index", self.open_word_index)
-        utils.create_button(
-            self, "Find word by index", self.open_index_search
-        )  # todo
-        utils.create_button(
-            self, "Manage word groups", self.open_word_group_manager
-        )
-        utils.create_button(
-            self, "Manage linguistic expressions", utils.dummy_button_command
-        )  # todo
-        utils.create_button(self, "Exit", self.destroy)
-
-    def open_load_file_window(self):
-        def load_file_callback(*args):
-            return load_single_file(self.session, *args)
-
-        LoadFileWindow(self, load_file_callback)
-
-    def open_rfc_search(self):
-        SearchFileWindow(self, self.session)
-
-    def open_word_index(self):
-        WordIndexWindow(self, self.session)
-
-    def open_word_group_manager(self):
-        WordGroupManager(self, self.session)
-
-    def open_index_search(self):
-        IndexSearchWindow(self, self.session)
 
 
 def launch_gui(session):
