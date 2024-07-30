@@ -17,10 +17,6 @@ class Rfc(Base):
     sections: Mapped[list["RfcSection"]] = relationship(
         "RfcSection", back_populates="rfc", cascade="all, delete-orphan"
     )
-    # todo: do we need it?
-    # token_positions: Mapped[list["TokenPosition"]] = relationship(
-    #     "TokenPosition", back_populates="rfc", cascade="all, delete-orphan"
-    # )
 
 
 class Author(Base):

@@ -5,14 +5,8 @@ from tkinter import scrolledtext, ttk
 from typing import Any, Callable
 
 
-def add_button(parent, text, command, row, column):  # todo remove
-    button = ttk.Button(parent, text=text, command=command)
-    button.grid(row=row, column=column, padx=5, pady=5)
-    return button
-
-
 def create_button(
-    parent, text, command, placement='pack', placement_args=None, **kwargs
+        parent, text, command, placement='pack', placement_args=None, **kwargs
 ):
     """
     Create, configure, and place a button with default styling and the given parameters.
@@ -83,23 +77,8 @@ def create_label(parent, text, placement='pack', placement_args=None, **kwargs):
     return label
 
 
-def callback_mock(*args):
-    print('printing args')
-    for arg in args:
-        print(arg)
-    print('done printing args')
-
-
-def add_input_field(parent, label_text, row, column):  # todo remove
-    label = ttk.Label(parent, text=label_text)
-    label.grid(row=row, column=column, padx=5, pady=5)
-    entry = ttk.Entry(parent, width=30)
-    entry.grid(row=row, column=column + 1, padx=5, pady=5)
-    return entry
-
-
 def create_scroll_region(
-    parent: tk.Widget, initial_text: str, to_highlight: list[str] | None = None
+        parent: tk.Widget, initial_text: str, to_highlight: list[str] | None = None
 ) -> scrolledtext.ScrolledText:
     """
     Create and return a ScrolledText widget with highlighting capabilities.
@@ -136,7 +115,7 @@ def create_scroll_region(
 
 
 def highlight_strings(
-    text_area: scrolledtext.ScrolledText, to_highlight: list[str]
+        text_area: scrolledtext.ScrolledText, to_highlight: list[str]
 ):
     text_area.tag_config('highlight', background='yellow')
 
@@ -153,11 +132,11 @@ Tree = dict[str, Leaf] | dict[str, "Tree"]
 
 
 def add_dict_display(
-    parent: tk.Widget,
-    dictionary: Tree,
-    key_header: str,
-    value_header: str,
-    callback: Callable[[Any], None] = None,
+        parent: tk.Widget,
+        dictionary: Tree,
+        key_header: str,
+        value_header: str,
+        callback: None | Callable = None,
 ):
     frame = ttk.Frame(parent, padding=10)
     frame.pack(fill=tk.BOTH, expand=True)
@@ -176,7 +155,7 @@ def add_dict_display(
 
 
 def _populate_tree(
-    tree: ttk.Treeview, data: Tree | Leaf, parent: str = ''
+        tree: ttk.Treeview, data: Tree | Leaf, parent: str = ''
 ) -> None:
     if isinstance(data, dict):
         for key, value in data.items():
@@ -196,9 +175,8 @@ def _on_item_click(event, tree: ttk.Treeview, callback: Callable[[Any], None]):
             callback(*values[1:])
 
 
-
 def ellipsis_around(
-    text: str, start_position: int, end_position: int, length: int
+        text: str, start_position: int, end_position: int, length: int
 ) -> str:
     """
     Create a substring of 'text' centered around the range from 'start_position' to 'end_position'
@@ -237,9 +215,9 @@ def ellipsis_around(
     """
     if len(text) <= length:
         return (
-            text[:start_position]
-            + f"[{text[start_position:end_position]}]"
-            + text[end_position:]
+                text[:start_position]
+                + f"[{text[start_position:end_position]}]"
+                + text[end_position:]
         )
 
     length = max(
@@ -247,7 +225,7 @@ def ellipsis_around(
     )  # Ensure minimum length for ellipses, content, and brackets
     highlight_length = end_position - start_position
     available_length = (
-        length - 5 - highlight_length
+            length - 5 - highlight_length
     )  # Subtract 5 for ellipses and brackets
 
     left_context = (available_length) // 2

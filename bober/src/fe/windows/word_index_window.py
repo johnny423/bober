@@ -67,8 +67,8 @@ class WordIndexWindow(BaseWindow):
         add_dict_display(
             self.results_frame,
             dictionary=self._setup_for_display(words_index),
-            key_header="what?",  # todo: better
-            value_header="the hell?",  # todo: better
+            key_header="word",
+            value_header="content",
             callback=self.load_rfc_window,
         )
 

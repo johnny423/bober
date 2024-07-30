@@ -22,7 +22,6 @@ def load_rfc_content(session: Session, rfc_num: int) -> str | None:
 
     section: RfcSection
     for section in sections:
-        # todo: this logic can cause problems
         if curr_page != section.page:
             curr_page = section.page
             curr_line = 1  # counting lines in page starts from 1
