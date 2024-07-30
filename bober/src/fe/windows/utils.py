@@ -1,8 +1,8 @@
 import tkinter as tk
 from collections import namedtuple
+from datetime import datetime
 from tkinter import scrolledtext, ttk
 from typing import Any, Callable
-from datetime import datetime
 
 
 def add_button(parent, text, command, row, column):  # todo remove

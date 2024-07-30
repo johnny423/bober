@@ -1,5 +1,4 @@
 import os
-from pprint import pprint
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -8,7 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from bober.src.db_models import Base
 from bober.src.fe.launch_gui import launch_gui
 from bober.src.loader import load_examples
-from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
+
+RELOAD_DATA = False
 
 if __name__ == "__main__":
     # todo: move to pydantic
@@ -27,24 +27,11 @@ if __name__ == "__main__":
     Session = sessionmaker(engine)
 
     with Session() as session:
-        # for tbl in reversed(Base.metadata.sorted_tables):
-        #     session.execute(tbl.delete())
-        # session.commit()
-        #
-        # load_examples(session)
+        if RELOAD_DATA:
+            for tbl in reversed(Base.metadata.sorted_tables):
+                session.execute(tbl.delete())
+            session.commit()
+
+            load_examples(session)
+
         launch_gui(session)
-
-        # select content
-        # content = fetch_rfc_sections(session, 2324)
-        # text = rebuild_content(content)
-        # print(text)
-
-        # search_rfcs
-        # r = search_rfcs(session, SearchRFCQuery(tokens=["coffee"]))
-        # pprint(r)
-
-        # # phrase
-        # save_new_phrase(session, "xxx", "espresso machines")
-        # a = find_phrase_occurrences(session, "xxx")
-        # print(a[0].content)
-        #

@@ -1,5 +1,5 @@
-from datetime import datetime
 import tkinter as tk
+from datetime import datetime
 from tkinter import ttk
 
 from bober.src.fe.base_window import BaseWindow

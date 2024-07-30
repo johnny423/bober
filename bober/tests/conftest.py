@@ -3,7 +3,7 @@ import os
 import psycopg2
 import pytest
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import MetaData, create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from bober.src.db_models import Base
@@ -42,8 +42,8 @@ def create_test_database(base_db_url):
     cur = conn.cursor()
 
     # Drop the test database if it already exists and create a new one
-    cur.execute(f"DROP DATABASE IF EXISTS test")
-    cur.execute(f"CREATE DATABASE test")
+    cur.execute("DROP DATABASE IF EXISTS test")
+    cur.execute("CREATE DATABASE test")
     cur.close()
     conn.close()
 
