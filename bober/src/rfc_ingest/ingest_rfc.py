@@ -37,10 +37,10 @@ def ingest_rfc(
         )
         session.add(section)
 
-        for line_num, parsed_line in parsed_section.lines.values():
+        for line_num, parsed_line in parsed_section.lines.items():
             line = RfcLine(
                 section=section,
-                index=line_num,
+                line_number=line_num,
                 line=parsed_line.text,
                 indentation=parsed_line.indentation,
             )

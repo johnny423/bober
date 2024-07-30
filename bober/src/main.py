@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 
 from bober.src.db_models import Base
 from bober.src.fe.launch_gui import launch_gui
+from bober.src.loader import load_examples
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 if __name__ == "__main__":
@@ -26,11 +27,10 @@ if __name__ == "__main__":
     Session = sessionmaker(engine)
 
     with Session() as session:
-        # reload data and tables
         # for tbl in reversed(Base.metadata.sorted_tables):
         #     session.execute(tbl.delete())
         # session.commit()
-
+        #
         # load_examples(session)
         launch_gui(session)
 
@@ -40,8 +40,8 @@ if __name__ == "__main__":
         # print(text)
 
         # search_rfcs
-        r = search_rfcs(session, SearchRFCQuery(tokens=["coffee"]))
-        pprint(r)
+        # r = search_rfcs(session, SearchRFCQuery(tokens=["coffee"]))
+        # pprint(r)
 
         # # phrase
         # save_new_phrase(session, "xxx", "espresso machines")
