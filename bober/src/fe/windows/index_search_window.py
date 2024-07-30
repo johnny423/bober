@@ -83,8 +83,8 @@ class IndexSearchWindow(BaseWindow):
         criteria = Index1Criteria(
             title=self.title_var.get(),
             page=int(self.index_1_page_entry.get()) if self.index_1_page_entry.get() else None,
-            line=int(self.index_1_row_entry.get()) if self.index_1_row_entry.get() else None,
-            position=int(self.index_1_position_entry.get()) if self.index_1_position_entry.get() else None,
+            line_in_page=int(self.index_1_row_entry.get()) if self.index_1_row_entry.get() else None,
+            position_in_line=int(self.index_1_position_entry.get()) if self.index_1_position_entry.get() else None,
         )
         results = index_1_search(self.session, criteria)
         self.display_results(results)
@@ -93,8 +93,8 @@ class IndexSearchWindow(BaseWindow):
         criteria = Index2Criteria(
             title=self.title_var.get(),
             section=int(self.index_2_section_entry.get()) if self.index_2_section_entry.get() else None,
-            line=int(self.index_2_row_entry.get()) if self.index_2_row_entry.get() else None,
-            position=int(self.index_2_position_entry.get()) if self.index_2_position_entry.get() else None,
+            line_in_section=int(self.index_2_row_entry.get()) if self.index_2_row_entry.get() else None,
+            position_in_line=int(self.index_2_position_entry.get()) if self.index_2_position_entry.get() else None,
         )
         results = index_2_search(self.session, criteria)
         self.display_results(results)

@@ -59,26 +59,26 @@ class SortOrder(StrEnum):
 
 
 def query_words_index(
-    session: Session,
-    token_groups: Optional[List[str]] = None,
-    rfc_title: Optional[str] = None,
-    partial_token: Optional[str] = None,
-    sort_by: SortBy = SortBy.OCCURRENCES,
-    sort_order: SortOrder = SortOrder.DESC,
+        session: Session,
+        token_groups: Optional[List[str]] = None,
+        rfc_title: Optional[str] = None,
+        partial_token: Optional[str] = None,
+        sort_by: SortBy = SortBy.OCCURRENCES,
+        sort_order: SortOrder = SortOrder.DESC,
 ) -> Dict[str, WordIndex]:
     query = (
         select(
             Token.stem,
             Rfc.num,
             Rfc.title,
-            Rfc.published_at,
             RfcSection.index.label('section_index'),
-            RfcLine.id.label('line_id'),
+            RfcSection.page,
+            RfcSection.row_start,
+            RfcLine.line_number.label('line_in_page'),
             TokenPosition.start_position,
             TokenPosition.end_position,
             TokenPosition.index,
             RfcLine.line.label('context'),
-            func.count().over(partition_by=Token.token).label('token_count'),
         )
         .join(Token.positions)
         .join(TokenPosition.line)
@@ -115,17 +115,17 @@ def query_words_index(
 
     result: Dict[str, WordIndex] = {}
     for (
-        token,
-        rfc_num,
-        rfc_title,
-        published_at,  # todo: use?
-        section_index,
-        line_id,
-        start_position,
-        end_position,
-        index,
-        context,
-        token_count,  # todo: use?
+            token,
+            rfc_num,
+            rfc_title,
+            section_index,
+            page,
+            row_start,
+            line_in_page,
+            start_position,
+            end_position,
+            index,
+            context,
     ) in session.execute(query):
 
         if token not in result:
@@ -138,8 +138,8 @@ def query_words_index(
 
         occurrence = TokenOccurrence(
             section_index=section_index,
-            page=0,  # We don't have page information in the new model
-            row=line_id,  # Using line_id as a substitute for row
+            page=page,  # We don't have page information in the new model
+            row=row_start + line_in_page,
             context=context,  # todo: content should might include lines before and after
             start_position=start_position,
             end_position=end_position,

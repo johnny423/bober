@@ -26,6 +26,7 @@ class ParsedLine(BaseModel):
 class ParsedSection(BaseModel):
     page: int
     page_line: int
+    # line index in section
     lines: dict[int, ParsedLine]
 
 
