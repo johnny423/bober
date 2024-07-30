@@ -6,7 +6,7 @@ from bober.src.word_groups.word_groups import (
     add_words_to_group,
     create_word_group,
     list_groups,
-    list_words_in_group,
+    list_words_in_group, remove_words_from_group,
 )
 
 
@@ -31,6 +31,7 @@ class WordGroupManager(BaseWindow):
 
         self.word_entry = self.create_entry(left_frame, "Word:")
         self.create_button(left_frame, "Add Word to Group", self.add_word_to_group)
+        self.create_button(left_frame, "Remove Word from Group", self.remove_word_from_group)
 
         # Right frame for displaying groups and words
         right_frame = ttk.Frame(self.main_frame)
@@ -69,17 +70,26 @@ class WordGroupManager(BaseWindow):
         self.word_entry.delete(0, tk.END)
         self.on_group_select()
 
-    # todo: add remove?
-    # def remove_words(self):
-    #     group_name = self.group_name_entry.get()
-    #     words = [word.strip() for word in self.word_entry.get().split(',')]
-    #
-    #     try:
-    #         remove_words_from_group(self.session, group_name, words)
-    #     except Exception as e:
-    #         self.show_error(str(e))
-    #     else:
-    #         self.load_word_groups()
+    def remove_word_from_group(self):
+        selected_items = self.groups_tree.selection()
+        if not selected_items:
+            self.show_warning("Please select a group.")
+            return
+
+        selected_words = self.words_list.curselection()
+        if not selected_words:
+            self.show_warning("Please select a word to remove.")
+            return
+
+        group_name = self.groups_tree.item(selected_items[0])['values'][0]
+        word = self.words_list.get(selected_words[0])
+
+        try:
+            remove_words_from_group(self.session, group_name, [word])
+        except Exception as e:
+            self.show_error(str(e))
+        else:
+            self.on_group_select()
 
     def load_word_groups(self):
         self.groups_tree.delete(*self.groups_tree.get_children())
