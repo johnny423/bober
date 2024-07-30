@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from bober.src.db_models import Base
 from bober.src.fe.launch_gui import launch_gui
 from bober.src.loader import load_examples
+from bober.src.search.rfc_content import load_rfc_content, get_section_absolute_line_query, get_absolute_position
 
 SHOULD_RELOAD_DATA = False
 
@@ -37,4 +38,10 @@ if __name__ == "__main__":
 
             load_examples(session)
 
-        launch_gui(session)
+        # launch_gui(session)
+        content = load_rfc_content(session, 1).splitlines()
+
+        res = get_absolute_position(session, 1, "Questions")
+        for row in res:
+            print(content[row[3] - 1][row.indentation + row.start_position: row.indentation + row.end_position])
+

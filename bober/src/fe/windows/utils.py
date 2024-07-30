@@ -127,7 +127,7 @@ def highlight_strings(
             start_idx = end_idx
 
 
-Leaf = namedtuple("Lead", ("value", "metadata"))
+Leaf = namedtuple("Leaf", ("value", "metadata"))
 Tree = dict[str, Leaf] | dict[str, "Tree"]
 
 
