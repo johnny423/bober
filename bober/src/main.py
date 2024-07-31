@@ -38,10 +38,9 @@ if __name__ == "__main__":
 
             load_examples(session)
 
-        # launch_gui(session)
-        content = load_rfc_content(session, 1).splitlines()
-
-        res = get_absolute_position(session, 1, "Questions")
-        for row in res:
-            print(content[row[3] - 1][row.indentation + row.start_position: row.indentation + row.end_position])
-
+        launch_gui(session)
+        # content = load_rfc_content(session, 1).splitlines()
+        #
+        # res = get_absolute_position(session, 1, "Questions")
+        # for row in res:
+        #     print(content[row.line - 1][row.start: row.start + row.length])

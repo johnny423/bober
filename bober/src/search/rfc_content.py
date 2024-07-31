@@ -7,12 +7,11 @@ from sqlalchemy.orm import Session, selectinload
 from bober.src.db_models import RfcLine, RfcSection, TokenPosition, Token
 
 
+# todo: doc
 class AbsPosition(BaseModel):
-    """
-    todo:
-    """
+    line: int
     start: int
-    end: int
+    length: int
 
 
 def load_rfc_content(session: Session, rfc_num: int) -> str | None:
@@ -49,23 +48,30 @@ def load_rfc_content(session: Session, rfc_num: int) -> str | None:
     return "\n".join(raw_lines)
 
 
-def get_absolute_position(session: Session, rfc_num: int, token: str):
+def get_absolute_position(session: Session, rfc_num: int, stem: str) -> list[AbsPosition]:
     abs_line_query = get_section_absolute_line_query(rfc_num).subquery()
     query = (
         session.query(
             RfcLine.indentation,
             TokenPosition.start_position,
             TokenPosition.end_position,
-            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label('absolute_line_number')
+            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label('line')
         )
         .join(TokenPosition, TokenPosition.line_id == RfcLine.id)
         .join(Token, Token.id == TokenPosition.token_id)
         .join(RfcSection, RfcSection.id == RfcLine.section_id)
         .join(abs_line_query, RfcSection.id == abs_line_query.c.id)
-        .filter(Token.token == token)
+        .filter(Token.stem == stem)
         .filter(RfcSection.rfc_num == rfc_num)
     )
-    abs_pos = query.all()
+    abs_pos = []
+    for pos in query.all():
+        abs_position = AbsPosition(
+            line=pos.line,
+            start=pos.indentation + pos.start_position,
+            length=pos.end_position - pos.start_position
+        )
+        abs_pos.append(abs_position)
     return abs_pos
 
 

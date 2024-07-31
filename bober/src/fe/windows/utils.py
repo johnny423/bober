@@ -4,6 +4,8 @@ from datetime import datetime
 from tkinter import scrolledtext, ttk
 from typing import Any, Callable
 
+from bober.src.search.rfc_content import AbsPosition
+
 
 def create_button(
         parent, text, command, placement='pack', placement_args=None, **kwargs
@@ -78,7 +80,7 @@ def create_label(parent, text, placement='pack', placement_args=None, **kwargs):
 
 
 def create_scroll_region(
-        parent: tk.Widget, initial_text: str, to_highlight: list[str] | None = None
+        parent: tk.Widget, initial_text: str, highlights: list[AbsPosition] | None = None
 ) -> scrolledtext.ScrolledText:
     """
     Create and return a ScrolledText widget with highlighting capabilities.
@@ -108,23 +110,29 @@ def create_scroll_region(
     text_area.config(xscrollcommand=h_scrollbar.set)
 
     # Highlight specified strings
-    if to_highlight:
-        highlight_strings(text_area, to_highlight)
+
+    if highlights:
+        text_area.tag_config('highlight', background='yellow')
+        for highlight in highlights:
+            start_idx = f"{highlight.line}.{highlight.start}"
+            end_idx = f"{start_idx}+{highlight.length}c"
+            text_area.tag_add('highlight', start_idx, end_idx)
 
     return frame
 
 
-def highlight_strings(
-        text_area: scrolledtext.ScrolledText, to_highlight: list[str]
-):
-    text_area.tag_config('highlight', background='yellow')
-
-    for string in to_highlight:
-        start_idx = '1.0'
-        while start_idx := text_area.search(string, start_idx, tk.END):
-            end_idx = f"{start_idx}+{len(string)}c"
-            text_area.tag_add('highlight', start_idx, end_idx)
-            start_idx = end_idx
+#
+# def highlight_strings(
+#         text_area: scrolledtext.ScrolledText, to_highlight: list[str]
+# ):
+#     text_area.tag_config('highlight', background='yellow')
+#
+#     for string in to_highlight:
+#         start_idx = '1.0'
+#         while start_idx := text_area.search(string, start_idx, tk.END):
+#             end_idx = f"{start_idx}+{len(string)}c"
+#             text_area.tag_add('highlight', start_idx, end_idx)
+#             start_idx = end_idx
 
 
 Leaf = namedtuple("Leaf", ("value", "metadata"))
