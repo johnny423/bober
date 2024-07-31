@@ -1,18 +1,17 @@
 import tkinter as tk
-from datetime import datetime
 from tkinter import ttk
 
+from tkcalendar import Calendar
+
 from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.utils import create_label
 from bober.src.fe.windows.rfc_window import RFCWindow
-from bober.src.fe.utils import convert_to_datetime, create_label
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
 class SearchFileWindow(BaseWindow):
     rfc_number_entry: tk.Entry
     title_entry: tk.Entry
-    published_after_entry: tk.Entry
-    published_before_entry: tk.Entry
     author_entry: tk.Entry
     contains_tokens: tk.Entry
     authors_listbox: tk.Listbox
@@ -26,11 +25,23 @@ class SearchFileWindow(BaseWindow):
     def create_widgets(self):
         create_label(self, text="Authors:", placement='pack', placement_args={'pady': 5})
 
-        # todo: bad display
-        self.rfc_number_entry = self.create_entry(self.main_frame, "RFC Number (TODO - not working right now):")
+        self.rfc_number_entry = self.create_entry(self.main_frame, "RFC Number:")
         self.title_entry = self.create_entry(self.main_frame, "Title:")
-        self.published_after_entry = self.create_entry(self.main_frame, "Published after (YYYY/MM/DD):")
-        self.published_before_entry = self.create_entry(self.main_frame, "Published before (YYYY/MM/DD):")
+
+        # Create a frame to hold both calendars
+        calendar_frame = tk.Frame(self.main_frame)
+        calendar_frame.pack(pady=5)
+
+        # Create and pack the "Published After" calendar
+        tk.Label(calendar_frame, text="Published After:").pack(side=tk.LEFT, padx=(0, 10))
+        self.published_after_cal = Calendar(calendar_frame, selectmode='day', year=1969, month=1, day=1)
+        self.published_after_cal.pack(side=tk.LEFT, padx=(0, 20))
+
+        # Create and pack the "Published Before" calendar
+        tk.Label(calendar_frame, text="Published Before:").pack(side=tk.LEFT, padx=(0, 10))
+        self.published_before_cal = Calendar(calendar_frame, selectmode='day', year=2024, month=1, day=1)
+        self.published_before_cal.pack(side=tk.LEFT)
+
         self.contains_tokens = self.create_entry(self.main_frame, "Contains tokens(space separated):")
 
         # authors
@@ -63,8 +74,8 @@ class SearchFileWindow(BaseWindow):
         self.rfc_number_entry.bind("<KeyRelease>", self.search_files)
         self.title_entry.bind("<KeyRelease>", self.search_files)
         # todo: move to date picker
-        # self.published_after_entry.bind("<KeyRelease>", self.search_files)
-        # self.published_before_entry.bind("<KeyRelease>", self.search_files)
+        self.published_after_cal.bind("<<CalendarSelected>>", self.search_files)
+        self.published_before_cal.bind("<<CalendarSelected>>", self.search_files)
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
 
         self.search_files()
@@ -97,29 +108,16 @@ class SearchFileWindow(BaseWindow):
     def search_files(self, event=None):
         rfc_num = self.rfc_number_entry.get()
         title = self.title_entry.get()
-        published_after = self.published_after_entry.get()
-        published_before = self.published_before_entry.get()
+        published_after = self.published_after_cal.selection_get()
+        published_before = self.published_before_cal.selection_get()
         tokens = self.contains_tokens.get().split()
         authors = list(self.authors_listbox.get(0, "end"))
 
-        # todo: calender selection
-        if published_after:
-            if not (date_range_min := convert_to_datetime(published_after)):
-                self.show_error('Published after (should be YYYY/MM/DD)')
-                return
-        else:
-            date_range_min = datetime.min
-        if published_before:
-            if not (date_range_max := convert_to_datetime(published_before)):
-                self.show_error('Published before (should be YYYY/MM/DD)')
-                return
-        else:
-            date_range_max = datetime.max
-
+        print(f"{published_after=}, {published_before=}")
         search_query = SearchRFCQuery(
             num=rfc_num or None,
             title=title or None,
-            date_range=(date_range_min, date_range_max),
+            date_range=(published_after, published_before),
             authors=authors or None,
             tokens=tokens or None,
         )
