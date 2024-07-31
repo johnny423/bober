@@ -31,24 +31,26 @@ class SearchFileWindow(BaseWindow):
         self.title_entry = self.create_entry(self.main_frame, "Title:")
         self.published_after_entry = self.create_entry(self.main_frame, "Published after (YYYY/MM/DD):")
         self.published_before_entry = self.create_entry(self.main_frame, "Published before (YYYY/MM/DD):")
-        self.author_entry = self.create_entry(self.main_frame, "Authors:")
         self.contains_tokens = self.create_entry(self.main_frame, "Contains tokens(space separated):")
 
-        self.create_button(self.main_frame, "Add Author", self.add_author)
-
+        # authors
+        self.author_entry = self.create_entry(self.main_frame, "Authors:")
         self.authors_listbox = self.create_listbox(self.main_frame, height=5, width=40)
-
+        self.create_button(self.main_frame, "Add Author", self.add_author)
         self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
+
+        # todo: remove when we have date picker
         self.create_button(self.main_frame, "Search files", self.search_files)
 
         # Create the Treeview widget for displaying search results
-        columns = {
-            "num": ("RFC Number", 100),
-            "title": ("Title", 300),
-            "published_at": ("Published At", 150),
-            "authors": ("Authors", 250)
-        }
-        self.tree = self._make_table(columns)
+        self.tree = self._make_table(
+            columns={
+                "num": ("RFC Number", 100),
+                "title": ("Title", 300),
+                "published_at": ("Published At", 150),
+                "authors": ("Authors", 250)
+            }
+        )
 
         # Add scrollbar to the Treeview
         self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
@@ -58,7 +60,14 @@ class SearchFileWindow(BaseWindow):
         self.tree.pack(side="left", fill="both", expand=True)
         self.scrollbar.pack(side="right", fill="y")
 
-        self.create_button(self.main_frame, "Cancel", self.destroy)
+        self.rfc_number_entry.bind("<KeyRelease>", self.search_files)
+        self.title_entry.bind("<KeyRelease>", self.search_files)
+        # todo: move to date picker
+        # self.published_after_entry.bind("<KeyRelease>", self.search_files)
+        # self.published_before_entry.bind("<KeyRelease>", self.search_files)
+        self.contains_tokens.bind("<KeyRelease>", self.search_files)
+
+        self.search_files()
 
     def _make_table(self, columns: dict[str, tuple[str, int]]) -> ttk.Treeview:
         tree = ttk.Treeview(self.main_frame, columns=list(columns.keys()), show="headings")
@@ -73,6 +82,7 @@ class SearchFileWindow(BaseWindow):
         if author:
             self.authors_listbox.insert("end", author)
             self.author_entry.delete(0, "end")
+            self.search_files()
         else:
             self.show_warning("Please enter an author name.")
 
@@ -80,10 +90,11 @@ class SearchFileWindow(BaseWindow):
         selected = self.authors_listbox.curselection()
         if selected:
             self.authors_listbox.delete(selected)
+            self.search_files()
         else:
             self.show_warning("Please select an author to remove.")
 
-    def search_files(self):
+    def search_files(self, event=None):
         rfc_num = self.rfc_number_entry.get()
         title = self.title_entry.get()
         published_after = self.published_after_entry.get()
@@ -112,7 +123,6 @@ class SearchFileWindow(BaseWindow):
             authors=authors or None,
             tokens=tokens or None,
         )
-
         filtered_rfcs = search_rfcs(self.session, search_query)
         self.display_search_results(filtered_rfcs)
 

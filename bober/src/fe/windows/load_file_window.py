@@ -36,7 +36,6 @@ class LoadFileWindow(BaseWindow):
 
         self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
         self.create_button(self.main_frame, "Load File", self.load_file)
-        self.create_button(self.main_frame, "Cancel", self.destroy)
 
     def browse_file(self):
         self.filepath = filedialog.askopenfilename(
