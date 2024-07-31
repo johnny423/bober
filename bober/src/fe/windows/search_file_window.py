@@ -50,9 +50,6 @@ class SearchFileWindow(BaseWindow):
         self.create_button(self.main_frame, "Add Author", self.add_author)
         self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
 
-        # todo: remove when we have date picker
-        self.create_button(self.main_frame, "Search files", self.search_files)
-
         # Create the Treeview widget for displaying search results
         self.tree = self._make_table(
             columns={
@@ -73,7 +70,6 @@ class SearchFileWindow(BaseWindow):
 
         self.rfc_number_entry.bind("<KeyRelease>", self.search_files)
         self.title_entry.bind("<KeyRelease>", self.search_files)
-        # todo: move to date picker
         self.published_after_cal.bind("<<CalendarSelected>>", self.search_files)
         self.published_before_cal.bind("<<CalendarSelected>>", self.search_files)
         self.contains_tokens.bind("<KeyRelease>", self.search_files)

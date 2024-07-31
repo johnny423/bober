@@ -7,7 +7,7 @@ from bober.src.search.rfc_content import load_rfc_content, get_absolute_position
 from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
 
 
-# todo: looks bad currently
+# todo: looks bad currently - there is big buffer before the text
 class RFCWindow(BaseWindow):
     def __init__(
             self,
