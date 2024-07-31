@@ -3,6 +3,7 @@ import tkinter as tk
 from bober.src.fe import utils
 from bober.src.fe.windows.index_search_window import IndexSearchWindow
 from bober.src.fe.windows.load_file_window import LoadFileWindow
+from bober.src.fe.windows.phrases_window import LinguisticPhraseManager
 from bober.src.fe.windows.search_file_window import SearchFileWindow
 from bober.src.fe.windows.word_groups_window import WordGroupManager
 from bober.src.fe.windows.word_index_window import WordIndexWindow
@@ -18,9 +19,7 @@ class MainWindow(tk.Tk):
         utils.create_button(self, "Word index", lambda: WordIndexWindow(self, self.session))
         utils.create_button(self, "Find word by index", lambda: IndexSearchWindow(self, self.session))
         utils.create_button(self, "Manage word groups", lambda: WordGroupManager(self, self.session))
-        utils.create_button(
-            self, "Manage linguistic expressions", lambda: print('dummy command for button executed')
-        )  # todo
+        utils.create_button(self, "Manage linguistic expressions", lambda: LinguisticPhraseManager(self, self.session))
 
 
 def launch_gui(session):
