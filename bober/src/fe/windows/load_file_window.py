@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 from bober.src.fe.base_window import BaseWindow
-from bober.src.fe.windows.utils import convert_to_datetime
+from bober.src.fe.utils import convert_to_datetime
 from bober.src.rfc_ingest.load_from_file import load_single_file
 
 

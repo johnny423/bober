@@ -1,10 +1,8 @@
 import tkinter as tk
 from collections import namedtuple
 from datetime import datetime
-from tkinter import scrolledtext, ttk
+from tkinter import ttk
 from typing import Any, Callable
-
-from bober.src.search.rfc_content import AbsPosition
 
 
 def create_button(
@@ -77,62 +75,6 @@ def create_label(parent, text, placement='pack', placement_args=None, **kwargs):
         raise ValueError("Placement must be either 'pack' or 'grid'")
 
     return label
-
-
-def create_scroll_region(
-        parent: tk.Widget, initial_text: str, highlights: list[AbsPosition] | None = None
-) -> scrolledtext.ScrolledText:
-    """
-    Create and return a ScrolledText widget with highlighting capabilities.
-
-    Args:
-        parent (tk.Widget): The parent widget.
-        initial_text (str): The initial text to display in the widget.
-        to_highlight (Optional[List[str]]): Strings to highlight in the text.
-
-    Returns:
-        scrolledtext.ScrolledText: The created ScrolledText widget.
-    """
-    frame = ttk.Frame(parent, padding=10)
-    frame.pack(fill=tk.BOTH, expand=True)
-
-    text_area = scrolledtext.ScrolledText(
-        frame, wrap=tk.NONE, width=60, height=15
-    )
-    text_area.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-    text_area.insert(tk.END, initial_text)
-
-    # Add a horizontal scrollbar
-    h_scrollbar = ttk.Scrollbar(
-        frame, orient=tk.HORIZONTAL, command=text_area.xview
-    )
-    h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-    text_area.config(xscrollcommand=h_scrollbar.set)
-
-    # Highlight specified strings
-
-    if highlights:
-        text_area.tag_config('highlight', background='yellow')
-        for highlight in highlights:
-            start_idx = f"{highlight.line}.{highlight.start}"
-            end_idx = f"{start_idx}+{highlight.length}c"
-            text_area.tag_add('highlight', start_idx, end_idx)
-
-    return frame
-
-
-#
-# def highlight_strings(
-#         text_area: scrolledtext.ScrolledText, to_highlight: list[str]
-# ):
-#     text_area.tag_config('highlight', background='yellow')
-#
-#     for string in to_highlight:
-#         start_idx = '1.0'
-#         while start_idx := text_area.search(string, start_idx, tk.END):
-#             end_idx = f"{start_idx}+{len(string)}c"
-#             text_area.tag_add('highlight', start_idx, end_idx)
-#             start_idx = end_idx
 
 
 Leaf = namedtuple("Leaf", ("value", "metadata"))

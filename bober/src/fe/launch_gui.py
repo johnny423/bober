@@ -1,6 +1,6 @@
 import tkinter as tk
 
-from bober.src.fe.windows import utils
+from bober.src.fe import utils
 from bober.src.fe.windows.index_search_window import IndexSearchWindow
 from bober.src.fe.windows.load_file_window import LoadFileWindow
 from bober.src.fe.windows.search_file_window import SearchFileWindow

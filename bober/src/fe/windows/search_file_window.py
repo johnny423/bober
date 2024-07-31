@@ -4,7 +4,7 @@ from tkinter import ttk
 
 from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.windows.rfc_window import RFCWindow
-from bober.src.fe.windows.utils import convert_to_datetime, create_label
+from bober.src.fe.utils import convert_to_datetime, create_label
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 

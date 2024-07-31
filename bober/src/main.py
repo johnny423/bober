@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from bober.src.db_models import Base
 from bober.src.fe.launch_gui import launch_gui
 from bober.src.loader import load_examples
-from bober.src.search.rfc_content import load_rfc_content, get_section_absolute_line_query, get_absolute_position
+from bober.src.search.rfc_content import load_rfc_content, get_section_absolute_line_query, get_absolute_positions
 
 SHOULD_RELOAD_DATA = False
 

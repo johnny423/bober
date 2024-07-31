@@ -18,6 +18,7 @@ from bober.src.db_models import (
 
 @dataclass
 class TokenOccurrence:
+    line_id: int
     section_index: int
     page: int
     row: int
@@ -69,12 +70,13 @@ def query_words_index(
     query = (
         select(
             Token.stem,
+            RfcLine.id.label("line_id"),
             Rfc.num,
             Rfc.title,
             RfcSection.index.label('section_index'),
             RfcSection.page,
             RfcSection.row_start,
-            RfcLine.line_number.label('line_in_page'),
+            RfcLine.line_number.label('line_in_section'),
             TokenPosition.start_position,
             TokenPosition.end_position,
             TokenPosition.index,
@@ -116,12 +118,13 @@ def query_words_index(
     result: Dict[str, WordIndex] = {}
     for (
             token,
+            line_id,
             rfc_num,
             rfc_title,
             section_index,
             page,
             row_start,
-            line_in_page,
+            line_in_section,
             start_position,
             end_position,
             index,
@@ -137,9 +140,10 @@ def query_words_index(
             )
 
         occurrence = TokenOccurrence(
+            line_id=line_id,
             section_index=section_index,
             page=page,  # We don't have page information in the new model
-            row=row_start + line_in_page,
+            row=row_start + line_in_section,
             context=context,  # todo: content should might include lines before and after
             start_position=start_position,
             end_position=end_position,

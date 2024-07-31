@@ -48,7 +48,24 @@ def load_rfc_content(session: Session, rfc_num: int) -> str | None:
     return "\n".join(raw_lines)
 
 
-def get_absolute_position(session: Session, rfc_num: int, stem: str) -> list[AbsPosition]:
+def get_absolute_line(session: Session, rfc_num: int, line_id: int) -> None | int:
+    abs_line_query = get_section_absolute_line_query(rfc_num).subquery()
+    query = (
+        session.query(
+            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label('line')
+        )
+        .join(RfcSection, RfcSection.id == RfcLine.section_id)
+        .join(abs_line_query, RfcSection.id == abs_line_query.c.id)
+        .filter(RfcSection.rfc_num == rfc_num)
+        .filter(RfcLine.id == line_id)
+    )
+    res = query.one_or_none()
+    if res:
+        return res.line
+    return None
+
+
+def get_absolute_positions(session: Session, rfc_num: int, stem: str) -> list[AbsPosition]:
     abs_line_query = get_section_absolute_line_query(rfc_num).subquery()
     query = (
         session.query(

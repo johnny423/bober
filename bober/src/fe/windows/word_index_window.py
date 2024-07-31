@@ -2,7 +2,7 @@ from tkinter import ttk
 
 from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.windows.rfc_window import RFCWindow
-from bober.src.fe.windows.utils import add_dict_display, ellipsis_around
+from bober.src.fe.utils import add_dict_display, ellipsis_around
 from bober.src.search.words_index import (
     SortBy,
     SortOrder,
@@ -100,9 +100,9 @@ class WordIndexWindow(BaseWindow):
                     )
 
                     formatted_result[formatted_token][formatted_title][position_key] = (
-                        shorten, rfc_num, word_data.token)
+                        shorten, rfc_num, word_data.token, occurrence.line_id)
 
         return formatted_result
 
-    def load_rfc_window(self, rfc, token):
-        RFCWindow(self, self.session, int(rfc), token)
+    def load_rfc_window(self, rfc, token, line_id):
+        RFCWindow(self, self.session, int(rfc), token, int(line_id))
