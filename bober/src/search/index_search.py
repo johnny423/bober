@@ -53,7 +53,6 @@ def index_1_search(
     if criteria.page is not None:
         query = query.where(RfcSection.page == criteria.page)
     if criteria.line_in_page is not None:
-        # todo: should be line in page
         query = query.where(
             (RfcLine.line_number + RfcSection.row_start) == criteria.line_in_page
         )

@@ -4,10 +4,10 @@ from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.scroll_page import create_scroll_region
 
 from bober.src.search.rfc_content import load_rfc_content, get_absolute_positions, get_absolute_line
+from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
 
 
 # todo: looks bad currently
-# todo: support scroll to specific section
 class RFCWindow(BaseWindow):
     def __init__(
             self,
@@ -17,7 +17,9 @@ class RFCWindow(BaseWindow):
             token: None | str = None,
             line_id: None | int = None,
     ):
-        super().__init__(parent, "File", session)  # todo: rename to actual file name
+        [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
+
+        super().__init__(parent, meta.title or "<nameless rfc>", session)
         content = load_rfc_content(self.session, rfc)
 
         highlights = None

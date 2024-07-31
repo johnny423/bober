@@ -7,8 +7,13 @@ from sqlalchemy.orm import Session, selectinload
 from bober.src.db_models import RfcLine, RfcSection, TokenPosition, Token
 
 
-# todo: doc
 class AbsPosition(BaseModel):
+    """
+    This is a position of a word in the whole text
+        @line - the line count in the whole file (starting from 1)
+        @start - the index of the word within the given line
+        @length - the amount of characters after the starting position
+    """
     line: int
     start: int
     length: int
