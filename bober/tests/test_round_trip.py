@@ -4,7 +4,10 @@ from pathlib import Path
 import pytest
 
 from bober.src.rfc_ingest.load_from_file import load_single_file
-from bober.src.search.rfc_content import load_rfc_content, get_absolute_positions
+from bober.src.search.rfc_content import (
+    get_absolute_positions,
+    load_rfc_content,
+)
 
 CURR_DIR = Path(__file__).parent
 DOC_TO_TEST = CURR_DIR.parent / "resources" / "examples" / "2324.txt"

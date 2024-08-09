@@ -1,8 +1,8 @@
 from tkinter import ttk
 
 from bober.src.fe.base_window import BaseWindow
-from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.fe.utils import add_dict_display, ellipsis_around
+from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
     SortBy,
     SortOrder,

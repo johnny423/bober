@@ -6,7 +6,8 @@ from bober.src.word_groups.word_groups import (
     add_words_to_group,
     create_word_group,
     list_groups,
-    list_words_in_group, remove_words_from_group,
+    list_words_in_group,
+    remove_words_from_group,
 )
 
 

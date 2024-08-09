@@ -1,10 +1,10 @@
 from itertools import repeat
 
 from pydantic import BaseModel
-from sqlalchemy import func, literal, select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
-from bober.src.db_models import RfcLine, RfcSection, TokenPosition, Token
+from bober.src.db_models import RfcLine, RfcSection, Token, TokenPosition
 
 
 class AbsPosition(BaseModel):

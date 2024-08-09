@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import scrolledtext
+from tkinter import scrolledtext, ttk
 from typing import List, Optional
 
 from bober.src.search.rfc_content import AbsPosition

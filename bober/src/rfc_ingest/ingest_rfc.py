@@ -4,7 +4,14 @@ from collections import defaultdict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition, Author
+from bober.src.db_models import (
+    Author,
+    Rfc,
+    RfcLine,
+    RfcSection,
+    Token,
+    TokenPosition,
+)
 from bober.src.parsing.parsed_types import ParsedDocument, ParsedToken
 
 

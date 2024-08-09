@@ -2,9 +2,12 @@ from sqlalchemy.orm import Session
 
 from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.scroll_page import create_scroll_region
-
-from bober.src.search.rfc_content import load_rfc_content, get_absolute_positions, get_absolute_line
-from bober.src.search.search_rfc import search_rfcs, SearchRFCQuery
+from bober.src.search.rfc_content import (
+    get_absolute_line,
+    get_absolute_positions,
+    load_rfc_content,
+)
+from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
 # todo: looks bad currently - there is big buffer before the text

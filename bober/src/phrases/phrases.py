@@ -2,7 +2,15 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, aliased
 
 from bober.src.db import commit
-from bober.src.db_models import Phrase, PhraseToken, RfcSection, Token, TokenPosition, RfcLine, Rfc
+from bober.src.db_models import (
+    Phrase,
+    PhraseToken,
+    Rfc,
+    RfcLine,
+    RfcSection,
+    Token,
+    TokenPosition,
+)
 
 
 @commit
