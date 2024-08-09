@@ -15,7 +15,7 @@ from bober.src.db_models import (
 
 @commit
 def save_new_phrase(session: Session, phrase_name: str, phrase: str):
-    words = [token for token in phrase.split()]
+    words = phrase.split()
 
     existing_tokens = {
         token.token: token.id
