@@ -24,6 +24,8 @@ class Index2Criteria:
 
 @dataclass
 class SearchResult:
+    rfc: int
+    line_id: int
     word: str
     context: str
 
@@ -34,6 +36,8 @@ def index_1_search(
 ) -> list[SearchResult]:
     query = (
         select(
+            Rfc.num,
+            RfcLine.id.label("line_id"),
             Token.token,
             TokenPosition,
             Rfc.title,
@@ -62,6 +66,8 @@ def index_1_search(
     results = session.execute(query).all()
     return [
         SearchResult(
+            rfc=result.num,
+            line_id=result.line_id,
             word=result.token,
             context=f"Page {result.page_number}, Line {result.line_number + result.row_start}, Position {result.TokenPosition.start_position}",
         )
@@ -74,6 +80,8 @@ def index_2_search(
 ) -> list[SearchResult]:
     query = (
         select(
+            Rfc.num,
+            RfcLine.id.label("line_id"),
             Token.token,
             TokenPosition,
             Rfc.title,
@@ -99,6 +107,8 @@ def index_2_search(
     results = session.execute(query).all()
     return [
         SearchResult(
+            rfc=result.num,
+            line_id=result.line_id,
             word=result.token,
             context=f"Section {result.RfcSection.index}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
         )

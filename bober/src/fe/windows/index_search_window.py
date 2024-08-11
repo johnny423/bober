@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.index_search import (
     Index1Criteria,
     Index2Criteria,
@@ -77,7 +78,16 @@ class IndexSearchWindow(BaseWindow):
     def display_results(self, results: list[SearchResult]):
         self.tree.delete(*self.tree.get_children())
         for result in results:
-            self.tree.insert("", "end", values=(result.word, result.context))
+            item = self.tree.insert("", "end", values=(result.word, result.context, result.rfc, result.line_id))
+            self.tree.item(item, tags=(item,))
+
+        self.tree.bind("<Double-1>", self._on_item_click)
+
+
+    def _on_item_click(self, event):
+        item = self.tree.identify('item', event.x, event.y)
+        (*_, rfc, line_id) = self.tree.item(item, 'values')
+        RFCWindow(self, self.session, int(rfc), token=None, line_id=int(line_id))
 
     def search_by_index_1(self):
         criteria = Index1Criteria(
