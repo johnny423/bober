@@ -10,7 +10,6 @@ from bober.src.search.rfc_content import (
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
-# todo: looks bad currently - there is big buffer before the text
 class RFCWindow(BaseWindow):
     def __init__(
             self,
@@ -29,7 +28,7 @@ class RFCWindow(BaseWindow):
         if token:
             highlights = get_absolute_positions(session, rfc, token)
 
-        page = create_scroll_region(self, content, highlights)
+        page = create_scroll_region(self.main_frame, content, highlights)
         if line_id:
             line = get_absolute_line(session, rfc, line_id)
             page.scroll_to_line(line)

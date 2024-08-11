@@ -109,7 +109,6 @@ class SearchFileWindow(BaseWindow):
         tokens = self.contains_tokens.get().split()
         authors = list(self.authors_listbox.get(0, "end"))
 
-        print(f"{published_after=}, {published_before=}")
         search_query = SearchRFCQuery(
             num=rfc_num or None,
             title=title or None,
