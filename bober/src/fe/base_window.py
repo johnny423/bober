@@ -10,14 +10,13 @@ class BaseWindow(tk.Toplevel):
         self.title(title)
 
         # Make this window modal
-        self.grab_set()
         self.transient(parent)
 
         # Set a default size
         self.geometry("1000x750")
 
         # Create a main frame to hold all widgets
-        self.main_frame = ttk.Frame(self, padding="10")
+        self.main_frame = ttk.Frame(self)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
     def create_entry(self, parent, label_text) -> ttk.Entry:

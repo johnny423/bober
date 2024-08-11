@@ -8,7 +8,7 @@ from bober.src.db_models import Base
 from bober.src.fe.launch_gui import launch_gui
 from bober.src.loader import load_examples
 
-SHOULD_RELOAD_DATA = True
+SHOULD_RELOAD_DATA = False
 
 
 def get_database_uel():
@@ -38,12 +38,3 @@ if __name__ == "__main__":
             load_examples(session)
 
         launch_gui(session)
-        # res = find_sections_containing_phrase(session, "Coffee Machine")
-        # print(res)
-        # res = find_sections_containing_phrase(session, "coffee pot")
-        # print(res)
-        # content = load_rfc_content(session, 1).splitlines()
-        #
-        # res = get_absolute_position(session, 1, "Questions")
-        # for row in res:
-        #     print(content[row.line - 1][row.start: row.start + row.length])
