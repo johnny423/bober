@@ -19,7 +19,6 @@ class LinguisticPhraseManager(BaseWindow):
         self.load_phrases()
 
     def create_widgets(self):
-        # Left frame for creating phrases and searching occurrences
         left_frame = ttk.Frame(self.main_frame)
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
@@ -27,12 +26,11 @@ class LinguisticPhraseManager(BaseWindow):
         self.phrase_entry = self.create_entry(left_frame, "Phrase:")
         self.create_button(left_frame, "Create Phrase", self.create_phrase)
 
-        # Right frame for displaying phrases and occurrences
         right_frame = ttk.Frame(self.main_frame)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.phrases_tree = self.create_treeview(
-            right_frame,
+            left_frame,
             columns=("phrase_name", "phrase_content"),
             headings=("Phrase Name", "Phrase Content")
         )
