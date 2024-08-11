@@ -105,4 +105,4 @@ class WordIndexWindow(BaseWindow):
         return formatted_result
 
     def load_rfc_window(self, rfc, token, line_id):
-        RFCWindow(self, self.session, int(rfc), token, int(line_id))
+        RFCWindow(self, self.session, int(rfc), token=token, line_id=int(line_id))
