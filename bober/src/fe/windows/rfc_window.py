@@ -4,6 +4,7 @@ from tkinter import Menu, TclError, scrolledtext, ttk
 from sqlalchemy.orm import Session
 
 from bober.src.fe.base_window import BaseWindow
+from bober.src.phrases.phrases import save_new_phrase
 from bober.src.search.rfc_content import (
     get_absolute_line,
     get_absolute_positions,
@@ -72,16 +73,16 @@ class RFCWindow(BaseWindow):
         try:
             selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
         except TclError:
-            tk.messagebox.showerror("Error", "No text selected!")
+            self.show_error("No text selected!")
             return
 
         def _on_submit():
             phrase_name = name_entry.get()
             if phrase_name:
-                print(f"saving!!! {phrase_name} {selected_text}")
+                save_new_phrase(self.session, phrase_name, phrase=selected_text)
                 popup.destroy()
             else:
-                tk.messagebox.showerror("Error", "Phrase name cannot be empty!")
+                self.show_error("Phrase name cannot be empty!")
 
         popup = tk.Toplevel(self.frame)
         popup.title("Save Phrase")
