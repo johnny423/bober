@@ -3,6 +3,7 @@ from tkinter import ttk
 
 from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.windows.rfc_window import RFCWindow
+from bober.src.fe.windows.search_results import SearchResults
 from bober.src.search.index_search import (
     Index1Criteria,
     Index2Criteria,
@@ -21,7 +22,7 @@ class IndexSearchWindow(BaseWindow):
     index_2_section_entry: tk.Entry
     index_2_row_entry: tk.Entry
     index_2_position_entry: tk.Entry
-    tree: ttk.Treeview
+    search_results: SearchResults
 
     def __init__(self, parent, session):
         super().__init__(parent, "Find word by index", session)
@@ -53,12 +54,13 @@ class IndexSearchWindow(BaseWindow):
         self.create_button(button_frame, "Back", self.destroy)
 
         # Create results table
-        self.tree = ttk.Treeview(
-            results_frame, columns=("Word", "Link for source"), show="headings"
-        )
-        self.tree.heading("Word", text="Word")
-        self.tree.heading("Link for source", text="Link for source")
-        self.tree.pack(fill="both", expand=True)
+        columns = {
+            "word": ("Word", 200),
+            "context": ("Context", 400),
+            "rfc": ("RFC", 100),
+            "line_id": ("Line ID", 100)
+        }
+        self.search_results = SearchResults(self.main_frame, columns, self.open_rfc_window)
 
     def create_rfc_dropdown(self, parent):
         frame = ttk.Frame(parent)
@@ -76,18 +78,18 @@ class IndexSearchWindow(BaseWindow):
         return title_var
 
     def display_results(self, results: list[SearchResult]):
-        self.tree.delete(*self.tree.get_children())
-        for result in results:
-            item = self.tree.insert("", "end", values=(result.word, result.context, result.rfc, result.line_id))
-            self.tree.item(item, tags=(item,))
+        formatted_results = [{
+            "word": result.word,
+            "context": result.context,
+            "rfc": result.rfc,
+            "line_id": result.line_id
+        } for result in results]
+        self.search_results.display_results(formatted_results)
 
-        self.tree.bind("<Double-1>", self._on_item_click)
-
-
-    def _on_item_click(self, event):
-        item = self.tree.identify('item', event.x, event.y)
-        (*_, rfc, line_id) = self.tree.item(item, 'values')
-        RFCWindow(self, self.session, int(rfc), token=None, line_id=int(line_id))
+    def open_rfc_window(self, values):
+        rfc = int(values[2])
+        line_id = int(values[3])
+        RFCWindow(self, self.session, rfc, token=None, line_id=line_id)
 
     def search_by_index_1(self):
         criteria = Index1Criteria(
