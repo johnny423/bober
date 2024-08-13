@@ -45,7 +45,7 @@ class BaseWindow(tk.Toplevel):
         button.pack(pady=10)
         return button
 
-    def create_listbox(self, parent, height=5, width=40) -> tk.Listbox:  # todo fix header
+    def create_listbox(self, parent) -> tk.Listbox:
         """Create a listbox widget that fills the entire parent."""
         listbox = tk.Listbox(parent)
         listbox.pack(fill=tk.BOTH, expand=True)

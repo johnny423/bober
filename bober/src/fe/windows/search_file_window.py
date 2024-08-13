@@ -46,7 +46,7 @@ class SearchFileWindow(BaseWindow):
 
         # authors
         self.author_entry = self.create_entry(self.main_frame, "Authors:")
-        self.authors_listbox = self.create_listbox(self.main_frame, height=5, width=40)
+        self.authors_listbox = self.create_listbox(self.main_frame)
         self.create_button(self.main_frame, "Add Author", self.add_author)
         self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
 
