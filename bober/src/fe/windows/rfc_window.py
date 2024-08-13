@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import Menu, TclError, scrolledtext, ttk
+from tkinter import simpledialog
 
 from sqlalchemy.orm import Session
 
@@ -11,6 +12,7 @@ from bober.src.search.rfc_content import (
     load_rfc_content,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
+from bober.src.word_groups.word_groups import add_words_to_group, create_word_group, list_groups
 
 
 class RFCWindow(BaseWindow):
@@ -52,8 +54,10 @@ class RFCWindow(BaseWindow):
         )
         self.text_area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.text_area.insert(tk.END, initial_text)
+
         self.m = Menu(self.text_area, tearoff=0)
         self.m.add_command(label="save as phrase", command=self.save_phrase_popup)
+        self.m.add_command(label="Save word to group", command=self.save_word_to_group_popup)
         self.text_area.bind("<Button-3>", self.command_popup)
 
         self.h_scrollbar = ttk.Scrollbar(
@@ -69,11 +73,52 @@ class RFCWindow(BaseWindow):
                 end_idx = f"{start_idx}+{highlight.length}c"
                 self.text_area.tag_add('highlight', start_idx, end_idx)
 
+    def save_word_to_group_popup(self):
+        try:
+            selected_word = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST).strip()
+        except TclError:
+            self.show_error("No word selected!")
+            return
+
+        if not selected_word:
+            self.show_error("No word selected!")
+            return
+
+        # Check if the selected text is a single word
+        if len(selected_word.split()) != 1:
+            self.show_error("Please select only one word to add to a group!")
+            return
+
+        # Get list of existing groups
+        existing_groups = [group.group_name for group in list_groups(self.session)]
+
+        # Create a popup to choose between existing group or new group
+        choice = simpledialog.askstring(
+            "Save Word to Group",
+            f"Enter an existing group name or a new group name for '{selected_word}':\n\nExisting groups: {', '.join(existing_groups)}",
+            parent=self.frame
+        )
+
+        if not choice:
+            return  # User cancelled
+
+        # Check if it's a new group or existing group
+        if choice in existing_groups:
+            add_words_to_group(self.session, choice, [selected_word])
+            self.show_info(f"Word '{selected_word}' added to existing group '{choice}'")
+        else:
+            create_word_group(self.session, choice, [selected_word])
+            self.show_info(f"Word '{selected_word}' added to new group '{choice}'")
+
     def save_phrase_popup(self):
         try:
             selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
         except TclError:
             self.show_error("No text selected!")
+            return
+
+        if len(selected_text.split()) == 1:
+            self.show_error("Please select more than one word for a phrase!")
             return
 
         def _on_submit():
