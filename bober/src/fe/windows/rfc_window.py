@@ -84,6 +84,11 @@ class RFCWindow(BaseWindow):
             self.show_error("No word selected!")
             return
 
+        # Check if the selected text is a single word
+        if len(selected_word.split()) != 1:
+            self.show_error("Please select only one word to add to a group!")
+            return
+
         # Get list of existing groups
         existing_groups = [group.group_name for group in list_groups(self.session)]
 
@@ -110,6 +115,10 @@ class RFCWindow(BaseWindow):
             selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
         except TclError:
             self.show_error("No text selected!")
+            return
+
+        if len(selected_text.split()) == 1:
+            self.show_error("Please select more than one word for a phrase!")
             return
 
         def _on_submit():
