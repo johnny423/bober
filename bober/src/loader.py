@@ -7,7 +7,7 @@ from bober.src.rfc_ingest.load_from_file import load_single_file
 
 
 def load_examples(session: Session):
-    example_dir_path = Path(__file__).parent.parent/"resources"/"examples"
+    example_dir_path = Path(__file__).parent.parent / "resources" / "examples"
     with open(example_dir_path / "examples.json") as f:
         rfcs_metadata = json.load(f)
 

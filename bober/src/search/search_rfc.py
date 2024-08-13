@@ -24,7 +24,7 @@ class SearchRFCQuery(BaseModel):
 
 
 def search_rfcs(
-        session: Session, search_query: SearchRFCQuery
+    session: Session, search_query: SearchRFCQuery
 ) -> list[RFCMeta]:
     query = session.query(Rfc).options(selectinload(Rfc.authors))
 
