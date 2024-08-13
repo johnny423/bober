@@ -12,11 +12,13 @@ class LinguisticPhraseManager(BaseWindow):
     phrase_entry: ttk.Entry
     phrases_tree: ttk.Treeview
     occurrences_list: tk.Listbox
+    occurrences_id_mapping: dict
 
     def __init__(self, parent, session):
         super().__init__(parent, "Linguistic Phrase Manager", session)
         self.create_widgets()
         self.load_phrases()
+        self.occurrences_id_mapping = dict()
 
     def create_widgets(self):
         left_frame = ttk.Frame(self.main_frame)
@@ -36,6 +38,7 @@ class LinguisticPhraseManager(BaseWindow):
         )
         self.phrases_tree.bind("<<TreeviewSelect>>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
+        self.occurrences_list.bind('<<ListboxSelect>>', self.on_occurrence_select)
 
     def create_phrase(self):
         phrase_name = self.phrase_name_entry.get().strip()
@@ -64,8 +67,11 @@ class LinguisticPhraseManager(BaseWindow):
         try:
             occurrences = find_phrase_occurrences(self.session, phrase_name)
             self.occurrences_list.delete(0, tk.END)
-            for occurrence in occurrences:
-                self.occurrences_list.insert(tk.END, f"RFC {occurrence.rfc_title}: {occurrence.section_index}")
+            self.occurrences_id_mapping.clear()
+            for i, occurrence in enumerate(occurrences, start=1):
+                text = f"{i}: RFC \"{occurrence.rfc_title}\"; section {occurrence.section_index}"
+                self.occurrences_list.insert(tk.END, text)
+                self.occurrences_id_mapping[str(i)] = occurrence
         except ValueError as e:
             self.show_error(str(e))
 
@@ -78,3 +84,13 @@ class LinguisticPhraseManager(BaseWindow):
     def on_phrase_select(self, event=None):
         self.occurrences_list.delete(0, tk.END)
         self.search_occurrences()
+
+    def on_occurrence_select(self, event=None):
+        if not self.occurrences_list.curselection():
+            return
+
+        index = self.occurrences_list.curselection()[0]
+        display_text = self.occurrences_list.get(index)
+        item_id = display_text.split(":")[0].strip()
+        selected_occurrence = self.occurrences_id_mapping[item_id]
+        print(f"{display_text= } ; {selected_occurrence=}")  # todo open file
