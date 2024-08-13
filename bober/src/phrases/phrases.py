@@ -69,6 +69,7 @@ def search_phrase(session: Session, phrase: str):
             ordered_tokens.c.section_index,
             ordered_tokens.c.page,
             ordered_tokens.c.line_number,
+            ordered_tokens.c.line_id,
             func.array_to_string(
                 func.array_agg(ordered_tokens.c.token).over(
                     partition_by=[
@@ -90,6 +91,7 @@ def search_phrase(session: Session, phrase: str):
             token_windows_query.c.rfc_title,
             token_windows_query.c.section_index,
             token_windows_query.c.page,
+            token_windows_query.c.line_id,
             token_windows_query.c.line_number,
             token_windows_query.c.phrase
         )
@@ -114,6 +116,7 @@ def ordered_tokens_query():
             RfcAlias.title.label('rfc_title'),
             RfcSectionAlias.index.label('section_index'),
             RfcSectionAlias.page.label('page'),
+            RfcLineAlias.id.label('line_id'),
             RfcLineAlias.line_number,
             TokenPositionAlias.index.label('token_index'),
             TokenPositionAlias.start_position,
