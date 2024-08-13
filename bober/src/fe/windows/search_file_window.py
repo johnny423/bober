@@ -6,7 +6,6 @@ from tkcalendar import Calendar
 from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.utils import create_label
 from bober.src.fe.windows.rfc_window import RFCWindow
-from bober.src.fe.windows.search_results import SearchResults
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
@@ -51,16 +50,23 @@ class SearchFileWindow(BaseWindow):
         self.create_button(self.main_frame, "Add Author", self.add_author)
         self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
 
+        # Create the Treeview widget for displaying search results
+        self.tree = self._make_table(
+            columns={
+                "num": ("RFC Number", 100),
+                "title": ("Title", 300),
+                "published_at": ("Published At", 150),
+                "authors": ("Authors", 250)
+            }
+        )
 
-        # Create SearchResults instance
-        columns = {
-            "num": ("RFC Number", 100),
-            "title": ("Title", 300),
-            "published_at": ("Published At", 150),
-            "authors": ("Authors", 250)
-        }
-        self.search_results = SearchResults(self.main_frame, columns, self.open_rfc_window)
+        # Add scrollbar to the Treeview
+        self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
 
+        # Pack the Treeview and scrollbar
+        self.tree.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
 
         self.rfc_number_entry.bind("<KeyRelease>", self.search_files)
         self.title_entry.bind("<KeyRelease>", self.search_files)
@@ -69,6 +75,14 @@ class SearchFileWindow(BaseWindow):
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
 
         self.search_files()
+
+    def _make_table(self, columns: dict[str, tuple[str, int]]) -> ttk.Treeview:
+        tree = ttk.Treeview(self.main_frame, columns=list(columns.keys()), show="headings")
+        for col, (text, width) in columns.items():
+            tree.heading(col, text=text)
+            tree.column(col, width=width)
+
+        return tree
 
     def add_author(self):
         author = self.author_entry.get().strip()
@@ -106,17 +120,23 @@ class SearchFileWindow(BaseWindow):
         self.display_search_results(filtered_rfcs)
 
     def display_search_results(self, filtered_rfcs):
-        results = []
+        # Clear previous results
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        # Insert new results
         for rfc in filtered_rfcs:
-            results.append({
-                "num": str(rfc.num),
-                "title": rfc.title,
-                "published_at": rfc.published_at.strftime("%Y-%m-%d") if rfc.published_at else "",
-                "authors": ", ".join(rfc.authors) if rfc.authors else ""
-            })
-        self.search_results.display_results(results)
+            item = self.tree.insert("", "end", values=(
+                rfc.num,
+                rfc.title,
+                rfc.published_at.strftime("%Y-%m-%d"),
+                ", ".join(rfc.authors),
+            ))
+            self.tree.item(item, tags=(item,))
 
+        self.tree.bind("<Double-1>", self._on_item_click)
 
-    def open_rfc_window(self, values):
-        rfc_num = int(values[0])
-        RFCWindow(self, self.session, rfc_num)
+    def _on_item_click(self, event):
+        item = self.tree.identify('item', event.x, event.y)
+        (rfc, *_) = self.tree.item(item, 'values')
+        RFCWindow(self, self.session, int(rfc))

@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import Menu, TclError, scrolledtext, simpledialog, ttk
+from tkinter import Menu, TclError, scrolledtext, ttk
+from tkinter import simpledialog
 
 from sqlalchemy.orm import Session
 
@@ -11,11 +12,7 @@ from bober.src.search.rfc_content import (
     load_rfc_content,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
-from bober.src.word_groups.word_groups import (
-    add_words_to_group,
-    create_word_group,
-    list_groups,
-)
+from bober.src.word_groups.word_groups import add_words_to_group, create_word_group, list_groups
 
 
 class RFCWindow(BaseWindow):
