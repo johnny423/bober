@@ -60,12 +60,12 @@ class SortOrder(StrEnum):
 
 
 def query_words_index(
-        session: Session,
-        token_groups: Optional[List[str]] = None,
-        rfc_title: Optional[str] = None,
-        partial_token: Optional[str] = None,
-        sort_by: SortBy = SortBy.OCCURRENCES,
-        sort_order: SortOrder = SortOrder.DESC,
+    session: Session,
+    token_groups: Optional[List[str]] = None,
+    rfc_title: Optional[str] = None,
+    partial_token: Optional[str] = None,
+    sort_by: SortBy = SortBy.OCCURRENCES,
+    sort_order: SortOrder = SortOrder.DESC,
 ) -> Dict[str, WordIndex]:
     query = (
         select(
@@ -117,18 +117,18 @@ def query_words_index(
 
     result: Dict[str, WordIndex] = {}
     for (
-            token,
-            line_id,
-            rfc_num,
-            rfc_title,
-            section_index,
-            page,
-            row_start,
-            line_in_section,
-            start_position,
-            end_position,
-            index,
-            context,
+        token,
+        line_id,
+        rfc_num,
+        rfc_title,
+        section_index,
+        page,
+        row_start,
+        line_in_section,
+        start_position,
+        end_position,
+        index,
+        context,
     ) in session.execute(query):
 
         if token not in result:

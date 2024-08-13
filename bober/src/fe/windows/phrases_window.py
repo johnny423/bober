@@ -35,7 +35,7 @@ class LinguisticPhraseManager(BaseWindow):
         self.phrases_tree = self.create_treeview(
             left_frame,
             columns=("phrase_name", "phrase_content"),
-            headings=("Phrase Name", "Phrase Content")
+            headings=("Phrase Name", "Phrase Content"),
         )
         self.phrases_tree.bind("<<TreeviewSelect>>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
@@ -80,7 +80,9 @@ class LinguisticPhraseManager(BaseWindow):
         self.phrases_tree.delete(*self.phrases_tree.get_children())
         phrases = self.session.query(Phrase).all()
         for phrase in phrases:
-            self.phrases_tree.insert("", "end", values=(phrase.phrase_name, phrase.content))
+            self.phrases_tree.insert(
+                "", "end", values=(phrase.phrase_name, phrase.content)
+            )
 
     def on_phrase_select(self, event=None):
         self.occurrences_list.delete(0, tk.END)
@@ -94,5 +96,11 @@ class LinguisticPhraseManager(BaseWindow):
         display_text = self.occurrences_list.get(index)
         item_id = display_text.split(":")[0].strip()
         selected_occurrence = self.occurrences_id_mapping[item_id]
-        RFCWindow(self, self.session, selected_occurrence.rfc_num, token=None, line_id=selected_occurrence.line_id)  # todo make phrase highligh
+        RFCWindow(
+            self,
+            self.session,
+            selected_occurrence.rfc_num,
+            token=None,
+            line_id=selected_occurrence.line_id,
+        )  # todo make phrase highligh
         print(f"{display_text= } ; {selected_occurrence=}")  # todo open file

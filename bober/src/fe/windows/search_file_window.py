@@ -23,9 +23,13 @@ class SearchFileWindow(BaseWindow):
         self.create_widgets()
 
     def create_widgets(self):
-        create_label(self, text="Authors:", placement='pack', placement_args={'pady': 5})
+        create_label(
+            self, text="Authors:", placement='pack', placement_args={'pady': 5}
+        )
 
-        self.rfc_number_entry = self.create_entry(self.main_frame, "RFC Number:")
+        self.rfc_number_entry = self.create_entry(
+            self.main_frame, "RFC Number:"
+        )
         self.title_entry = self.create_entry(self.main_frame, "Title:")
 
         # Create a frame to hold both calendars
@@ -33,22 +37,34 @@ class SearchFileWindow(BaseWindow):
         calendar_frame.pack(pady=5)
 
         # Create and pack the "Published After" calendar
-        tk.Label(calendar_frame, text="Published After:").pack(side=tk.LEFT, padx=(0, 10))
-        self.published_after_cal = Calendar(calendar_frame, selectmode='day', year=1969, month=1, day=1)
+        tk.Label(calendar_frame, text="Published After:").pack(
+            side=tk.LEFT, padx=(0, 10)
+        )
+        self.published_after_cal = Calendar(
+            calendar_frame, selectmode='day', year=1969, month=1, day=1
+        )
         self.published_after_cal.pack(side=tk.LEFT, padx=(0, 20))
 
         # Create and pack the "Published Before" calendar
-        tk.Label(calendar_frame, text="Published Before:").pack(side=tk.LEFT, padx=(0, 10))
-        self.published_before_cal = Calendar(calendar_frame, selectmode='day', year=2024, month=1, day=1)
+        tk.Label(calendar_frame, text="Published Before:").pack(
+            side=tk.LEFT, padx=(0, 10)
+        )
+        self.published_before_cal = Calendar(
+            calendar_frame, selectmode='day', year=2024, month=1, day=1
+        )
         self.published_before_cal.pack(side=tk.LEFT)
 
-        self.contains_tokens = self.create_entry(self.main_frame, "Contains tokens(space separated):")
+        self.contains_tokens = self.create_entry(
+            self.main_frame, "Contains tokens(space separated):"
+        )
 
         # authors
         self.author_entry = self.create_entry(self.main_frame, "Authors:")
         self.authors_listbox = self.create_listbox(self.main_frame)
         self.create_button(self.main_frame, "Add Author", self.add_author)
-        self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
+        self.create_button(
+            self.main_frame, "Remove Selected Author", self.remove_author
+        )
 
         # Create the Treeview widget for displaying search results
         self.tree = self._make_table(
@@ -56,12 +72,14 @@ class SearchFileWindow(BaseWindow):
                 "num": ("RFC Number", 100),
                 "title": ("Title", 300),
                 "published_at": ("Published At", 150),
-                "authors": ("Authors", 250)
+                "authors": ("Authors", 250),
             }
         )
 
         # Add scrollbar to the Treeview
-        self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.tree.yview)
+        self.scrollbar = ttk.Scrollbar(
+            self.main_frame, orient="vertical", command=self.tree.yview
+        )
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
         # Pack the Treeview and scrollbar
@@ -71,13 +89,17 @@ class SearchFileWindow(BaseWindow):
         self.rfc_number_entry.bind("<KeyRelease>", self.search_files)
         self.title_entry.bind("<KeyRelease>", self.search_files)
         self.published_after_cal.bind("<<CalendarSelected>>", self.search_files)
-        self.published_before_cal.bind("<<CalendarSelected>>", self.search_files)
+        self.published_before_cal.bind(
+            "<<CalendarSelected>>", self.search_files
+        )
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
 
         self.search_files()
 
     def _make_table(self, columns: dict[str, tuple[str, int]]) -> ttk.Treeview:
-        tree = ttk.Treeview(self.main_frame, columns=list(columns.keys()), show="headings")
+        tree = ttk.Treeview(
+            self.main_frame, columns=list(columns.keys()), show="headings"
+        )
         for col, (text, width) in columns.items():
             tree.heading(col, text=text)
             tree.column(col, width=width)
@@ -126,12 +148,16 @@ class SearchFileWindow(BaseWindow):
 
         # Insert new results
         for rfc in filtered_rfcs:
-            item = self.tree.insert("", "end", values=(
-                rfc.num,
-                rfc.title,
-                rfc.published_at.strftime("%Y-%m-%d"),
-                ", ".join(rfc.authors),
-            ))
+            item = self.tree.insert(
+                "",
+                "end",
+                values=(
+                    rfc.num,
+                    rfc.title,
+                    rfc.published_at.strftime("%Y-%m-%d"),
+                    ", ".join(rfc.authors),
+                ),
+            )
             self.tree.item(item, tags=(item,))
 
         self.tree.bind("<Double-1>", self._on_item_click)

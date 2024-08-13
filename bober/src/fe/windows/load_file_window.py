@@ -25,16 +25,22 @@ class LoadFileWindow(BaseWindow):
         self.file_label = tk.Label(self.main_frame, text="No file selected")
         self.file_label.pack(pady=5)
 
-        self.rfc_number_entry = self.create_entry(self.main_frame, "RFC Number:")
+        self.rfc_number_entry = self.create_entry(
+            self.main_frame, "RFC Number:"
+        )
         self.title_entry = self.create_entry(self.main_frame, "Title:")
-        self.published_at_entry = self.create_entry(self.main_frame, "Published at (YYYY/MM/DD):")
+        self.published_at_entry = self.create_entry(
+            self.main_frame, "Published at (YYYY/MM/DD):"
+        )
         self.author_entry = self.create_entry(self.main_frame, "Authors:")
 
         self.create_button(self.main_frame, "Add Author", self.add_author)
 
         self.authors_listbox = self.create_listbox(self.main_frame)
 
-        self.create_button(self.main_frame, "Remove Selected Author", self.remove_author)
+        self.create_button(
+            self.main_frame, "Remove Selected Author", self.remove_author
+        )
         self.create_button(self.main_frame, "Load File", self.load_file)
 
     def browse_file(self):
@@ -92,7 +98,9 @@ class LoadFileWindow(BaseWindow):
             if missing_fields:
                 error_message += f"Please fill in the following fields: {', '.join(missing_fields)}\n"
             if invalid_fields:
-                error_message += f"Invalid format for: {', '.join(invalid_fields)}"
+                error_message += (
+                    f"Invalid format for: {', '.join(invalid_fields)}"
+                )
             self.show_error(error_message.strip())
             return
 

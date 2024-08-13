@@ -32,7 +32,7 @@ class SearchResult:
 
 # todo: add links to source? + inline with words index
 def index_1_search(
-        session: Session, criteria: Index1Criteria
+    session: Session, criteria: Index1Criteria
 ) -> list[SearchResult]:
     query = (
         select(
@@ -43,7 +43,7 @@ def index_1_search(
             Rfc.title,
             RfcLine.line_number,
             RfcSection.row_start,
-            RfcSection.page.label("page_number")
+            RfcSection.page.label("page_number"),
         )
         .join(Token.positions)
         .join(TokenPosition.line)
@@ -58,10 +58,13 @@ def index_1_search(
         query = query.where(RfcSection.page == criteria.page)
     if criteria.line_in_page is not None:
         query = query.where(
-            (RfcLine.line_number + RfcSection.row_start) == criteria.line_in_page
+            (RfcLine.line_number + RfcSection.row_start)
+            == criteria.line_in_page
         )
     if criteria.position_in_line is not None:
-        query = query.where(TokenPosition.start_position == criteria.position_in_line)
+        query = query.where(
+            TokenPosition.start_position == criteria.position_in_line
+        )
 
     results = session.execute(query).all()
     return [
@@ -76,7 +79,7 @@ def index_1_search(
 
 
 def index_2_search(
-        session: Session, criteria: Index2Criteria
+    session: Session, criteria: Index2Criteria
 ) -> list[SearchResult]:
     query = (
         select(
@@ -86,7 +89,7 @@ def index_2_search(
             TokenPosition,
             Rfc.title,
             RfcLine.line_number,
-            RfcSection.page
+            RfcSection.page,
         )
         .join(Token.positions)
         .join(TokenPosition.line)
@@ -102,7 +105,9 @@ def index_2_search(
     if criteria.line_in_section is not None:
         query = query.where(RfcLine.line_number == criteria.line_in_section)
     if criteria.position_in_line is not None:
-        query = query.where(TokenPosition.start_position == criteria.position_in_line)
+        query = query.where(
+            TokenPosition.start_position == criteria.position_in_line
+        )
 
     results = session.execute(query).all()
     return [

@@ -12,17 +12,21 @@ from bober.src.search.rfc_content import (
     load_rfc_content,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
-from bober.src.word_groups.word_groups import add_words_to_group, create_word_group, list_groups
+from bober.src.word_groups.word_groups import (
+    add_words_to_group,
+    create_word_group,
+    list_groups,
+)
 
 
 class RFCWindow(BaseWindow):
     def __init__(
-            self,
-            parent,
-            session: Session,
-            rfc: int,
-            token: None | str = None,
-            line_id: None | int = None,
+        self,
+        parent,
+        session: Session,
+        rfc: int,
+        token: None | str = None,
+        line_id: None | int = None,
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
@@ -39,14 +43,23 @@ class RFCWindow(BaseWindow):
             line = get_absolute_line(session, rfc, line_id)
             self.scroll_to_line(line)
 
-    def create_scroll_region(self, initial_text: str, highlights: None | list = None):
+    def create_scroll_region(
+        self, initial_text: str, highlights: None | list = None
+    ):
         self.frame = ttk.Frame(self.main_frame, padding=10)
         self.frame.pack(fill=tk.BOTH, expand=True)
 
         self.text_frame = ttk.Frame(self.frame)
         self.text_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.line_numbers = tk.Text(self.text_frame, width=4, padx=4, pady=4, bg='lightgray', state='disabled')
+        self.line_numbers = tk.Text(
+            self.text_frame,
+            width=4,
+            padx=4,
+            pady=4,
+            bg='lightgray',
+            state='disabled',
+        )
         self.line_numbers.pack(side=tk.LEFT, fill=tk.Y)
 
         self.text_area = scrolledtext.ScrolledText(
@@ -56,8 +69,12 @@ class RFCWindow(BaseWindow):
         self.text_area.insert(tk.END, initial_text)
 
         self.m = Menu(self.text_area, tearoff=0)
-        self.m.add_command(label="save as phrase", command=self.save_phrase_popup)
-        self.m.add_command(label="Save word to group", command=self.save_word_to_group_popup)
+        self.m.add_command(
+            label="save as phrase", command=self.save_phrase_popup
+        )
+        self.m.add_command(
+            label="Save word to group", command=self.save_word_to_group_popup
+        )
         self.text_area.bind("<Button-3>", self.command_popup)
 
         self.h_scrollbar = ttk.Scrollbar(
@@ -75,7 +92,9 @@ class RFCWindow(BaseWindow):
 
     def save_word_to_group_popup(self):
         try:
-            selected_word = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST).strip()
+            selected_word = self.text_area.get(
+                tk.SEL_FIRST, tk.SEL_LAST
+            ).strip()
         except TclError:
             self.show_error("No word selected!")
             return
@@ -90,13 +109,15 @@ class RFCWindow(BaseWindow):
             return
 
         # Get list of existing groups
-        existing_groups = [group.group_name for group in list_groups(self.session)]
+        existing_groups = [
+            group.group_name for group in list_groups(self.session)
+        ]
 
         # Create a popup to choose between existing group or new group
         choice = simpledialog.askstring(
             "Save Word to Group",
             f"Enter an existing group name or a new group name for '{selected_word}':\n\nExisting groups: {', '.join(existing_groups)}",
-            parent=self.frame
+            parent=self.frame,
         )
 
         if not choice:
@@ -105,10 +126,14 @@ class RFCWindow(BaseWindow):
         # Check if it's a new group or existing group
         if choice in existing_groups:
             add_words_to_group(self.session, choice, [selected_word])
-            self.show_info(f"Word '{selected_word}' added to existing group '{choice}'")
+            self.show_info(
+                f"Word '{selected_word}' added to existing group '{choice}'"
+            )
         else:
             create_word_group(self.session, choice, [selected_word])
-            self.show_info(f"Word '{selected_word}' added to new group '{choice}'")
+            self.show_info(
+                f"Word '{selected_word}' added to new group '{choice}'"
+            )
 
     def save_phrase_popup(self):
         try:

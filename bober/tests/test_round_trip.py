@@ -27,8 +27,8 @@ def load_rfc(db_session, rfc_num):
             "num": rfc_num,
             "title": "hellp",
             "publish_at": datetime.date.today(),
-            "authors": ["Eli"]
-        }
+            "authors": ["Eli"],
+        },
     )
 
 
@@ -50,5 +50,5 @@ def test_abs_position(db_session, rfc_num, load_rfc):
     assert len(positions)
 
     for pos in positions:
-        value = original[pos.line - 1][pos.start: pos.start + pos.length]
+        value = original[pos.line - 1][pos.start : pos.start + pos.length]
         assert value.lower() in ["protocol", "protocols"]

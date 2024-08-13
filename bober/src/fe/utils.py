@@ -6,7 +6,7 @@ from typing import Any, Callable
 
 
 def create_button(
-        parent, text, command, placement='pack', placement_args=None, **kwargs
+    parent, text, command, placement='pack', placement_args=None, **kwargs
 ):
     """
     Create, configure, and place a button with default styling and the given parameters.
@@ -82,11 +82,11 @@ Tree = dict[str, Leaf] | dict[str, "Tree"]
 
 
 def add_dict_display(
-        parent: tk.Widget,
-        dictionary: Tree,
-        key_header: str,
-        value_header: str,
-        callback: None | Callable = None,
+    parent: tk.Widget,
+    dictionary: Tree,
+    key_header: str,
+    value_header: str,
+    callback: None | Callable = None,
 ):
     frame = ttk.Frame(parent, padding=10)
     frame.pack(fill=tk.BOTH, expand=True)
@@ -105,7 +105,7 @@ def add_dict_display(
 
 
 def _populate_tree(
-        tree: ttk.Treeview, data: Tree | Leaf, parent: str = ''
+    tree: ttk.Treeview, data: Tree | Leaf, parent: str = ''
 ) -> None:
     if isinstance(data, dict):
         for key, value in data.items():
@@ -126,7 +126,7 @@ def _on_item_click(event, tree: ttk.Treeview, callback: Callable[[Any], None]):
 
 
 def ellipsis_around(
-        text: str, start_position: int, end_position: int, length: int
+    text: str, start_position: int, end_position: int, length: int
 ) -> str:
     """
     Create a substring of 'text' centered around the range from 'start_position' to 'end_position'
@@ -165,9 +165,9 @@ def ellipsis_around(
     """
     if len(text) <= length:
         return (
-                text[:start_position]
-                + f"[{text[start_position:end_position]}]"
-                + text[end_position:]
+            text[:start_position]
+            + f"[{text[start_position:end_position]}]"
+            + text[end_position:]
         )
 
     length = max(
@@ -175,7 +175,7 @@ def ellipsis_around(
     )  # Ensure minimum length for ellipses, content, and brackets
     highlight_length = end_position - start_position
     available_length = (
-            length - 5 - highlight_length
+        length - 5 - highlight_length
     )  # Subtract 5 for ellipses and brackets
 
     left_context = (available_length) // 2

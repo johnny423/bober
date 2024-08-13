@@ -14,6 +14,7 @@ class AbsPosition(BaseModel):
         @start - the index of the word within the given line
         @length - the amount of characters after the starting position
     """
+
     line: int
     start: int
     length: int
@@ -53,11 +54,15 @@ def load_rfc_content(session: Session, rfc_num: int) -> str | None:
     return "\n".join(raw_lines)
 
 
-def get_absolute_line(session: Session, rfc_num: int, line_id: int) -> None | int:
+def get_absolute_line(
+    session: Session, rfc_num: int, line_id: int
+) -> None | int:
     abs_line_query = get_section_absolute_line_query(rfc_num).subquery()
     query = (
         session.query(
-            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label('line')
+            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label(
+                'line'
+            )
         )
         .join(RfcSection, RfcSection.id == RfcLine.section_id)
         .join(abs_line_query, RfcSection.id == abs_line_query.c.id)
@@ -70,14 +75,18 @@ def get_absolute_line(session: Session, rfc_num: int, line_id: int) -> None | in
     return None
 
 
-def get_absolute_positions(session: Session, rfc_num: int, stem: str) -> list[AbsPosition]:
+def get_absolute_positions(
+    session: Session, rfc_num: int, stem: str
+) -> list[AbsPosition]:
     abs_line_query = get_section_absolute_line_query(rfc_num).subquery()
     query = (
         session.query(
             RfcLine.indentation,
             TokenPosition.start_position,
             TokenPosition.end_position,
-            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label('line')
+            (RfcLine.line_number + abs_line_query.c.absolute_start_line).label(
+                'line'
+            ),
         )
         .join(TokenPosition, TokenPosition.line_id == RfcLine.id)
         .join(Token, Token.id == TokenPosition.token_id)
@@ -91,7 +100,7 @@ def get_absolute_positions(session: Session, rfc_num: int, stem: str) -> list[Ab
         abs_position = AbsPosition(
             line=pos.line,
             start=pos.indentation + pos.start_position,
-            length=pos.end_position - pos.start_position
+            length=pos.end_position - pos.start_position,
         )
         abs_pos.append(abs_position)
     return abs_pos
@@ -101,7 +110,7 @@ def get_section_absolute_line_query(rfc_num: int):
     page_lines = (
         select(
             RfcSection.page,
-            func.max(RfcSection.row_end).label('page_line_count')
+            func.max(RfcSection.row_end).label('page_line_count'),
         )
         .where(RfcSection.rfc_num == rfc_num)
         .group_by(RfcSection.page)
@@ -112,10 +121,9 @@ def get_section_absolute_line_query(rfc_num: int):
         select(
             page_lines.c.page,
             page_lines.c.page_line_count,
-            func.sum(page_lines.c.page_line_count).over(
-                order_by=page_lines.c.page,
-                rows=(None, -1)
-            ).label('previous_lines')
+            func.sum(page_lines.c.page_line_count)
+            .over(order_by=page_lines.c.page, rows=(None, -1))
+            .label('previous_lines'),
         )
         .select_from(page_lines)
         .subquery()
@@ -124,8 +132,12 @@ def get_section_absolute_line_query(rfc_num: int):
     query = (
         select(
             RfcSection.id,
-            (func.coalesce(cumulative_lines.c.previous_lines, 0) + RfcSection.row_start).label('absolute_start_line')
-        ).options(selectinload(RfcSection.lines))
+            (
+                func.coalesce(cumulative_lines.c.previous_lines, 0)
+                + RfcSection.row_start
+            ).label('absolute_start_line'),
+        )
+        .options(selectinload(RfcSection.lines))
         .select_from(RfcSection)
         .join(cumulative_lines, RfcSection.page == cumulative_lines.c.page)
         .where(RfcSection.rfc_num == rfc_num)
