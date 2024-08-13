@@ -25,14 +25,24 @@ class WordIndexWindow(BaseWindow):
         self.update_results()
 
     def create_widgets(self):
-        self.token_groups_entry = self.create_entry(self.main_frame, "Token Groups:")
-        self.rfc_titles_entry = self.create_entry(self.main_frame, "RFC Titles:")
-        self.partial_token_entry = self.create_entry(self.main_frame, "Partial Token:")
+        self.token_groups_entry = self.create_entry(
+            self.main_frame, "Token Groups:"
+        )
+        self.rfc_titles_entry = self.create_entry(
+            self.main_frame, "RFC Titles:"
+        )
+        self.partial_token_entry = self.create_entry(
+            self.main_frame, "Partial Token:"
+        )
 
-        self.sort_by_combobox = self.create_combobox(self.main_frame, "Sort By:", list(SortBy))
+        self.sort_by_combobox = self.create_combobox(
+            self.main_frame, "Sort By:", list(SortBy)
+        )
         self.sort_by_combobox.set(SortBy.OCCURRENCES.value)
 
-        self.sort_order_combobox = self.create_combobox(self.main_frame, "Sort Order:", list(SortOrder))
+        self.sort_order_combobox = self.create_combobox(
+            self.main_frame, "Sort Order:", list(SortOrder)
+        )
         self.sort_order_combobox.set(SortOrder.DESC.value)
 
         self.results_frame = ttk.Frame(self.main_frame)
@@ -43,7 +53,9 @@ class WordIndexWindow(BaseWindow):
         self.rfc_titles_entry.bind("<KeyRelease>", self.update_results)
         self.partial_token_entry.bind("<KeyRelease>", self.update_results)
         self.sort_by_combobox.bind("<<ComboboxSelected>>", self.update_results)
-        self.sort_order_combobox.bind("<<ComboboxSelected>>", self.update_results)
+        self.sort_order_combobox.bind(
+            "<<ComboboxSelected>>", self.update_results
+        )
 
     def update_results(self, event=None):
         token_groups = self.token_groups_entry.get().split() or None
@@ -74,7 +86,7 @@ class WordIndexWindow(BaseWindow):
 
     @staticmethod
     def _setup_for_display(
-            word_index: dict[str, WordIndex]
+        word_index: dict[str, WordIndex]
     ) -> dict[str, dict[str, dict[str, str]]]:
         formatted_result = {}
         for stem, word_data in word_index.items():
@@ -82,7 +94,9 @@ class WordIndexWindow(BaseWindow):
             formatted_result[formatted_token] = {}
 
             for rfc_num, rfc_data in word_data.rfc_occurrences.items():
-                formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
+                formatted_title = (
+                    f"{rfc_data.title} ({rfc_data.count} occurrences)"
+                )
                 formatted_result[formatted_token][formatted_title] = {}
 
                 for occurrence in rfc_data.occurrences:
@@ -99,10 +113,13 @@ class WordIndexWindow(BaseWindow):
                         50,
                     )
 
-                    formatted_result[formatted_token][formatted_title][position_key] = (
-                        shorten, rfc_num, word_data.token, occurrence.line_id)
+                    formatted_result[formatted_token][formatted_title][
+                        position_key
+                    ] = (shorten, rfc_num, word_data.token, occurrence.line_id)
 
         return formatted_result
 
     def load_rfc_window(self, rfc, token, line_id):
-        RFCWindow(self, self.session, int(rfc), token=token, line_id=int(line_id))
+        RFCWindow(
+            self, self.session, int(rfc), token=token, line_id=int(line_id)
+        )

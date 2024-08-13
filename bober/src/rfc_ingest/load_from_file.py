@@ -18,7 +18,7 @@ class RFCMetadata(TypedDict):
 
 @commit
 def load_single_file(
-        session: Session, file_path: str, rfc_metadata: RFCMetadata
+    session: Session, file_path: str, rfc_metadata: RFCMetadata
 ):
     content = Path(file_path).read_text()
     parsed_doc = parse_rfc(content)

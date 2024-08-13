@@ -41,9 +41,7 @@ def save_new_phrase(session: Session, phrase_name: str, phrase: str):
     session.add(new_phrase)
 
 
-def find_phrase_occurrences(
-        session: Session, phrase_name: str
-):
+def find_phrase_occurrences(session: Session, phrase_name: str):
     phrase = (
         session.query(Phrase)
         .filter(Phrase.phrase_name == phrase_name)
@@ -73,14 +71,14 @@ def search_phrase(session: Session, phrase: str):
                 func.array_agg(ordered_tokens.c.token).over(
                     partition_by=[
                         ordered_tokens.c.rfc_num,
-                        ordered_tokens.c.section_index
+                        ordered_tokens.c.section_index,
                     ],
                     order_by=[ordered_tokens.c.row_num],
-                    rows=(0, token_count - 1)
-                ), ' '
-            ).label('phrase')
-        )
-        .select_from(ordered_tokens)
+                    rows=(0, token_count - 1),
+                ),
+                ' ',
+            ).label('phrase'),
+        ).select_from(ordered_tokens)
     ).subquery()
 
     # Define the query to filter the windows by the input phrase
@@ -91,7 +89,7 @@ def search_phrase(session: Session, phrase: str):
             token_windows_query.c.section_index,
             token_windows_query.c.page,
             token_windows_query.c.line_number,
-            token_windows_query.c.phrase
+            token_windows_query.c.phrase,
         )
         .select_from(token_windows_query)
         .where(func.lower(token_windows_query.c.phrase) == phrase.lower())
@@ -118,15 +116,17 @@ def ordered_tokens_query():
             TokenPositionAlias.index.label('token_index'),
             TokenPositionAlias.start_position,
             TokenPositionAlias.end_position,
-            func.row_number().over(
+            func.row_number()
+            .over(
                 order_by=[
                     RfcAlias.num,
                     RfcSectionAlias.page,
                     RfcSectionAlias.index,
                     RfcLineAlias.line_number,
-                    TokenPositionAlias.index
+                    TokenPositionAlias.index,
                 ]
-            ).label('row_num')
+            )
+            .label('row_num'),
         )
         .join(TokenPositionAlias, TokenAlias.id == TokenPositionAlias.token_id)
         .join(RfcLineAlias, TokenPositionAlias.line_id == RfcLineAlias.id)

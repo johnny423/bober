@@ -34,7 +34,7 @@ class LinguisticPhraseManager(BaseWindow):
         self.phrases_tree = self.create_treeview(
             right_frame,
             columns=("phrase_name", "phrase_content"),
-            headings=("Phrase Name", "Phrase Content")
+            headings=("Phrase Name", "Phrase Content"),
         )
         self.phrases_tree.bind("<<TreeviewSelect>>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
@@ -67,7 +67,10 @@ class LinguisticPhraseManager(BaseWindow):
             occurrences = find_phrase_occurrences(self.session, phrase_name)
             self.occurrences_list.delete(0, tk.END)
             for occurrence in occurrences:
-                self.occurrences_list.insert(tk.END, f"RFC {occurrence.rfc_title}: {occurrence.section_index}")
+                self.occurrences_list.insert(
+                    tk.END,
+                    f"RFC {occurrence.rfc_title}: {occurrence.section_index}",
+                )
         except ValueError as e:
             self.show_error(str(e))
 
@@ -75,7 +78,9 @@ class LinguisticPhraseManager(BaseWindow):
         self.phrases_tree.delete(*self.phrases_tree.get_children())
         phrases = self.session.query(Phrase).all()
         for phrase in phrases:
-            self.phrases_tree.insert("", "end", values=(phrase.phrase_name, phrase.content))
+            self.phrases_tree.insert(
+                "", "end", values=(phrase.phrase_name, phrase.content)
+            )
 
     def on_phrase_select(self, event=None):
         self.occurrences_list.delete(0, tk.END)

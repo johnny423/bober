@@ -31,17 +31,19 @@ class WordGroupManager(BaseWindow):
         self.create_button(left_frame, "Create Group", self.create_group)
 
         self.word_entry = self.create_entry(left_frame, "Word:")
-        self.create_button(left_frame, "Add Word to Group", self.add_word_to_group)
-        self.create_button(left_frame, "Remove Word from Group", self.remove_word_from_group)
+        self.create_button(
+            left_frame, "Add Word to Group", self.add_word_to_group
+        )
+        self.create_button(
+            left_frame, "Remove Word from Group", self.remove_word_from_group
+        )
 
         # Right frame for displaying groups and words
         right_frame = ttk.Frame(self.main_frame)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.groups_tree = self.create_treeview(
-            right_frame,
-            columns=("group_name",),
-            headings=("Word Groups",)
+            right_frame, columns=("group_name",), headings=("Word Groups",)
         )
         self.groups_tree.bind("<<TreeviewSelect>>", self.on_group_select)
         self.words_list = self.create_listbox(right_frame)
