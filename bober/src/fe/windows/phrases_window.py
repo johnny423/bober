@@ -3,6 +3,7 @@ from tkinter import ttk
 
 from bober.src.db_models import Phrase
 from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.phrases.phrases import find_phrase_occurrences, save_new_phrase
 
 
@@ -38,7 +39,7 @@ class LinguisticPhraseManager(BaseWindow):
         )
         self.phrases_tree.bind("<<TreeviewSelect>>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
-        self.occurrences_list.bind('<<ListboxSelect>>', self.on_occurrence_select)
+        self.occurrences_list.bind('<Double-1>', self.on_occurrence_select)  # todo make double click
 
     def create_phrase(self):
         phrase_name = self.phrase_name_entry.get().strip()
@@ -93,4 +94,5 @@ class LinguisticPhraseManager(BaseWindow):
         display_text = self.occurrences_list.get(index)
         item_id = display_text.split(":")[0].strip()
         selected_occurrence = self.occurrences_id_mapping[item_id]
+        RFCWindow(self, self.session, selected_occurrence.rfc_num, token=None, line_id=selected_occurrence.line_id)  # todo make phrase highligh
         print(f"{display_text= } ; {selected_occurrence=}")  # todo open file
