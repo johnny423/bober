@@ -37,7 +37,7 @@ class LinguisticPhraseManager(BaseWindow):
             columns=("phrase_name", "phrase_content"),
             headings=("Phrase Name", "Phrase Content"),
         )
-        self.phrases_tree.bind("<<TreeviewSelect>>", self.on_phrase_select)
+        self.phrases_tree.bind("<Button-1>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
         self.occurrences_list.bind('<Double-1>', self.on_occurrence_select)
 
@@ -57,14 +57,7 @@ class LinguisticPhraseManager(BaseWindow):
         except ValueError as e:
             self.show_error(str(e))
 
-    def search_occurrences(self):
-        selected_items = self.phrases_tree.selection()
-        if not selected_items:
-            self.show_warning("Please select a phrase.")
-            return
-
-        phrase_name = self.phrases_tree.item(selected_items[0])['values'][0]
-
+    def search_occurrences(self, phrase_name):
         try:
             occurrences = find_phrase_occurrences(self.session, phrase_name)
             self.occurrences_list.delete(0, tk.END)
@@ -84,9 +77,15 @@ class LinguisticPhraseManager(BaseWindow):
                 "", "end", values=(phrase.phrase_name, phrase.content)
             )
 
-    def on_phrase_select(self, event=None):
+    def on_phrase_select(self, event):
         self.occurrences_list.delete(0, tk.END)
-        self.search_occurrences()
+        region = self.phrases_tree.identify('region', event.x, event.y)
+        if region != "cell":
+            self.show_warning("Please select a phrase.")
+            return
+        item_id = self.phrases_tree.identify_row(event.y)
+        phrase_name = self.phrases_tree.item(item_id)['values'][0]
+        self.search_occurrences(phrase_name)
 
     def on_occurrence_select(self, event=None):
         if not self.occurrences_list.curselection():
@@ -96,11 +95,11 @@ class LinguisticPhraseManager(BaseWindow):
         display_text = self.occurrences_list.get(index)
         item_id = display_text.split(":")[0].strip()
         selected_occurrence = self.occurrences_id_mapping[item_id]
-        RFCWindow(
+        rfc_window = RFCWindow(
             self,
             self.session,
             selected_occurrence.rfc_num,
             token=None,
             line_id=selected_occurrence.line_id,
         )  # todo make phrase highligh
-        print(f"{display_text= } ; {selected_occurrence=}")  # todo open file
+        rfc_window.protocol("WM_DELETE_WINDOW", lambda: (rfc_window.destroy(), self.load_phrases()))
