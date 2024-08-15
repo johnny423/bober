@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import datetime
 
 from tkcalendar import Calendar
 
@@ -44,12 +45,13 @@ class SearchFileWindow(BaseWindow):
         )
         self.published_after_cal.pack(side=tk.LEFT, padx=(0, 20))
 
+        today = datetime.date.today()
         # Create and pack the "Published Before" calendar
         tk.Label(calendar_frame, text="Published Before:").pack(
             side=tk.LEFT, padx=(0, 10)
         )
         self.published_before_cal = Calendar(
-            calendar_frame, selectmode='day', year=2024, month=1, day=1
+            calendar_frame, selectmode='day', year=today.year, month=today.month, day=today.day
         )
         self.published_before_cal.pack(side=tk.LEFT)
 
