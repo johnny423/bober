@@ -73,6 +73,7 @@ class SearchFileWindow(BaseWindow):
                 "title": ("Title", 300),
                 "published_at": ("Published At", 150),
                 "authors": ("Authors", 250),
+                "rank": ("Rank", 100),
             }
         )
 
@@ -156,6 +157,7 @@ class SearchFileWindow(BaseWindow):
                     rfc.title,
                     rfc.published_at.strftime("%Y-%m-%d"),
                     ", ".join(rfc.authors),
+                    rfc.rank,
                 ),
             )
             self.tree.item(item, tags=(item,))
