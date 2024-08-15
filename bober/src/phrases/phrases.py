@@ -1,5 +1,5 @@
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session
 
 from bober.src.db import commit
 from bober.src.db_models import (
@@ -66,8 +66,7 @@ def search_phrase(session: Session, phrase: str):
             ordered_tokens.c.rfc_title,
             ordered_tokens.c.section_index,
             ordered_tokens.c.page,
-            ordered_tokens.c.line_number,
-            ordered_tokens.c.line_id,
+            ordered_tokens.c.abs_line_number,
             func.array_to_string(
                 func.array_agg(ordered_tokens.c.token).over(
                     partition_by=[
@@ -89,9 +88,8 @@ def search_phrase(session: Session, phrase: str):
             token_windows_query.c.rfc_title,
             token_windows_query.c.section_index,
             token_windows_query.c.page,
-            token_windows_query.c.line_id,
-            token_windows_query.c.line_number,
             token_windows_query.c.phrase,
+            token_windows_query.c.abs_line_number,
         )
         .select_from(token_windows_query)
         .where(func.lower(token_windows_query.c.phrase) == phrase.lower())
@@ -100,40 +98,35 @@ def search_phrase(session: Session, phrase: str):
 
 
 def ordered_tokens_query():
-    # Create aliases for the models
-    TokenAlias = aliased(Token)
-    TokenPositionAlias = aliased(TokenPosition)
-    RfcLineAlias = aliased(RfcLine)
-    RfcSectionAlias = aliased(RfcSection)
-    RfcAlias = aliased(Rfc)
     # Define the query to get ordered tokens with row numbers
     ordered_tokens = (
         select(
-            TokenAlias.token,
-            RfcAlias.num.label('rfc_num'),
-            RfcAlias.title.label('rfc_title'),
-            RfcSectionAlias.index.label('section_index'),
-            RfcSectionAlias.page.label('page'),
-            RfcLineAlias.id.label('line_id'),
-            RfcLineAlias.line_number,
-            TokenPositionAlias.index.label('token_index'),
-            TokenPositionAlias.start_position,
-            TokenPositionAlias.end_position,
-            func.row_number()
+            Token.token,
+            Rfc.num.label('rfc_num'),
+            Rfc.title.label('rfc_title'),
+            RfcSection.index.label('section_index'),
+            RfcSection.page.label('page'),
+            RfcLine.line_number,
+            RfcLine.abs_line_number,
+            TokenPosition.index.label('token_index'),
+            TokenPosition.start_position,
+            TokenPosition.end_position,
+                        func.row_number()
             .over(
                 order_by=[
-                    RfcAlias.num,
-                    RfcSectionAlias.page,
-                    RfcSectionAlias.index,
-                    RfcLineAlias.line_number,
-                    TokenPositionAlias.index,
+                    Rfc.num,
+                    RfcSection.page,
+                    RfcSection.index,
+                    RfcLine.line_number,
+                    TokenPosition.index,
                 ]
             )
             .label('row_num'),
+
         )
-        .join(TokenPositionAlias, TokenAlias.id == TokenPositionAlias.token_id)
-        .join(RfcLineAlias, TokenPositionAlias.line_id == RfcLineAlias.id)
-        .join(RfcSectionAlias, RfcLineAlias.section_id == RfcSectionAlias.id)
-        .join(RfcAlias, RfcSectionAlias.rfc_num == RfcAlias.num)
+        .join(TokenPosition, Token.id == TokenPosition.token_id)
+        .join(RfcLine, TokenPosition.line_id == RfcLine.id)
+        .join(RfcSection, RfcLine.section_id == RfcSection.id)
+        .join(Rfc, RfcSection.rfc_num == Rfc.num)
     )
     return ordered_tokens

@@ -80,7 +80,6 @@ class LinguisticPhraseManager(BaseWindow):
         self.occurrences_list.delete(0, tk.END)
         region = self.phrases_tree.identify('region', event.x, event.y)
         if region != "cell":
-            self.show_warning("Please select a phrase.")
             return
         item_id = self.phrases_tree.identify_row(event.y)
         phrase_name = self.phrases_tree.item(item_id)['values'][0]
@@ -99,7 +98,7 @@ class LinguisticPhraseManager(BaseWindow):
             self.session,
             selected_occurrence.rfc_num,
             token=None,
-            line_id=selected_occurrence.line_id,
+            abs_line=selected_occurrence.abs_line_number,
         )  # todo make phrase highligh
         rfc_window.protocol(
             "WM_DELETE_WINDOW",
