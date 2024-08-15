@@ -50,6 +50,7 @@ def ingest_rfc(
             line = RfcLine(
                 section=section,
                 line_number=line_num,
+                abs_line_number=parsed_line.absolute_line,
                 line=parsed_line.text,
                 indentation=parsed_line.indentation,
             )
