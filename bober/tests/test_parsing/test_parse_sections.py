@@ -39,10 +39,13 @@ class TestSectionsParser:
         parser = SectionsParser(doc)
         sections = list(parser)
         assert len(sections) == 2
+        
         assert sections[0].lines[1].text.endswith("[Page 1]")
-        assert sections[1].lines[1].text.endswith("[Page 2]")
         assert sections[0].page == 1
+        
+        assert sections[1].lines[1].text.endswith("[Page 2]")
         assert sections[1].page == 2
+
 
     def test_sections_with_multiple_page_breaks(self) -> None:
         doc = "Section 1\nLine 2 [Page 1]\nSection 2\nLine 2 [Page 2]\nSection 3\nLine 2 [Page 3]"
@@ -67,6 +70,7 @@ class TestSectionsParser:
         sections = list(parser)
         assert len(sections) == 1
         assert sections[0].lines[1].indentation == 2
+
 
     def test_section_with_special_characters(self) -> None:
         doc = "Section 1\nLine with @#$%^&*\nNormal line"
@@ -98,13 +102,17 @@ Line with 12345 [Page 2]"""
         sections = list(parser)
         assert len(sections) == 3
 
+        assert sections[0].lines[1].absolute_line == 2
+        assert sections[0].lines[2].absolute_line == 3
         assert sections[0].lines[2].text.endswith("[Page 1]")
         assert sections[0].page == 1
 
+        assert sections[1].lines[1].absolute_line == 6
         assert sections[1].lines[1].indentation == 2
         assert sections[1].page == 2
 
         assert "@#$%^&*" in sections[2].lines[1].text
+        assert sections[2].lines[2].absolute_line == 11
         assert sections[2].lines[2].text.endswith("[Page 2]")
         assert sections[2].page == 2
 

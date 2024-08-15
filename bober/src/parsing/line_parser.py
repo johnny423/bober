@@ -3,7 +3,7 @@ import re
 from bober.src.parsing.parsed_types import ParsedLine, ParsedToken
 
 
-def parse_line(line: str) -> ParsedLine:
+def parse_line(line: str, abs_num: int) -> ParsedLine:
     striped = line.strip()
     words = re.findall(r'\b\w+\b', striped)
 
@@ -19,6 +19,7 @@ def parse_line(line: str) -> ParsedLine:
         current_position = start + len(word)
 
     return ParsedLine(
+        absolute_line=abs_num,
         text=striped,
         indentation=(len(line) - len(striped)),
         tokens=tokens,
