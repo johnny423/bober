@@ -101,4 +101,7 @@ class LinguisticPhraseManager(BaseWindow):
             token=None,
             line_id=selected_occurrence.line_id,
         )  # todo make phrase highligh
-        rfc_window.protocol("WM_DELETE_WINDOW", lambda: (rfc_window.destroy(), self.load_phrases()))
+        rfc_window.protocol(
+            "WM_DELETE_WINDOW",
+            lambda: (rfc_window.destroy(), self.load_phrases()),
+        )

@@ -39,13 +39,12 @@ class TestSectionsParser:
         parser = SectionsParser(doc)
         sections = list(parser)
         assert len(sections) == 2
-        
+
         assert sections[0].lines[1].text.endswith("[Page 1]")
         assert sections[0].page == 1
-        
+
         assert sections[1].lines[1].text.endswith("[Page 2]")
         assert sections[1].page == 2
-
 
     def test_sections_with_multiple_page_breaks(self) -> None:
         doc = "Section 1\nLine 2 [Page 1]\nSection 2\nLine 2 [Page 2]\nSection 3\nLine 2 [Page 3]"
@@ -70,7 +69,6 @@ class TestSectionsParser:
         sections = list(parser)
         assert len(sections) == 1
         assert sections[0].lines[1].indentation == 2
-
 
     def test_section_with_special_characters(self) -> None:
         doc = "Section 1\nLine with @#$%^&*\nNormal line"
