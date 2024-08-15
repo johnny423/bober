@@ -12,7 +12,6 @@ class LoadFileWindow(BaseWindow):
     title_entry: tk.Entry
     published_at_entry: tk.Entry
     author_entry: tk.Entry
-    authors_listbox: tk.Listbox
 
     def __init__(self, parent, session):
         super().__init__(parent, "Load File", session)
@@ -44,13 +43,6 @@ class LoadFileWindow(BaseWindow):
         )
         if self.filepath:
             self.file_label.config(text=f"Selected file: {self.filepath}")
-
-    def remove_author(self):
-        selected = self.authors_listbox.curselection()
-        if selected:
-            self.authors_listbox.delete(selected)
-        else:
-            self.show_warning("Please select an author to remove.")
 
     def load_file(self):
         missing_fields = []
