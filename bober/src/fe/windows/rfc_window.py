@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from bober.src.fe.base_window import BaseWindow
 from bober.src.phrases.phrases import save_new_phrase
 from bober.src.search.rfc_content import (
-    get_absolute_line,
     get_absolute_positions,
     load_rfc_content,
 )
@@ -26,7 +25,7 @@ class RFCWindow(BaseWindow):
         session: Session,
         rfc: int,
         token: None | str = None,
-        line_id: None | int = None,
+        abs_line: None | int = None
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
@@ -38,10 +37,10 @@ class RFCWindow(BaseWindow):
             highlights = get_absolute_positions(session, rfc, token)
 
         self.create_scroll_region(content, highlights)
-
-        if line_id:
-            line = get_absolute_line(session, rfc, line_id)
-            self.scroll_to_line(line)
+        
+        if abs_line:
+            self.scroll_to_line(abs_line)
+        
 
     def create_scroll_region(
         self, initial_text: str, highlights: None | list = None

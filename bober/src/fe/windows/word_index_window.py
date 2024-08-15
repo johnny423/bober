@@ -115,11 +115,11 @@ class WordIndexWindow(BaseWindow):
 
                     formatted_result[formatted_token][formatted_title][
                         position_key
-                    ] = (shorten, rfc_num, word_data.token, occurrence.line_id)
+                    ] = (shorten, rfc_num, word_data.token, occurrence.abs_line)
 
         return formatted_result
 
-    def load_rfc_window(self, rfc, token, line_id):
+    def load_rfc_window(self, rfc, token, abs_line):
         RFCWindow(
-            self, self.session, int(rfc), token=token, line_id=int(line_id)
+            self, self.session, int(rfc), token=token, abs_line=int(abs_line)
         )
