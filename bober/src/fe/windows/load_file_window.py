@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog
+from tkcalendar import Calendar
+import datetime
 
 from bober.src.fe.base_window import BaseWindow
 from bober.src.fe.utils import convert_to_datetime
@@ -10,7 +12,7 @@ class LoadFileWindow(BaseWindow):
     file_label: tk.Label
     rfc_number_entry: tk.Entry
     title_entry: tk.Entry
-    published_at_entry: tk.Entry
+    published_at_cal: Calendar
     author_entry: tk.Entry
 
     def __init__(self, parent, session):
@@ -20,18 +22,31 @@ class LoadFileWindow(BaseWindow):
 
     def create_widgets(self):
         self.create_button(self.main_frame, "Browse", self.browse_file)
-
         self.file_label = tk.Label(self.main_frame, text="No file selected")
         self.file_label.pack(pady=5)
-
         self.rfc_number_entry = self.create_entry(
             self.main_frame, "RFC Number:"
         )
         self.title_entry = self.create_entry(self.main_frame, "Title:")
-        self.published_at_entry = self.create_entry(
-            self.main_frame, "Published at (YYYY/MM/DD):"
-        )
         self.author_entry = self.create_entry(self.main_frame, "Authors:")
+        today = datetime.date.today()
+
+        # Create a frame for the calendar label
+        label_frame = tk.Frame(self.main_frame)
+        label_frame.pack(fill=tk.X, pady=(5, 0))
+
+        tk.Label(label_frame, text="Published at:", anchor=tk.W).pack(
+            side=tk.LEFT, padx=(0, 10), fill=tk.X
+        )
+
+        # Create a separate frame for the calendar to keep it centered
+        calendar_frame = tk.Frame(self.main_frame)
+        calendar_frame.pack(pady=(0, 5))
+
+        self.published_at_cal = Calendar(
+            calendar_frame, selectmode='day', year=today.year, month=today.month, day=today.day
+        )
+        self.published_at_cal.pack(expand=True)
 
         self.create_button(self.main_frame, "Load File", self.load_file)
 
@@ -61,11 +76,7 @@ class LoadFileWindow(BaseWindow):
         if not title:
             missing_fields.append("Title")
 
-        published_at = self.published_at_entry.get()
-        if not published_at:
-            missing_fields.append("Published at")
-        elif not convert_to_datetime(published_at):
-            invalid_fields.append("Published at (should be YYYY/MM/DD)")
+        published_at = self.published_at_cal.selection_get()
 
         authors = [s.strip() for s in self.author_entry.get().split(',')]
         if len(authors) == 0:
