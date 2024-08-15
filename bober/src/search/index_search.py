@@ -25,12 +25,11 @@ class Index2Criteria:
 @dataclass
 class SearchResult:
     rfc: int
-    line_id: int
     word: str
     context: str
+    abs_line: int
 
 
-# todo: add links to source? + inline with words index
 def index_1_search(
     session: Session, criteria: Index1Criteria
 ) -> list[SearchResult]:
@@ -38,6 +37,7 @@ def index_1_search(
         select(
             Rfc.num,
             RfcLine.id.label("line_id"),
+            RfcLine.abs_line_number.label("abs_line"),
             Token.token,
             TokenPosition,
             Rfc.title,
@@ -70,7 +70,7 @@ def index_1_search(
     return [
         SearchResult(
             rfc=result.num,
-            line_id=result.line_id,
+            abs_line=result.abs_line,
             word=result.token,
             context=f"Page {result.page_number}, Line {result.line_number + result.row_start}, Position {result.TokenPosition.start_position}",
         )
@@ -85,6 +85,7 @@ def index_2_search(
         select(
             Rfc.num,
             RfcLine.id.label("line_id"),
+            RfcLine.abs_line_number.label("abs_line"),
             Token.token,
             TokenPosition,
             Rfc.title,
@@ -113,7 +114,7 @@ def index_2_search(
     return [
         SearchResult(
             rfc=result.num,
-            line_id=result.line_id,
+            abs_line=result.abs_line,
             word=result.token,
             context=f"Section {result.RfcSection.index}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
         )
