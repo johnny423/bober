@@ -34,13 +34,6 @@ class LoadFileWindow(BaseWindow):
         )
         self.author_entry = self.create_entry(self.main_frame, "Authors:")
 
-        self.create_button(self.main_frame, "Add Author", self.add_author)
-
-        self.authors_listbox = self.create_listbox(self.main_frame)
-
-        self.create_button(
-            self.main_frame, "Remove Selected Author", self.remove_author
-        )
         self.create_button(self.main_frame, "Load File", self.load_file)
 
     def browse_file(self):
@@ -51,14 +44,6 @@ class LoadFileWindow(BaseWindow):
         )
         if self.filepath:
             self.file_label.config(text=f"Selected file: {self.filepath}")
-
-    def add_author(self):
-        author = self.author_entry.get().strip()
-        if author:
-            self.authors_listbox.insert(tk.END, author)
-            self.author_entry.delete(0, tk.END)
-        else:
-            self.show_warning("Please enter an author name.")
 
     def remove_author(self):
         selected = self.authors_listbox.curselection()
@@ -90,7 +75,8 @@ class LoadFileWindow(BaseWindow):
         elif not convert_to_datetime(published_at):
             invalid_fields.append("Published at (should be YYYY/MM/DD)")
 
-        if self.authors_listbox.size() == 0:
+        authors = [s.strip() for s in self.author_entry.get().split(',')]
+        if len(authors) == 0:
             missing_fields.append("Authors")
 
         if missing_fields or invalid_fields:
@@ -108,7 +94,7 @@ class LoadFileWindow(BaseWindow):
             "num": rfc_num,
             "title": title,
             "publish_at": published_at,
-            "authors": list(self.authors_listbox.get(0, tk.END)),
+            "authors": authors,
         }
         load_single_file(self.session, self.filepath, metadata)
         self.destroy()
