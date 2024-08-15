@@ -18,6 +18,7 @@ class ParsedToken(BaseModel):
 
 
 class ParsedLine(BaseModel):
+    absolute_line: int
     text: str
     indentation: int
     tokens: list[ParsedToken]

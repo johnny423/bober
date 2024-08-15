@@ -61,6 +61,9 @@ class RfcLine(Base):
     )
     line: Mapped[str] = mapped_column(Text)
 
+    abs_line_number: Mapped[int] = mapped_column(
+        Integer
+    )  # the number of the line in whole file
     line_number: Mapped[int] = mapped_column(
         Integer
     )  # the number of the line in the section

@@ -11,5 +11,5 @@ SNAPSHOT = CURR_DIR / "snapshot.json"
 def test_parse_rfc() -> None:
     doc_text = DOC_TO_TEST.read_text()
     result = parse_rfc(doc_text)
-    expected = ParsedDocument.model_validate_json(SNAPSHOT.read_text())
+    expected = ParsedDocument.model_validate_json(SNAPSHOT.read_text())    
     assert expected == result

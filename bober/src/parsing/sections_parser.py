@@ -35,7 +35,7 @@ class SectionsParser:
 
             self.current_section[
                 self.line_in_page - self.section_start_line
-            ] = parse_line(line)
+            ] = parse_line(line, self.current_line)
 
             # Check if this line is a page ending
             if PAGE_END_PATTERN.search(line):
