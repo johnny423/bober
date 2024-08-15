@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import datetime
 
 from tkcalendar import Calendar
 
@@ -14,7 +15,6 @@ class SearchFileWindow(BaseWindow):
     title_entry: tk.Entry
     author_entry: tk.Entry
     contains_tokens: tk.Entry
-    authors_listbox: tk.Listbox
     tree: ttk.Treeview
     scrollbar: ttk.Scrollbar
 
@@ -45,12 +45,13 @@ class SearchFileWindow(BaseWindow):
         )
         self.published_after_cal.pack(side=tk.LEFT, padx=(0, 20))
 
+        today = datetime.date.today()
         # Create and pack the "Published Before" calendar
         tk.Label(calendar_frame, text="Published Before:").pack(
             side=tk.LEFT, padx=(0, 10)
         )
         self.published_before_cal = Calendar(
-            calendar_frame, selectmode='day', year=2024, month=1, day=1
+            calendar_frame, selectmode='day', year=today.year, month=today.month, day=today.day
         )
         self.published_before_cal.pack(side=tk.LEFT)
 
@@ -60,11 +61,6 @@ class SearchFileWindow(BaseWindow):
 
         # authors
         self.author_entry = self.create_entry(self.main_frame, "Authors:")
-        self.authors_listbox = self.create_listbox(self.main_frame)
-        self.create_button(self.main_frame, "Add Author", self.add_author)
-        self.create_button(
-            self.main_frame, "Remove Selected Author", self.remove_author
-        )
 
         # Create the Treeview widget for displaying search results
         self.tree = self._make_table(
@@ -94,6 +90,7 @@ class SearchFileWindow(BaseWindow):
             "<<CalendarSelected>>", self.search_files
         )
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
+        self.author_entry.bind("<KeyRelease>", self.search_files)
 
         self.search_files()
 
@@ -107,30 +104,13 @@ class SearchFileWindow(BaseWindow):
 
         return tree
 
-    def add_author(self):
-        author = self.author_entry.get().strip()
-        if author:
-            self.authors_listbox.insert("end", author)
-            self.author_entry.delete(0, "end")
-            self.search_files()
-        else:
-            self.show_warning("Please enter an author name.")
-
-    def remove_author(self):
-        selected = self.authors_listbox.curselection()
-        if selected:
-            self.authors_listbox.delete(selected)
-            self.search_files()
-        else:
-            self.show_warning("Please select an author to remove.")
-
     def search_files(self, event=None):
         rfc_num = self.rfc_number_entry.get()
         title = self.title_entry.get()
         published_after = self.published_after_cal.selection_get()
         published_before = self.published_before_cal.selection_get()
         tokens = self.contains_tokens.get().split()
-        authors = list(self.authors_listbox.get(0, "end"))
+        authors = [s.strip() for s in self.author_entry.get().split(',')]
 
         search_query = SearchRFCQuery(
             num=rfc_num or None,
