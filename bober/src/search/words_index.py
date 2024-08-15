@@ -18,7 +18,7 @@ from bober.src.db_models import (
 
 @dataclass
 class TokenOccurrence:
-    line_id: int
+    abs_line: int
     section_index: int
     page: int
     row: int
@@ -69,10 +69,10 @@ def query_words_index(
 ) -> Dict[str, WordIndex]:
     query = (
         select(
-            Token.stem,
-            RfcLine.id.label("line_id"),
-            Rfc.num,
-            Rfc.title,
+            Token.stem.label("token"),
+            RfcLine.abs_line_number.label("abs_line"),
+            Rfc.num.label("rfc_num"),
+            Rfc.title.label("rfc_title"),
             RfcSection.index.label('section_index'),
             RfcSection.page,
             RfcSection.row_start,
@@ -116,40 +116,26 @@ def query_words_index(
     )
 
     result: Dict[str, WordIndex] = {}
-    for (
-        token,
-        line_id,
-        rfc_num,
-        rfc_title,
-        section_index,
-        page,
-        row_start,
-        line_in_section,
-        start_position,
-        end_position,
-        index,
-        context,
-    ) in session.execute(query):
+    for res in session.execute(query):
+        if res.token not in result:
+            result[res.token] = WordIndex(token=res.token)
 
-        if token not in result:
-            result[token] = WordIndex(token=token)
-
-        if rfc_num not in result[token].rfc_occurrences:
-            result[token].rfc_occurrences[rfc_num] = RfcOccurrences(
-                title=rfc_title
+        if res.rfc_num not in result[res.token].rfc_occurrences:
+            result[res.token].rfc_occurrences[res.rfc_num] = RfcOccurrences(
+                title=res.rfc_title
             )
 
         occurrence = TokenOccurrence(
-            line_id=line_id,
-            section_index=section_index,
-            page=page,  # We don't have page information in the new model
-            row=row_start + line_in_section,
-            context=context,  # todo: content should might include lines before and after
-            start_position=start_position,
-            end_position=end_position,
-            index=index,
+            abs_line=res.abs_line,
+            section_index=res.section_index,
+            page=res.page,  # We don't have page information in the new model
+            row=res.row_start + res.line_in_section,
+            context=res.context,  # todo: content should might include lines before and after
+            start_position=res.start_position,
+            end_position=res.end_position,
+            index=res.index,
         )
 
-        result[token].rfc_occurrences[rfc_num].occurrences.append(occurrence)
+        result[res.token].rfc_occurrences[res.rfc_num].occurrences.append(occurrence)
 
     return result
