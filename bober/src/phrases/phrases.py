@@ -111,7 +111,7 @@ def ordered_tokens_query():
             TokenPosition.index.label('token_index'),
             TokenPosition.start_position,
             TokenPosition.end_position,
-                        func.row_number()
+            func.row_number()
             .over(
                 order_by=[
                     Rfc.num,
@@ -122,7 +122,6 @@ def ordered_tokens_query():
                 ]
             )
             .label('row_num'),
-
         )
         .join(TokenPosition, Token.id == TokenPosition.token_id)
         .join(RfcLine, TokenPosition.line_id == RfcLine.id)

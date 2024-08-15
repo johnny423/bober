@@ -18,7 +18,7 @@ class LinguisticPhraseManager(BaseWindow):
         super().__init__(parent, "Linguistic Phrase Manager", session)
         self.create_widgets()
         self.load_phrases()
-        self.occurrences_id_mapping = dict()
+        self.occurrences_id_mapping = {}
 
     def create_widgets(self):
         left_frame = ttk.Frame(self.main_frame)

@@ -1,6 +1,6 @@
+import datetime
 import tkinter as tk
 from tkinter import ttk
-import datetime
 
 from tkcalendar import Calendar
 
@@ -51,7 +51,11 @@ class SearchFileWindow(BaseWindow):
             side=tk.LEFT, padx=(0, 10)
         )
         self.published_before_cal = Calendar(
-            calendar_frame, selectmode='day', year=today.year, month=today.month, day=today.day
+            calendar_frame,
+            selectmode='day',
+            year=today.year,
+            month=today.month,
+            day=today.day,
         )
         self.published_before_cal.pack(side=tk.LEFT)
 

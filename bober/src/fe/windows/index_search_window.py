@@ -97,7 +97,7 @@ class IndexSearchWindow(BaseWindow):
                     result.word,
                     result.context,
                     result.rfc,
-                    result.abs_line
+                    result.abs_line,
                 ),
             )
             self.tree.item(item, tags=(item,))
@@ -107,9 +107,7 @@ class IndexSearchWindow(BaseWindow):
     def _on_item_click(self, event):
         item = self.tree.identify('item', event.x, event.y)
         (*_, rfc, abs_line) = self.tree.item(item, 'values')
-        RFCWindow(
-            self, self.session, int(rfc), abs_line=int(abs_line)
-        )
+        RFCWindow(self, self.session, int(rfc), abs_line=int(abs_line))
 
     def search_by_index_1(self):
         criteria = Index1Criteria(

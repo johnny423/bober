@@ -54,19 +54,21 @@ def search_rfcs(
         query = query.join(
             tfidf_summary, Rfc.num == tfidf_summary.c.rfc_num
         ).order_by(desc(tfidf_summary.c.total_tfidf_score))
-        query = query.add_columns(tfidf_summary.c.total_tfidf_score.label("rank"))
+        query = query.add_columns(
+            tfidf_summary.c.total_tfidf_score.label("rank")
+        )
     else:
         query = query.add_columns(func.cast(None, type_=Integer).label('rank'))
         query = query.order_by(desc(Rfc.published_at))
 
     output = []
-    for (rfc, rank) in query.all():
+    for rfc, rank in query.all():
         rfc_meta = RFCMeta(
             num=rfc.num,
             title=rfc.title,
             published_at=rfc.published_at,
             authors=[author.author_name for author in rfc.authors],
-            rank=rank
+            rank=rank,
         )
 
         output.append(rfc_meta)

@@ -1,10 +1,10 @@
+import datetime
 import tkinter as tk
 from tkinter import filedialog
+
 from tkcalendar import Calendar
-import datetime
 
 from bober.src.fe.base_window import BaseWindow
-from bober.src.fe.utils import convert_to_datetime
 from bober.src.rfc_ingest.load_from_file import load_single_file
 
 
@@ -44,7 +44,11 @@ class LoadFileWindow(BaseWindow):
         calendar_frame.pack(pady=(0, 5))
 
         self.published_at_cal = Calendar(
-            calendar_frame, selectmode='day', year=today.year, month=today.month, day=today.day
+            calendar_frame,
+            selectmode='day',
+            year=today.year,
+            month=today.month,
+            day=today.day,
         )
         self.published_at_cal.pack(expand=True)
 

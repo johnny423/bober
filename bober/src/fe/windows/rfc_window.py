@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import Menu, TclError, scrolledtext, ttk
-from tkinter import simpledialog
+from tkinter import Menu, TclError, scrolledtext, simpledialog, ttk
 
 from sqlalchemy.orm import Session
 
@@ -25,7 +24,7 @@ class RFCWindow(BaseWindow):
         session: Session,
         rfc: int,
         token: None | str = None,
-        abs_line: None | int = None
+        abs_line: None | int = None,
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
@@ -37,10 +36,9 @@ class RFCWindow(BaseWindow):
             highlights = get_absolute_positions(session, rfc, token)
 
         self.create_scroll_region(content, highlights)
-        
+
         if abs_line:
             self.scroll_to_line(abs_line)
-        
 
     def create_scroll_region(
         self, initial_text: str, highlights: None | list = None

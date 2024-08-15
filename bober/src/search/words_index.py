@@ -136,6 +136,8 @@ def query_words_index(
             index=res.index,
         )
 
-        result[res.token].rfc_occurrences[res.rfc_num].occurrences.append(occurrence)
+        result[res.token].rfc_occurrences[res.rfc_num].occurrences.append(
+            occurrence
+        )
 
     return result

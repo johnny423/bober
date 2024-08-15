@@ -1,7 +1,6 @@
 from itertools import repeat
 
 from pydantic import BaseModel
-from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from bober.src.db_models import RfcLine, RfcSection, Token, TokenPosition
@@ -62,9 +61,7 @@ def get_absolute_positions(
             RfcLine.indentation,
             TokenPosition.start_position,
             TokenPosition.end_position,
-            (RfcLine.abs_line_number).label(
-                'line'
-            ),
+            (RfcLine.abs_line_number).label('line'),
         )
         .join(TokenPosition, TokenPosition.line_id == RfcLine.id)
         .join(Token, Token.id == TokenPosition.token_id)
