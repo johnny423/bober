@@ -7,7 +7,6 @@ from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.phrases.phrases import find_phrase_occurrences, save_new_phrase
 
 
-# todo: doesn't look good
 class LinguisticPhraseManager(BaseWindow):
     phrase_name_entry: ttk.Entry
     phrase_entry: ttk.Entry
