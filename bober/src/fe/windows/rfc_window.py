@@ -77,6 +77,8 @@ class RFCWindow(BaseWindow):
         )
         self.text_area.bind("<Button-3>", self.command_popup)
 
+        self.winfo_toplevel().bind("<Button-1>", self.hide_menu)
+
         self.h_scrollbar = ttk.Scrollbar(
             self.frame, orient=tk.HORIZONTAL, command=self.text_area.xview
         )
@@ -169,6 +171,10 @@ class RFCWindow(BaseWindow):
             self.m.tk_popup(event.x_root, event.y_root)
         finally:
             self.m.grab_release()
+
+    def hide_menu(self, event):
+        if self.m.winfo_ismapped():
+            self.m.unpost()
 
     def scroll_to_line(self, line_number: int):
         self.text_area.see(f"{line_number}.0")
