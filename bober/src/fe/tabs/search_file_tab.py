@@ -4,36 +4,19 @@ from tkinter import ttk
 
 from tkcalendar import Calendar
 
-from bober.src.fe.base_window import BaseWindow
-from bober.src.fe.utils import create_label
+from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
-class SearchFileWindow(BaseWindow):
-    rfc_number_entry: tk.Entry
-    title_entry: tk.Entry
-    author_entry: tk.Entry
-    contains_tokens: tk.Entry
-    tree: ttk.Treeview
-    scrollbar: ttk.Scrollbar
-
-    def __init__(self, parent, session):
-        super().__init__(parent, "Search File", session)
-        self.create_widgets()
+class SearchFileTab(BaseTab):
 
     def create_widgets(self):
-        create_label(
-            self, text="Authors:", placement='pack', placement_args={'pady': 5}
-        )
-
-        self.rfc_number_entry = self.create_entry(
-            self.main_frame, "RFC Number:"
-        )
-        self.title_entry = self.create_entry(self.main_frame, "Title:")
+        self.rfc_number_entry = self.create_entry("RFC Number:")
+        self.title_entry = self.create_entry("Title:")
 
         # Create a frame to hold both calendars
-        calendar_frame = tk.Frame(self.main_frame)
+        calendar_frame = tk.Frame(self)
         calendar_frame.pack(pady=5)
 
         # Create and pack the "Published After" calendar
@@ -60,11 +43,9 @@ class SearchFileWindow(BaseWindow):
         self.published_before_cal.pack(side=tk.LEFT)
 
         self.contains_tokens = self.create_entry(
-            self.main_frame, "Contains tokens(space separated):"
+            "Contains tokens(space separated):"
         )
-
-        # authors
-        self.author_entry = self.create_entry(self.main_frame, "Authors:")
+        self.author_entry = self.create_entry("Authors:")
 
         # Create the Treeview widget for displaying search results
         self.tree = self._make_table(
@@ -79,7 +60,7 @@ class SearchFileWindow(BaseWindow):
 
         # Add scrollbar to the Treeview
         self.scrollbar = ttk.Scrollbar(
-            self.main_frame, orient="vertical", command=self.tree.yview
+            self, orient="vertical", command=self.tree.yview
         )
         self.tree.configure(yscrollcommand=self.scrollbar.set)
 
@@ -99,14 +80,19 @@ class SearchFileWindow(BaseWindow):
         self.search_files()
 
     def _make_table(self, columns: dict[str, tuple[str, int]]) -> ttk.Treeview:
-        tree = ttk.Treeview(
-            self.main_frame, columns=list(columns.keys()), show="headings"
-        )
+        tree = ttk.Treeview(self, columns=list(columns.keys()), show="headings")
         for col, (text, width) in columns.items():
             tree.heading(col, text=text)
             tree.column(col, width=width)
-
         return tree
+
+    def create_entry(self, label_text):
+        frame = ttk.Frame(self)
+        frame.pack(fill=tk.X, pady=5)
+        ttk.Label(frame, text=label_text, width=15).pack(side=tk.LEFT)
+        entry = ttk.Entry(frame)
+        entry.pack(side=tk.LEFT, expand=True, fill=tk.X)
+        return entry
 
     def search_files(self, event=None):
         rfc_num = self.rfc_number_entry.get()
@@ -151,4 +137,4 @@ class SearchFileWindow(BaseWindow):
     def _on_item_click(self, event):
         item = self.tree.identify('item', event.x, event.y)
         (rfc, *_) = self.tree.item(item, 'values')
-        RFCWindow(self, self.session, int(rfc))
+        RFCWindow(self.winfo_toplevel(), self.session, int(rfc))
