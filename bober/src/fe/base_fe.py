@@ -2,23 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 
-class BaseWindow(tk.Toplevel):
-    def __init__(self, parent, title, session=None):
-        super().__init__(parent)
-        self.parent = parent
-        self.session = session
-        self.title(title)
-
-        # Make this window modal
-        self.transient(parent)
-
-        # Set a default size
-        self.geometry("1000x750")
-
-        # Create a main frame to hold all widgets
-        self.main_frame = ttk.Frame(self)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
-
+class BaseUI:
     def create_entry(self, parent, label_text) -> ttk.Entry:
         """Create a labeled entry widget."""
         frame = ttk.Frame(parent)

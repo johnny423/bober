@@ -3,7 +3,7 @@ from tkinter import Menu, TclError, scrolledtext, simpledialog, ttk
 
 from sqlalchemy.orm import Session
 
-from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.windows.base_window import BaseWindow
 from bober.src.phrases.phrases import save_new_phrase
 from bober.src.search.rfc_content import (
     get_absolute_positions,

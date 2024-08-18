@@ -2,33 +2,26 @@ import tkinter as tk
 from tkinter import ttk
 
 from bober.src.db_models import Phrase
-from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.phrases.phrases import find_phrase_occurrences, save_new_phrase
 
 
-class LinguisticPhraseManager(BaseWindow):
-    phrase_name_entry: ttk.Entry
-    phrase_entry: ttk.Entry
-    phrases_tree: ttk.Treeview
-    occurrences_list: tk.Listbox
-    occurrences_id_mapping: dict
-
+class PhrasesTab(BaseTab):
     def __init__(self, parent, session):
-        super().__init__(parent, "Linguistic Phrase Manager", session)
-        self.create_widgets()
+        super().__init__(parent, session)
         self.load_phrases()
         self.occurrences_id_mapping = {}
 
     def create_widgets(self):
-        left_frame = ttk.Frame(self.main_frame)
+        left_frame = ttk.Frame(self)
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
         self.phrase_name_entry = self.create_entry(left_frame, "Phrase Name:")
         self.phrase_entry = self.create_entry(left_frame, "Phrase:")
         self.create_button(left_frame, "Create Phrase", self.create_phrase)
 
-        right_frame = ttk.Frame(self.main_frame)
+        right_frame = ttk.Frame(self)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.phrases_tree = self.create_treeview(
@@ -94,12 +87,12 @@ class LinguisticPhraseManager(BaseWindow):
         item_id = display_text.split(":")[0].strip()
         selected_occurrence = self.occurrences_id_mapping[item_id]
         rfc_window = RFCWindow(
-            self,
+            self.winfo_toplevel(),
             self.session,
             selected_occurrence.rfc_num,
             token=None,
             abs_line=selected_occurrence.abs_line_number,
-        )  # todo make phrase highligh
+        )  # todo make phrase highlight
         rfc_window.protocol(
             "WM_DELETE_WINDOW",
             lambda: (rfc_window.destroy(), self.load_phrases()),

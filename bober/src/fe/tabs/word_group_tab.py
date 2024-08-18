@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.word_groups.word_groups import (
     add_words_to_group,
     create_word_group,
@@ -11,20 +11,19 @@ from bober.src.word_groups.word_groups import (
 )
 
 
-class WordGroupManager(BaseWindow):
+class WordGroupTab(BaseTab):
     group_name_entry: ttk.Entry
     word_entry: ttk.Entry
     groups_tree: ttk.Treeview
     words_list: tk.Listbox
 
     def __init__(self, parent, session):
-        super().__init__(parent, "Word Group Manager", session)
-        self.create_widgets()
+        super().__init__(parent, session)
         self.load_word_groups()
 
     def create_widgets(self):
         # Left frame for creating and managing groups
-        left_frame = ttk.Frame(self.main_frame)
+        left_frame = ttk.Frame(self)
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
 
         self.group_name_entry = self.create_entry(left_frame, "Group Name:")
@@ -39,7 +38,7 @@ class WordGroupManager(BaseWindow):
         )
 
         # Right frame for displaying groups and words
-        right_frame = ttk.Frame(self.main_frame)
+        right_frame = ttk.Frame(self)
         right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
         self.groups_tree = self.create_treeview(

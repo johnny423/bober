@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.index_search import (
     Index1Criteria,
@@ -13,29 +13,16 @@ from bober.src.search.index_search import (
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
-class IndexSearchWindow(BaseWindow):
-    title_var: tk.StringVar
-    index_1_page_entry: tk.Entry
-    index_1_row_entry: tk.Entry
-    index_1_position_entry: tk.Entry
-    index_2_section_entry: tk.Entry
-    index_2_row_entry: tk.Entry
-    index_2_position_entry: tk.Entry
-    tree: ttk.Treeview
-
-    def __init__(self, parent, session):
-        super().__init__(parent, "Find word by index", session)
-        self.create_widgets()
-
+class IndexSearchTab(BaseTab):
     def create_widgets(self):
         # Create frames
-        input_frame = ttk.Frame(self.main_frame, padding="10")
+        input_frame = ttk.Frame(self, padding="10")
         input_frame.pack(fill="x")
 
-        button_frame = ttk.Frame(self.main_frame, padding="10")
+        button_frame = ttk.Frame(self, padding="10")
         button_frame.pack(fill="x")
 
-        results_frame = ttk.Frame(self.main_frame, padding="10")
+        results_frame = ttk.Frame(self, padding="10")
         results_frame.pack(fill="both", expand=True)
 
         # Create RFC dropdown
@@ -62,15 +49,13 @@ class IndexSearchWindow(BaseWindow):
         self.create_button(
             button_frame, "Search by index 2", self.search_by_index_2
         )
-        self.create_button(button_frame, "Back", self.destroy)
 
         # Create results table
-        self.tree = ttk.Treeview(
-            results_frame, columns=("Word", "Link for source"), show="headings"
+        self.tree = self.create_treeview(
+            results_frame,
+            columns=("Word", "Link for source"),
+            headings=("Word", "Link for source"),
         )
-        self.tree.heading("Word", text="Word")
-        self.tree.heading("Link for source", text="Link for source")
-        self.tree.pack(fill="both", expand=True)
 
     def create_rfc_dropdown(self, parent):
         frame = ttk.Frame(parent)
@@ -107,7 +92,12 @@ class IndexSearchWindow(BaseWindow):
     def _on_item_click(self, event):
         item = self.tree.identify('item', event.x, event.y)
         (*_, rfc, abs_line) = self.tree.item(item, 'values')
-        RFCWindow(self, self.session, int(rfc), abs_line=int(abs_line))
+        RFCWindow(
+            self.winfo_toplevel(),
+            self.session,
+            int(rfc),
+            abs_line=int(abs_line),
+        )
 
     def search_by_index_1(self):
         criteria = Index1Criteria(

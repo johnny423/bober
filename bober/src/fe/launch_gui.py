@@ -1,47 +1,57 @@
 import tkinter as tk
+from tkinter import ttk
 
-from bober.src.fe import utils
-from bober.src.fe.windows.index_search_window import IndexSearchWindow
-from bober.src.fe.windows.load_file_window import LoadFileWindow
-from bober.src.fe.windows.phrases_window import LinguisticPhraseManager
-from bober.src.fe.windows.search_file_window import SearchFileWindow
-from bober.src.fe.windows.word_groups_window import WordGroupManager
-from bober.src.fe.windows.word_index_window import WordIndexWindow
+from bober.src.fe.tabs.index_search_tab import IndexSearchTab
+from bober.src.fe.tabs.load_file_tab import LoadFileTab
+from bober.src.fe.tabs.phrases_tab import PhrasesTab
+from bober.src.fe.tabs.search_file_tab import SearchFileTab
+from bober.src.fe.tabs.word_group_tab import WordGroupTab
+from bober.src.fe.tabs.word_index_tab import WordIndexTab
 
 
-class MainWindow(tk.Tk):
+# todo: load tab on clicked
+class MainApplication(tk.Tk):
     def __init__(self, session):
         super().__init__()
         self.session = session
-        self.title("Main Window")
-        utils.create_button(
-            self, "Load new file", lambda: LoadFileWindow(self, self.session)
+        self.title("RFC Explorer")
+        self.geometry("1000x750")
+
+        # Create the notebook (tab controller)
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
+
+        # Create tabs
+        self.create_tabs()
+
+    def create_tabs(self):
+        self.notebook.add(
+            SearchFileTab(self.notebook, self.session), text="Search File"
         )
-        utils.create_button(
-            self, "Find document", lambda: SearchFileWindow(self, self.session)
+
+        self.notebook.add(
+            WordIndexTab(self.notebook, self.session), text="Word Index"
         )
-        utils.create_button(
-            self, "Word index", lambda: WordIndexWindow(self, self.session)
+
+        self.notebook.add(
+            IndexSearchTab(self.notebook, self.session), text="Index Search"
         )
-        utils.create_button(
-            self,
-            "Find word by index",
-            lambda: IndexSearchWindow(self, self.session),
+
+        self.notebook.add(
+            LoadFileTab(self.notebook, self.session), text="Load File"
         )
-        utils.create_button(
-            self,
-            "Manage word groups",
-            lambda: WordGroupManager(self, self.session),
+
+        self.notebook.add(
+            WordGroupTab(self.notebook, self.session), text="Manage Groups"
         )
-        utils.create_button(
-            self,
-            "Manage linguistic expressions",
-            lambda: LinguisticPhraseManager(self, self.session),
+
+        self.notebook.add(
+            PhrasesTab(self.notebook, self.session), text="Manage Phrases"
         )
 
 
 def launch_gui(session):
-    app = MainWindow(session)
+    app = MainApplication(session)
     app.mainloop()
 
 

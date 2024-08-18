@@ -1,48 +1,45 @@
 import datetime
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, ttk
 
 from tkcalendar import Calendar
 
-from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.rfc_ingest.load_from_file import load_single_file
 
 
-class LoadFileWindow(BaseWindow):
-    file_label: tk.Label
-    rfc_number_entry: tk.Entry
-    title_entry: tk.Entry
-    published_at_cal: Calendar
-    author_entry: tk.Entry
-
+class LoadFileTab(BaseTab):
     def __init__(self, parent, session):
-        super().__init__(parent, "Load File", session)
+        super().__init__(parent, session)
         self.filepath = ""
-        self.create_widgets()
 
     def create_widgets(self):
-        self.create_button(self.main_frame, "Browse", self.browse_file)
-        self.file_label = tk.Label(self.main_frame, text="No file selected")
+        # Create frames
+        input_frame = ttk.Frame(self, padding="10")
+        input_frame.pack(fill="x")
+
+        button_frame = ttk.Frame(self, padding="10")
+        button_frame.pack(fill="x")
+
+        # File selection
+        self.create_button(input_frame, "Browse", self.browse_file)
+        self.file_label = ttk.Label(input_frame, text="No file selected")
         self.file_label.pack(pady=5)
-        self.rfc_number_entry = self.create_entry(
-            self.main_frame, "RFC Number:"
-        )
-        self.title_entry = self.create_entry(self.main_frame, "Title:")
-        self.author_entry = self.create_entry(self.main_frame, "Authors:")
+
+        # Input fields
+        self.rfc_number_entry = self.create_entry(input_frame, "RFC Number:")
+        self.title_entry = self.create_entry(input_frame, "Title:")
+        self.author_entry = self.create_entry(input_frame, "Authors:")
+
+        # Calendar
         today = datetime.date.today()
-
-        # Create a frame for the calendar label
-        label_frame = tk.Frame(self.main_frame)
+        label_frame = ttk.Frame(input_frame)
         label_frame.pack(fill=tk.X, pady=(5, 0))
-
-        tk.Label(label_frame, text="Published at:", anchor=tk.W).pack(
+        ttk.Label(label_frame, text="Published at:", anchor=tk.W).pack(
             side=tk.LEFT, padx=(0, 10), fill=tk.X
         )
-
-        # Create a separate frame for the calendar to keep it centered
-        calendar_frame = tk.Frame(self.main_frame)
+        calendar_frame = ttk.Frame(input_frame)
         calendar_frame.pack(pady=(0, 5))
-
         self.published_at_cal = Calendar(
             calendar_frame,
             selectmode='day',
@@ -52,13 +49,14 @@ class LoadFileWindow(BaseWindow):
         )
         self.published_at_cal.pack(expand=True)
 
-        self.create_button(self.main_frame, "Load File", self.load_file)
+        # Load button
+        self.create_button(button_frame, "Load File", self.load_file)
 
     def browse_file(self):
         self.filepath = filedialog.askopenfilename(
             title="Select a file",
             filetypes=(("All files", "*.*"),),
-            parent=self,
+            parent=self.winfo_toplevel(),
         )
         if self.filepath:
             self.file_label.config(text=f"Selected file: {self.filepath}")
@@ -104,4 +102,13 @@ class LoadFileWindow(BaseWindow):
             "authors": authors,
         }
         load_single_file(self.session, self.filepath, metadata)
-        self.destroy()
+        self.clear_fields()
+
+    def clear_fields(self):
+        self.filepath = ""
+        self.file_label.config(text="No file selected")
+        self.rfc_number_entry.delete(0, tk.END)
+        self.title_entry.delete(0, tk.END)
+        self.author_entry.delete(0, tk.END)
+        today = datetime.date.today()
+        self.published_at_cal.selection_set(today)

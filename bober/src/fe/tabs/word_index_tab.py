@@ -1,6 +1,6 @@
 from tkinter import ttk
 
-from bober.src.fe.base_window import BaseWindow
+from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.utils import add_dict_display, ellipsis_around
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
@@ -11,41 +11,24 @@ from bober.src.search.words_index import (
 )
 
 
-class WordIndexWindow(BaseWindow):
-    token_groups_entry: ttk.Entry
-    rfc_titles_entry: ttk.Entry
-    partial_token_entry: ttk.Entry
-    sort_by_combobox: ttk.Combobox
-    sort_order_combobox: ttk.Combobox
-    results_frame: ttk.Frame
-
-    def __init__(self, parent, session):
-        super().__init__(parent, "Word Index", session)
-        self.create_widgets()
-        self.update_results()
+class WordIndexTab(BaseTab):
 
     def create_widgets(self):
-        self.token_groups_entry = self.create_entry(
-            self.main_frame, "Token Groups:"
-        )
-        self.rfc_titles_entry = self.create_entry(
-            self.main_frame, "RFC Titles:"
-        )
-        self.partial_token_entry = self.create_entry(
-            self.main_frame, "Partial Token:"
-        )
+        self.token_groups_entry = self.create_entry(self, "Token Groups:")
+        self.rfc_titles_entry = self.create_entry(self, "RFC Titles:")
+        self.partial_token_entry = self.create_entry(self, "Partial Token:")
 
         self.sort_by_combobox = self.create_combobox(
-            self.main_frame, "Sort By:", list(SortBy)
+            self, "Sort By:", list(SortBy)
         )
         self.sort_by_combobox.set(SortBy.OCCURRENCES.value)
 
         self.sort_order_combobox = self.create_combobox(
-            self.main_frame, "Sort Order:", list(SortOrder)
+            self, "Sort Order:", list(SortOrder)
         )
         self.sort_order_combobox.set(SortOrder.DESC.value)
 
-        self.results_frame = ttk.Frame(self.main_frame)
+        self.results_frame = ttk.Frame(self)
         self.results_frame.pack(pady=5, fill="both", expand=True)
 
         # Bind entries and comboboxes to update results on change
@@ -56,6 +39,8 @@ class WordIndexWindow(BaseWindow):
         self.sort_order_combobox.bind(
             "<<ComboboxSelected>>", self.update_results
         )
+
+        self.update_results()
 
     def update_results(self, event=None):
         token_groups = self.token_groups_entry.get().split() or None
@@ -121,5 +106,9 @@ class WordIndexWindow(BaseWindow):
 
     def load_rfc_window(self, rfc, token, abs_line):
         RFCWindow(
-            self, self.session, int(rfc), token=token, abs_line=int(abs_line)
+            self.winfo_toplevel(),
+            self.session,
+            int(rfc),
+            token=token,
+            abs_line=int(abs_line),
         )

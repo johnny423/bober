@@ -45,6 +45,7 @@ def add_words_to_group(
         (assoc.token_id, assoc.group_id) for assoc in existing_associations
     }
 
+    # todo: check the word exists
     # Create new associations
     new_associations = [
         TokenToGroup(token=existing_token_dict[word], group=group)
