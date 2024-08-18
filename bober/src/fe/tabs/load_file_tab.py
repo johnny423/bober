@@ -1,6 +1,7 @@
 import datetime
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import filedialog, ttk
+
 from tkcalendar import Calendar
 
 from bober.src.fe.tabs.base_tab import BaseTab
@@ -88,7 +89,9 @@ class LoadFileTab(BaseTab):
             if missing_fields:
                 error_message += f"Please fill in the following fields: {', '.join(missing_fields)}\n"
             if invalid_fields:
-                error_message += f"Invalid format for: {', '.join(invalid_fields)}"
+                error_message += (
+                    f"Invalid format for: {', '.join(invalid_fields)}"
+                )
             self.show_error(error_message.strip())
             return
 

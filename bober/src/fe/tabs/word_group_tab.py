@@ -10,6 +10,7 @@ from bober.src.word_groups.word_groups import (
     remove_words_from_group,
 )
 
+
 class WordGroupTab(BaseTab):
     group_name_entry: ttk.Entry
     word_entry: ttk.Entry
@@ -29,8 +30,12 @@ class WordGroupTab(BaseTab):
         self.create_button(left_frame, "Create Group", self.create_group)
 
         self.word_entry = self.create_entry(left_frame, "Word:")
-        self.create_button(left_frame, "Add Word to Group", self.add_word_to_group)
-        self.create_button(left_frame, "Remove Word from Group", self.remove_word_from_group)
+        self.create_button(
+            left_frame, "Add Word to Group", self.add_word_to_group
+        )
+        self.create_button(
+            left_frame, "Remove Word from Group", self.remove_word_from_group
+        )
 
         # Right frame for displaying groups and words
         right_frame = ttk.Frame(self)

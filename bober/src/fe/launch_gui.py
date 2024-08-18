@@ -49,6 +49,7 @@ class MainApplication(tk.Tk):
             PhrasesTab(self.notebook, self.session), text="Manage Phrases"
         )
 
+
 def launch_gui(session):
     app = MainApplication(session)
     app.mainloop()

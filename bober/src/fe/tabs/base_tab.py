@@ -12,3 +12,6 @@ class BaseTab(ttk.Frame, BaseUI):
     def create_widgets(self):
         # This method should be overridden by subclasses
         pass
+
+    def reload_tab(self):
+        pass
