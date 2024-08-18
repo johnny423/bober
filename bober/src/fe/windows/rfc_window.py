@@ -3,16 +3,18 @@ from tkinter import Menu, TclError, scrolledtext, simpledialog, ttk
 
 from sqlalchemy.orm import Session
 
+from bober.src.fe.handlers import (
+    add_words_to_group,
+    create_word_group,
+    save_new_phrase,
+)
 from bober.src.fe.windows.base_window import BaseWindow
-from bober.src.phrases.phrases import save_new_phrase
 from bober.src.search.rfc_content import (
     get_absolute_positions,
     load_rfc_content,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 from bober.src.word_groups.word_groups import (
-    add_words_to_group,
-    create_word_group,
     list_groups,
 )
 
@@ -122,17 +124,18 @@ class RFCWindow(BaseWindow):
         if not choice:
             return  # User cancelled
 
-        # Check if it's a new group or existing group
         if choice in existing_groups:
-            add_words_to_group(self.session, choice, [selected_word])
+            add_words_to_group(
+                self.parent, self.session, choice, [selected_word]
+            )
             self.show_info(
                 f"Word '{selected_word}' added to existing group '{choice}'"
             )
-        else:
-            create_word_group(self.session, choice, [selected_word])
-            self.show_info(
-                f"Word '{selected_word}' added to new group '{choice}'"
-            )
+            return
+
+        # new group case
+        create_word_group(self.parent, self.session, choice, [selected_word])
+        self.show_info(f"Word '{selected_word}' added to new group '{choice}'")
 
     def save_phrase_popup(self):
         try:
@@ -148,7 +151,9 @@ class RFCWindow(BaseWindow):
         def _on_submit():
             phrase_name = name_entry.get()
             if phrase_name:
-                save_new_phrase(self.session, phrase_name, phrase=selected_text)
+                save_new_phrase(
+                    self.parent, self.session, phrase_name, phrase=selected_text
+                )
                 popup.destroy()
             else:
                 self.show_error("Phrase name cannot be empty!")
