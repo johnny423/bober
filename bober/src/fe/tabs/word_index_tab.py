@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import Label, ttk
 from typing import Any
 
 from bober.src.fe.tabs.base_tab import BaseTab
@@ -8,11 +8,15 @@ from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
     SortBy,
     SortOrder,
-    query_words_index,
+    fetch_occurrences,
+    query_filtered_words,
 )
 
 
 class WordIndexTab(BaseTab):
+    def __init__(self, parent, session):
+        super().__init__(parent, session)
+        self.update_results()
 
     def create_widgets(self):
         self.token_groups_entry = self.create_entry(self, "Token Groups:")
@@ -32,6 +36,10 @@ class WordIndexTab(BaseTab):
         self.results_frame = ttk.Frame(self)
         self.results_frame.pack(pady=5, fill="both", expand=True)
 
+        # Create a label to show the number of words displayed
+        self.words_count_label = Label(self, text="")
+        self.words_count_label.pack(pady=5)
+
         # Bind entries and comboboxes to update results on change
         self.token_groups_entry.bind("<KeyRelease>", self.update_results)
         self.rfc_titles_entry.bind("<KeyRelease>", self.update_results)
@@ -41,10 +49,7 @@ class WordIndexTab(BaseTab):
             "<<ComboboxSelected>>", self.update_results
         )
 
-        self.update_results()
-
     def update_results(self, event=None):
-
         for child in self.results_frame.winfo_children():
             child.destroy()
 
@@ -58,26 +63,25 @@ class WordIndexTab(BaseTab):
         self.tree.heading("Value", text="content")
         self.tree.pack(fill=tk.BOTH, expand=True)
 
-        self.word_index = self._query_index()
-        self.nodes = {}
-        for stem, word_data in self.word_index.items():
-            text = f"{stem} ({word_data.total_count} occurrences)"
+        self.lazy_nodes = {}
+        for stem, count in self._query_words():
+            text = f"{stem} ({count} occurrences)"
             node = self.tree.insert('', 'end', text=text, open=False)
             self.tree.insert(node, 'end')
 
-            self.nodes[node] = stem
+            self.lazy_nodes[node] = stem
 
         self.tree.bind('<<TreeviewOpen>>', self.open_node)
         self.tree.bind("<Double-1>", self.load_rfc_window)
 
-    def _query_index(self):
+    def _query_words(self):
         token_groups = self.token_groups_entry.get().split() or None
         rfc_title = self.rfc_titles_entry.get() or None
         partial_token = self.partial_token_entry.get() or None
         sort_by = SortBy(self.sort_by_combobox.get())
         sort_order = SortOrder(self.sort_order_combobox.get())
 
-        return query_words_index(
+        return query_filtered_words(
             self.session,
             token_groups,
             rfc_title,
@@ -86,21 +90,26 @@ class WordIndexTab(BaseTab):
             sort_order,
         )
 
+    def _fetch_occurrences(self, stem):
+        rfc_title = self.rfc_titles_entry.get() or None
+        return fetch_occurrences(self.session, stem, rfc_title)
+
     def open_node(self, event=None):
         node = self.tree.focus()
-        stem = self.nodes.pop(node, None)
+        stem = self.lazy_nodes.pop(node, None)
         if not stem:
             # node is already opened
             return
 
         self.tree.delete(self.tree.get_children(node))
-        display = self._to_display(self.word_index[stem])
+        rfc_occurrences = self._fetch_occurrences(stem)
+        display = self._to_display(stem, rfc_occurrences)
         self._populate_tree(display, node)
 
     @staticmethod
-    def _to_display(word_data):
+    def _to_display(stem, rfc_occurrences):
         display = {}
-        for rfc_num, rfc_data in word_data.rfc_occurrences.items():
+        for rfc_num, rfc_data in rfc_occurrences.items():
             formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
             display[formatted_title] = {}
             for occurrence in rfc_data.occurrences:
@@ -118,7 +127,7 @@ class WordIndexTab(BaseTab):
                 display[formatted_title][position_key] = (
                     shorten,
                     rfc_num,
-                    word_data.token,
+                    stem,
                     occurrence.abs_line,
                 )
         return display
