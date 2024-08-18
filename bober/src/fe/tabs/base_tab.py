@@ -1,6 +1,6 @@
 from tkinter import ttk
 
-from bober.src.fe.base_fe import BaseUI
+from bober.src.fe.base_ui import BaseUI
 
 
 class BaseTab(ttk.Frame, BaseUI):
@@ -15,3 +15,6 @@ class BaseTab(ttk.Frame, BaseUI):
 
     def reload_tab(self):
         pass
+
+    def register(self, event, callback):
+        self.winfo_toplevel().bind(event, callable)

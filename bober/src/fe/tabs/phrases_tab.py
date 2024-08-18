@@ -2,9 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 
 from bober.src.db_models import Phrase
+from bober.src.fe.events import NEW_PHRASE_EVENT
+from bober.src.fe.handlers import save_new_phrase
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
-from bober.src.phrases.phrases import find_phrase_occurrences, save_new_phrase
+from bober.src.phrases.phrases import find_phrase_occurrences
 
 
 class PhrasesTab(BaseTab):
@@ -32,6 +34,9 @@ class PhrasesTab(BaseTab):
         self.phrases_tree.bind("<Button-1>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
         self.occurrences_list.bind('<Double-1>', self.on_occurrence_select)
+        self.winfo_toplevel().bind(
+            NEW_PHRASE_EVENT, lambda event: self.load_phrases()
+        )
 
     def create_phrase(self):
         phrase_name = self.phrase_name_entry.get().strip()
@@ -42,10 +47,11 @@ class PhrasesTab(BaseTab):
             return
 
         try:
-            save_new_phrase(self.session, phrase_name, phrase_content)
+            save_new_phrase(
+                self.winfo_toplevel(), self.session, phrase_name, phrase_content
+            )
             self.phrase_name_entry.delete(0, tk.END)
             self.phrase_entry.delete(0, tk.END)
-            self.load_phrases()
         except ValueError as e:
             self.show_error(str(e))
 
@@ -86,14 +92,14 @@ class PhrasesTab(BaseTab):
         display_text = self.occurrences_list.get(index)
         item_id = display_text.split(":")[0].strip()
         selected_occurrence = self.occurrences_id_mapping[item_id]
-        rfc_window = RFCWindow(
+        RFCWindow(
             self.winfo_toplevel(),
             self.session,
             selected_occurrence.rfc_num,
             token=None,
             abs_line=selected_occurrence.abs_line_number,
-        )  # todo make phrase highlight
-        rfc_window.protocol(
-            "WM_DELETE_WINDOW",
-            lambda: (rfc_window.destroy(), self.load_phrases()),
-        )
+        )  # todo: make phrase highlight
+        # rfc_window.protocol(
+        #     "WM_DELETE_WINDOW",
+        #     lambda: (rfc_window.destroy(), self.load_phrases()),
+        # )

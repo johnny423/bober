@@ -1,13 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
 
-from bober.src.fe.tabs.base_tab import BaseTab
-from bober.src.word_groups.word_groups import (
+from bober.src.fe.events import GROUP_UPDATED_EVENT, NEW_GROUP_EVENT
+from bober.src.fe.handlers import (
     add_words_to_group,
     create_word_group,
+    remove_words_from_group,
+)
+from bober.src.fe.tabs.base_tab import BaseTab
+from bober.src.word_groups.word_groups import (
     list_groups,
     list_words_in_group,
-    remove_words_from_group,
 )
 
 
@@ -46,13 +49,18 @@ class WordGroupTab(BaseTab):
         )
         self.groups_tree.bind("<<TreeviewSelect>>", self.on_group_select)
         self.words_list = self.create_listbox(right_frame)
+        self.winfo_toplevel().bind(
+            NEW_GROUP_EVENT, lambda event: self.load_word_groups()
+        )
+        self.winfo_toplevel().bind(GROUP_UPDATED_EVENT, self.on_group_select)
 
     def create_group(self):
         group_name = self.group_name_entry.get().strip()
         if group_name:
-            create_word_group(self.session, group_name, [])
+            create_word_group(
+                self.winfo_toplevel(), self.session, group_name, []
+            )
             self.group_name_entry.delete(0, tk.END)
-            self.load_word_groups()
         else:
             self.show_warning("Please enter a group name.")
 
@@ -68,9 +76,14 @@ class WordGroupTab(BaseTab):
             return
 
         group_name = self.groups_tree.item(selected_items[0])['values'][0]
-        add_words_to_group(self.session, group_name, [word])
-        self.word_entry.delete(0, tk.END)
-        self.on_group_select()
+        try:
+            add_words_to_group(
+                self.winfo_toplevel(), self.session, group_name, [word]
+            )
+        except ValueError as e:
+            self.show_error(e)
+        else:
+            self.word_entry.delete(0, tk.END)
 
     def remove_word_from_group(self):
         selected_items = self.groups_tree.selection()
@@ -87,11 +100,11 @@ class WordGroupTab(BaseTab):
         word = self.words_list.get(selected_words[0])
 
         try:
-            remove_words_from_group(self.session, group_name, [word])
+            remove_words_from_group(
+                self.winfo_toplevel(), self.session, group_name, [word]
+            )
         except Exception as e:
             self.show_error(str(e))
-        else:
-            self.on_group_select()
 
     def load_word_groups(self):
         self.groups_tree.delete(*self.groups_tree.get_children())

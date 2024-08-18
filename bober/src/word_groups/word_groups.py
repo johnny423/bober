@@ -45,14 +45,19 @@ def add_words_to_group(
         (assoc.token_id, assoc.group_id) for assoc in existing_associations
     }
 
-    # todo: check the word exists
-    # Create new associations
-    new_associations = [
-        TokenToGroup(token=existing_token_dict[word], group=group)
-        for word in words
-        if (existing_token_dict[word].id, group.id)
-        not in existing_association_set
-    ]
+    new_associations = []
+    for word in words:
+        if word not in existing_token_dict:
+            raise ValueError(f"Word '{word}' doesn't exists in text")
+
+        if (
+            existing_token_dict[word].id,
+            group.id,
+        ) not in existing_association_set:
+            new_associations.append(
+                TokenToGroup(token=existing_token_dict[word], group=group)
+            )
+
     session.add_all(new_associations)
 
 

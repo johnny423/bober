@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from bober.src.fe.base_fe import BaseUI
+from bober.src.fe.base_ui import BaseUI
 
 
 class BaseWindow(tk.Toplevel, BaseUI):
