@@ -1,8 +1,5 @@
 import tkinter as tk
-from collections import namedtuple
 from datetime import datetime
-from tkinter import ttk
-from typing import Any, Callable
 
 
 def create_button(
@@ -75,54 +72,6 @@ def create_label(parent, text, placement='pack', placement_args=None, **kwargs):
         raise ValueError("Placement must be either 'pack' or 'grid'")
 
     return label
-
-
-Leaf = namedtuple("Leaf", ("value", "metadata"))
-Tree = dict[str, Leaf] | dict[str, "Tree"]
-
-
-def add_dict_display(
-    parent: tk.Widget,
-    dictionary: Tree,
-    key_header: str,
-    value_header: str,
-    callback: None | Callable = None,
-):
-    frame = ttk.Frame(parent, padding=10)
-    frame.pack(fill=tk.BOTH, expand=True)
-
-    tree = ttk.Treeview(frame, columns=("Value",), show="tree headings")
-    tree.heading("#0", text=key_header)
-    tree.heading("Value", text=value_header)
-    tree.pack(fill=tk.BOTH, expand=True)
-
-    _populate_tree(tree, dictionary)
-
-    if callback:
-        tree.bind(
-            "<Double-1>", lambda event: _on_item_click(event, tree, callback)
-        )
-
-
-def _populate_tree(
-    tree: ttk.Treeview, data: Tree | Leaf, parent: str = ''
-) -> None:
-    if isinstance(data, dict):
-        for key, value in data.items():
-            node = tree.insert(parent, 'end', text=str(key))
-            _populate_tree(tree, value, node)
-    else:
-        node = tree.insert(parent, 'end', text='', values=data)
-        tree.item(node, tags=('leaf',))
-        # tree.item(node, values=(data.metadata,))
-
-
-def _on_item_click(event, tree: ttk.Treeview, callback: Callable[[Any], None]):
-    item = tree.identify('item', event.x, event.y)
-    if item and 'leaf' in tree.item(item, 'tags'):
-        values = tree.item(item, 'values')
-        if values:
-            callback(*values[1:])
 
 
 def ellipsis_around(
