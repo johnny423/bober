@@ -74,6 +74,10 @@ class RFCWindow(BaseWindow):
         self.m.add_command(
             label="Save word to group", command=self.save_word_to_group_popup
         )
+        self.m.add_command(
+            label="Show statistical data",
+            command=self.show_statistical_data_selection,
+        )
         self.text_area.bind("<Button-3>", self.command_popup)
 
         self.winfo_toplevel().bind("<Button-1>", self.hide_menu)
@@ -136,6 +140,20 @@ class RFCWindow(BaseWindow):
         # new group case
         create_word_group(self.parent, self.session, choice, [selected_word])
         self.show_info(f"Word '{selected_word}' added to new group '{choice}'")
+
+    def show_statistical_data_selection(self):
+        try:
+            selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
+        except TclError:
+            self.show_error("No text selected!")
+            return
+        if not selected_text:
+            self.show_error("No text selected!")
+            return
+
+        # todo
+        print(len(selected_text))
+        print(len(selected_text.split()))
 
     def save_phrase_popup(self):
         try:
