@@ -57,6 +57,7 @@ class IndexSearchTab(BaseTab):
             headings=("Word", "Link for source"),
         )
 
+    # todo: update when added
     def create_rfc_dropdown(self, parent):
         frame = ttk.Frame(parent)
         frame.pack(fill="x", pady=5)

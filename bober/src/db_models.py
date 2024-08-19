@@ -17,6 +17,9 @@ class Rfc(Base):
     sections: Mapped[list["RfcSection"]] = relationship(
         "RfcSection", back_populates="rfc", cascade="all, delete-orphan"
     )
+    token_counts: Mapped[list["RfcTokenCount"]] = relationship(
+        "RfcTokenCount", back_populates="rfc", cascade="all, delete-orphan"
+    )
 
 
 class Author(Base):
@@ -95,6 +98,9 @@ class Token(Base):
     )
     phrase_tokens: Mapped[list["PhraseToken"]] = relationship(
         "PhraseToken", back_populates="token"
+    )
+    rfc_counts: Mapped[list["RfcTokenCount"]] = relationship(
+        "RfcTokenCount", back_populates="token", cascade="all, delete-orphan"
     )
 
 
@@ -183,3 +189,18 @@ class PhraseToken(Base):
     token: Mapped["Token"] = relationship(
         "Token", back_populates="phrase_tokens"
     )
+
+
+class RfcTokenCount(Base):
+    __tablename__ = 'rfc_token_count'
+
+    rfc_num: Mapped[int] = mapped_column(
+        Integer, ForeignKey('rfc.num'), primary_key=True, index=True
+    )
+    token_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey('token.id'), primary_key=True, index=True
+    )
+    total_positions: Mapped[int] = mapped_column(Integer, default=0)
+
+    rfc: Mapped["Rfc"] = relationship("Rfc", back_populates="token_counts")
+    token: Mapped["Token"] = relationship("Token", back_populates="rfc_counts")

@@ -9,6 +9,7 @@ from bober.src.db_models import (
     Rfc,
     RfcLine,
     RfcSection,
+    RfcTokenCount,
     Token,
     TokenPosition,
 )
@@ -92,6 +93,11 @@ def ingest_rfc(
             position.token = token
 
         session.add_all(positions)
+        session.add(
+            RfcTokenCount(
+                rfc_num=rfc_num, token=token, total_positions=len(positions)
+            )
+        )
 
     session.flush()
     return rfc
