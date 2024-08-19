@@ -19,7 +19,10 @@ class WordIndexTab(BaseTab):
         self.update_results()
 
     def create_widgets(self):
+        # todo: load options from existing groups and update when group changes
         self.token_groups_entry = self.create_entry(self, "Token Groups:")
+        
+        # todo: load options from existing rfcs and update when added
         self.rfc_titles_entry = self.create_entry(self, "RFC Titles:")
         self.partial_token_entry = self.create_entry(self, "Partial Token:")
 
@@ -89,10 +92,17 @@ class WordIndexTab(BaseTab):
             sort_by,
             sort_order,
         )
+<<<<<<< HEAD
 
     def _fetch_occurrences(self, stem):
         rfc_title = self.rfc_titles_entry.get() or None
         return fetch_occurrences(self.session, stem, rfc_title)
+=======
+        # words_index = fetch_occurrences(self.session, words)
+        
+        # fixme: fix label
+        self.words_count_label.config(text=f"Showing {len(words)} words")
+>>>>>>> 2c8165c (wip)
 
     def open_node(self, event=None):
         node = self.tree.focus()
@@ -101,10 +111,20 @@ class WordIndexTab(BaseTab):
             # node is already opened
             return
 
+<<<<<<< HEAD
         self.tree.delete(self.tree.get_children(node))
         rfc_occurrences = self._fetch_occurrences(stem)
         display = self._to_display(stem, rfc_occurrences)
         self._populate_tree(display, node)
+=======
+        add_dict_display(
+            self.results_frame,
+            dictionary={f"{stem} ({count} occurrences)": {} for stem, count in words},
+            key_header="word",
+            value_header="content",
+            callback=self.load_rfc_window,
+        )
+>>>>>>> 2c8165c (wip)
 
     @staticmethod
     def _to_display(stem, rfc_occurrences):
