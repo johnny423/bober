@@ -75,7 +75,8 @@ class RFCWindow(BaseWindow):
             label="Save word to group", command=self.save_word_to_group_popup
         )
         self.m.add_command(
-            label="Show statistical data", command=self.show_statistical_data_selection
+            label="Show statistical data",
+            command=self.show_statistical_data_selection,
         )
         self.text_area.bind("<Button-3>", self.command_popup)
 

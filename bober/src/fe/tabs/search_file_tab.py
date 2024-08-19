@@ -15,9 +15,7 @@ class SearchFileTab(BaseTab):
     def create_widgets(self):
         self.rfc_number_entry = self.create_entry("RFC Number:")
         self.title_entry = self.create_entry("Title:")
-        self.contains_tokens = self.create_entry(
-            "Contains tokens:"
-        )
+        self.contains_tokens = self.create_entry("Contains tokens:")
         self.author_entry = self.create_entry("Authors:")
         self._create_calenders()
 
