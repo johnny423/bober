@@ -144,7 +144,7 @@ class WordIndexTab(BaseTab):
                 self.winfo_toplevel(),
                 self.session,
                 int(rfc),
-                token=token,
+                stem=token,
                 abs_line=int(abs_line),
             )
 
