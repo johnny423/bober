@@ -25,7 +25,7 @@ class RFCWindow(BaseWindow):
         parent,
         session: Session,
         rfc: int,
-        token: None | str = None,
+        stem: None | str = None,
         abs_line: None | int = None,
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
@@ -34,8 +34,8 @@ class RFCWindow(BaseWindow):
         content = load_rfc_content(self.session, rfc)
 
         highlights = None
-        if token:
-            highlights = get_absolute_positions(session, rfc, token)
+        if stem:
+            highlights = get_absolute_positions(session, rfc, stem)
 
         self.create_scroll_region(content, highlights)
 

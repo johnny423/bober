@@ -96,7 +96,7 @@ class PhrasesTab(BaseTab):
             self.winfo_toplevel(),
             self.session,
             selected_occurrence.rfc_num,
-            token=None,
+            stem=None,
             abs_line=selected_occurrence.abs_line_number,
         )  # todo: make phrase highlight
         # rfc_window.protocol(

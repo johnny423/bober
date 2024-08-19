@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from bober.src.fe.tabs.index_search_tab import IndexSearchTab
+from bober.src.fe.tabs.index_search_tab import Index1SearchTab, Index2SearchTab
 from bober.src.fe.tabs.load_file_tab import LoadFileTab
 from bober.src.fe.tabs.phrases_tab import PhrasesTab
 from bober.src.fe.tabs.search_file_tab import SearchFileTab
@@ -9,7 +9,6 @@ from bober.src.fe.tabs.word_group_tab import WordGroupTab
 from bober.src.fe.tabs.word_index_tab import WordIndexTab
 
 
-# todo: load tab on clicked
 class MainApplication(tk.Tk):
     def __init__(self, session):
         super().__init__()
@@ -34,7 +33,11 @@ class MainApplication(tk.Tk):
         )
 
         self.notebook.add(
-            IndexSearchTab(self.notebook, self.session), text="Index Search"
+            Index1SearchTab(self.notebook, self.session), text="Index1 Search"
+        )
+
+        self.notebook.add(
+            Index2SearchTab(self.notebook, self.session), text="Index2 Search"
         )
 
         self.notebook.add(

@@ -6,6 +6,7 @@ from bober.src.fe.base_ui import BaseUI
 class BaseTab(ttk.Frame, BaseUI):
     def __init__(self, parent, session):
         super().__init__(parent)
+        self.parent = parent
         self.session = session
         self.create_widgets()
 

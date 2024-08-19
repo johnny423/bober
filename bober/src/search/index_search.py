@@ -25,6 +25,7 @@ class Index2Criteria:
 @dataclass
 class SearchResult:
     rfc: int
+    stem: str
     word: str
     context: str
     abs_line: int
@@ -39,7 +40,8 @@ def index_1_search(
             RfcLine.id.label("line_id"),
             RfcLine.abs_line_number.label("abs_line"),
             Token.token,
-            TokenPosition,
+            Token.stem,
+            TokenPosition.start_position,
             Rfc.title,
             RfcLine.line_number,
             RfcSection.row_start,
@@ -71,8 +73,9 @@ def index_1_search(
         SearchResult(
             rfc=result.num,
             abs_line=result.abs_line,
+            stem=result.stem,
             word=result.token,
-            context=f"Page {result.page_number}, Line {result.line_number + result.row_start}, Position {result.TokenPosition.start_position}",
+            context=f"Page {result.page_number}, Line {result.line_number + result.row_start}, Position {result.start_position}",
         )
         for result in results
     ]
@@ -87,10 +90,12 @@ def index_2_search(
             RfcLine.id.label("line_id"),
             RfcLine.abs_line_number.label("abs_line"),
             Token.token,
-            TokenPosition,
+            Token.stem,
+            TokenPosition.start_position,
             Rfc.title,
             RfcLine.line_number,
             RfcSection.page,
+            RfcSection.index.label("section_index"),
         )
         .join(Token.positions)
         .join(TokenPosition.line)
@@ -115,8 +120,9 @@ def index_2_search(
         SearchResult(
             rfc=result.num,
             abs_line=result.abs_line,
+            stem=result.stem,
             word=result.token,
-            context=f"Section {result.RfcSection.index}, Line {result.line_number}, Position {result.TokenPosition.start_position}",
+            context=f"Section {result.section_index}, Line {result.line_number}, Position {result.start_position}",
         )
         for result in results
     ]
