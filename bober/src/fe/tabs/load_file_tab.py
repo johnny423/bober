@@ -4,8 +4,8 @@ from tkinter import filedialog, ttk
 
 from tkcalendar import Calendar
 
+from bober.src.fe.handlers import add_rfc
 from bober.src.fe.tabs.base_tab import BaseTab
-from bober.src.rfc_ingest.load_from_file import load_single_file
 
 
 class LoadFileTab(BaseTab):
@@ -48,8 +48,6 @@ class LoadFileTab(BaseTab):
             day=today.day,
         )
         self.published_at_cal.pack(expand=True)
-
-        # Load button
         self.create_button(button_frame, "Load File", self.load_file)
 
     def browse_file(self):
@@ -101,7 +99,7 @@ class LoadFileTab(BaseTab):
             "publish_at": published_at,
             "authors": authors,
         }
-        load_single_file(self.session, self.filepath, metadata)
+        add_rfc(self.winfo_toplevel(), self.session, self.filepath, metadata)
         self.clear_fields()
 
     def clear_fields(self):

@@ -4,6 +4,7 @@ from tkinter import ttk
 
 from tkcalendar import Calendar
 
+from bober.src.fe.events import RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
@@ -14,38 +15,11 @@ class SearchFileTab(BaseTab):
     def create_widgets(self):
         self.rfc_number_entry = self.create_entry("RFC Number:")
         self.title_entry = self.create_entry("Title:")
-
-        # Create a frame to hold both calendars
-        calendar_frame = tk.Frame(self)
-        calendar_frame.pack(pady=5)
-
-        # Create and pack the "Published After" calendar
-        tk.Label(calendar_frame, text="Published After:").pack(
-            side=tk.LEFT, padx=(0, 10)
-        )
-        self.published_after_cal = Calendar(
-            calendar_frame, selectmode='day', year=1969, month=1, day=1
-        )
-        self.published_after_cal.pack(side=tk.LEFT, padx=(0, 20))
-
-        today = datetime.date.today()
-        # Create and pack the "Published Before" calendar
-        tk.Label(calendar_frame, text="Published Before:").pack(
-            side=tk.LEFT, padx=(0, 10)
-        )
-        self.published_before_cal = Calendar(
-            calendar_frame,
-            selectmode='day',
-            year=today.year,
-            month=today.month,
-            day=today.day,
-        )
-        self.published_before_cal.pack(side=tk.LEFT)
-
         self.contains_tokens = self.create_entry(
-            "Contains tokens(space separated):"
+            "Contains tokens:"
         )
         self.author_entry = self.create_entry("Authors:")
+        self._create_calenders()
 
         # Create the Treeview widget for displaying search results
         self.tree = self._make_table(
@@ -76,8 +50,34 @@ class SearchFileTab(BaseTab):
         )
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
         self.author_entry.bind("<KeyRelease>", self.search_files)
+        self.winfo_toplevel().bind(RFC_ADDED_EVENT, self.search_files)
 
         self.search_files()
+
+    def _create_calenders(self):
+        calendar_frame = tk.Frame(self)
+        calendar_frame.pack(pady=5)
+
+        tk.Label(calendar_frame, text="Published After:").pack(
+            side=tk.LEFT, padx=(0, 10)
+        )
+        self.published_after_cal = Calendar(
+            calendar_frame, selectmode='day', year=1969, month=1, day=1
+        )
+        self.published_after_cal.pack(side=tk.LEFT, padx=(0, 20))
+
+        today = datetime.date.today()
+        tk.Label(calendar_frame, text="Published Before:").pack(
+            side=tk.LEFT, padx=(0, 10)
+        )
+        self.published_before_cal = Calendar(
+            calendar_frame,
+            selectmode='day',
+            year=today.year,
+            month=today.month,
+            day=today.day,
+        )
+        self.published_before_cal.pack(side=tk.LEFT)
 
     def _make_table(self, columns: dict[str, tuple[str, int]]) -> ttk.Treeview:
         tree = ttk.Treeview(self, columns=list(columns.keys()), show="headings")

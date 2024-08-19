@@ -19,17 +19,6 @@ async def fetch_rfc(rfc_number: int) -> str:
         return response.text
 
 
-def print_rfc_head(number: int, content: str, top: int) -> None:
-    print(f"Fetched RFC {number}:")
-    print("------------------------")
-    lines = content.lstrip().splitlines()
-    for i, line in enumerate(lines[:top], start=1):
-        print(f"{i}:\t {line}")
-    print("...")
-    print(f"printed {top}/{len(lines)} lines")
-    print("")
-
-
 async def main(rfc_range: Iterable[int]) -> None:
     for rfc_number in rfc_range:
         try:

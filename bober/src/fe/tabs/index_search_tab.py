@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+from bober.src.fe.events import RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.index_search import (
@@ -14,14 +15,18 @@ from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
 class IndexSearchTab(BaseTab):
-    # todo: update when added
+
+    def __init__(self, parent, session):
+        super().__init__(parent, session)
+        self.winfo_toplevel().bind(RFC_ADDED_EVENT, self._update_rfcs)
+
     def create_rfc_dropdown(self, parent):
         frame = ttk.Frame(parent)
         frame.pack(fill="x", pady=5)
 
         ttk.Label(frame, text="RFC:", width=15).pack(side="left")
-        rfcs = search_rfcs(self.session, SearchRFCQuery())
         rfc_dropdown = tk.StringVar()
+        rfcs = search_rfcs(self.session, SearchRFCQuery())
         rfc_dropdown = ttk.Combobox(
             frame,
             textvariable=rfc_dropdown,
@@ -29,6 +34,10 @@ class IndexSearchTab(BaseTab):
         )
         rfc_dropdown.pack(side="left", expand=True, fill="x")
         return rfc_dropdown
+
+    def _update_rfcs(self, event=None):
+        rfcs = search_rfcs(self.session, SearchRFCQuery())
+        self.rfc_dropdown["values"] = [rfc.title for rfc in rfcs]
 
     def display_results(self, results: list[SearchResult]):
         self.tree.delete(*self.tree.get_children())

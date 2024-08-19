@@ -95,7 +95,7 @@ def index_2_search(
             Rfc.title,
             RfcLine.line_number,
             RfcSection.page,
-            RfcSection.index.label("section_index")
+            RfcSection.index.label("section_index"),
         )
         .join(Token.positions)
         .join(TokenPosition.line)

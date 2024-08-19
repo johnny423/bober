@@ -4,8 +4,10 @@ from bober.src.fe.events import (
     GROUP_UPDATED_EVENT,
     NEW_GROUP_EVENT,
     NEW_PHRASE_EVENT,
+    RFC_ADDED_EVENT,
 )
 from bober.src.phrases.phrases import save_new_phrase as _save_new_phrase
+from bober.src.rfc_ingest.load_from_file import RFCMetadata, load_single_file
 from bober.src.word_groups.word_groups import (
     add_words_to_group as _add_words_to_groups,
 )
@@ -41,3 +43,10 @@ def remove_words_from_group(
 ):
     _remove_words_from_group(session, group_name, words)
     widget.event_generate(GROUP_UPDATED_EVENT, when="tail")
+
+
+def add_rfc(
+    widget, session: Session, file_path: str, rfc_metadata: RFCMetadata
+):
+    load_single_file(session, file_path, rfc_metadata)
+    widget.event_generate(RFC_ADDED_EVENT, when="tail")
