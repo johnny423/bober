@@ -65,10 +65,7 @@ def query_filtered_words(
     partial_token: str | None = None,
     sort_by: SortBy = SortBy.ALPHABETICAL,
     sort_order: SortOrder = SortOrder.DESC,
-<<<<<<< HEAD
     limit: int = 100,
-=======
->>>>>>> 2c8165c (wip)
 ) -> list[tuple[str, int]]:
     query = (
         select(
@@ -105,11 +102,10 @@ def query_filtered_words(
     if sort_order == SortOrder.DESC:
         order_by_clause = desc(order_by_clause)
 
-    query = query.order_by(order_by_clause)
+    query = query.order_by(order_by_clause).limit(limit)
     results = session.execute(query).fetchall()
 
     limited_words = [(row[0], row[1]) for row in results]
-
     return limited_words
 
 
