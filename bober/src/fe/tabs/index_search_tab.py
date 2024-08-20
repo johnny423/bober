@@ -6,10 +6,10 @@ from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.index_search import (
     AbsPositionQuery,
-    Index2Criteria,
+    RelativePositionQuery,
     SearchResult,
     abs_position_search,
-    index_2_search,
+    relative_position_search,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
@@ -69,7 +69,7 @@ class IndexSearchTab(BaseTab):
         )
 
 
-class AbsPositionSearch(IndexSearchTab):
+class AbsPosSearchTab(IndexSearchTab):
     def create_widgets(self):
         input_frame = ttk.Frame(self, padding="10")
         input_frame.pack(fill="x")
@@ -106,14 +106,14 @@ class AbsPositionSearch(IndexSearchTab):
         self.display_results(results)
 
 
-class Index2SearchTab(IndexSearchTab):
+class RelativePosSearchTab(IndexSearchTab):
     def create_widgets(self):
         input_frame = ttk.Frame(self, padding="10")
         input_frame.pack(fill="x")
         self.rfc_dropdown = self.create_rfc_dropdown(input_frame)
-        self.section_entry = self.create_entry(input_frame, "section:")
-        self.row_entry = self.create_entry(input_frame, "row:")
-        self.position_entry = self.create_entry(input_frame, "position:")
+        self.section_entry = self.create_entry(input_frame, "Section:")
+        self.line_entry = self.create_entry(input_frame, "Line:")
+        self.word_entry = self.create_entry(input_frame, "Word:")
 
         results_frame = ttk.Frame(self, padding="10")
         results_frame.pack(fill="both", expand=True)
@@ -125,11 +125,11 @@ class Index2SearchTab(IndexSearchTab):
 
         self.rfc_dropdown.bind("<<ComboboxSelected>>", self.search)
         self.section_entry.bind("<KeyRelease>", self.search)
-        self.row_entry.bind("<KeyRelease>", self.search)
-        self.position_entry.bind("<KeyRelease>", self.search)
+        self.line_entry.bind("<KeyRelease>", self.search)
+        self.word_entry.bind("<KeyRelease>", self.search)
 
     def search(self, event=None):
-        criteria = Index2Criteria(
+        criteria = RelativePositionQuery(
             title=self.rfc_dropdown.get(),
             section=(
                 int(self.section_entry.get())
@@ -137,13 +137,11 @@ class Index2SearchTab(IndexSearchTab):
                 else None
             ),
             line_in_section=(
-                int(self.row_entry.get()) if self.row_entry.get() else None
+                int(self.line_entry.get()) if self.line_entry.get() else None
             ),
-            position_in_line=(
-                int(self.position_entry.get())
-                if self.position_entry.get()
-                else None
+            word_in_line=(
+                int(self.word_entry.get()) if self.word_entry.get() else None
             ),
         )
-        results = index_2_search(self.session, criteria)
+        results = relative_position_search(self.session, criteria)
         self.display_results(results)
