@@ -1,16 +1,22 @@
 import re
+from typing import List
 
 from bober.src.parsing.parsed_types import ParsedLine, ParsedToken
 
 
+def get_words_for_line(line: str) -> List[str]:
+    words = re.findall(r'\b\w+\b', line)
+    return words
+
+
 def parse_line(line: str, abs_num: int) -> ParsedLine:
-    striped = line.strip()
-    words = re.findall(r'\b\w+\b', striped)
+    stripped = line.lstrip()
+    words = get_words_for_line(line)
 
     tokens = []
     current_position = 0
     for word in words:
-        start = striped.index(word, current_position)
+        start = stripped.index(word, current_position)
         token = ParsedToken(
             word=word,
             start=start,
@@ -20,7 +26,7 @@ def parse_line(line: str, abs_num: int) -> ParsedLine:
 
     return ParsedLine(
         absolute_line=abs_num,
-        text=striped,
-        indentation=(len(line) - len(striped)),
+        text=stripped,
+        indentation=(len(line) - len(stripped)),
         tokens=tokens,
     )

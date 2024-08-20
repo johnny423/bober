@@ -9,6 +9,7 @@ from bober.src.fe.handlers import (
     save_new_phrase,
 )
 from bober.src.fe.windows.base_window import BaseWindow
+from bober.src.parsing.line_parser import get_words_for_line
 from bober.src.search.positions import AbsPosition
 from bober.src.search.rfc_content import (
     get_absolute_positions,
@@ -22,12 +23,12 @@ from bober.src.word_groups.word_groups import (
 
 class RFCWindow(BaseWindow):
     def __init__(
-        self,
-        parent,
-        session: Session,
-        rfc: int,
-        stem: None | str = None,
-        abs_line: None | int = None,
+            self,
+            parent,
+            session: Session,
+            rfc: int,
+            stem: None | str = None,
+            abs_line: None | int = None,
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
@@ -40,11 +41,32 @@ class RFCWindow(BaseWindow):
 
         self.create_scroll_region(content, highlights)
 
+        self.file_statistical_data_str = self.get_statistical_data(content)
+        self.create_statistical_data_region()
+        self.fill_statistical_data_region()
+
         if abs_line:
             self.scroll_to_line(abs_line)
 
+    @staticmethod
+    def get_statistical_data(content):
+        word_count = 0
+        word_character_count = 0
+        non_whitespace_character_count = 0
+        total_character_count = 0
+        for line in content.split('\n'):
+            total_character_count += len(line)
+            non_whitespace_character_count += len([char for char in line if not char.isspace()])
+            words = get_words_for_line(line)
+            word_count += len(words)
+            word_character_count += sum([len(word) for word in words])
+
+        return (f'Word count: {word_count}; Word character count: {word_character_count}; '
+                f'Non-whitespace characters: {non_whitespace_character_count}; '
+                f'Total characters: {total_character_count}')
+
     def create_scroll_region(
-        self, initial_text: str, highlights: None | list[AbsPosition] = None
+            self, initial_text: str, highlights: None | list[AbsPosition] = None
     ):
         self.frame = ttk.Frame(self.main_frame, padding=10)
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -95,6 +117,27 @@ class RFCWindow(BaseWindow):
                 start_idx = f"{highlight.line}.{highlight.column}"
                 end_idx = f"{start_idx}+{highlight.length}c"
                 self.text_area.tag_add('highlight', start_idx, end_idx)
+
+    def create_statistical_data_region(self):
+        # Create a new frame for the statistical data section
+        self.stats_frame = ttk.Frame(self.frame)
+        self.stats_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Add a label and a text area for the statistical data
+        self.stats_label = ttk.Label(self.stats_frame, text="Statistical Data:")
+        self.stats_label.pack(side=tk.LEFT, padx=5, pady=5)
+
+        self.stats_text = scrolledtext.ScrolledText(
+            self.stats_frame, wrap=tk.NONE, width=60, height=5, padx=4, pady=4
+        )
+        self.stats_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+    def fill_statistical_data_region(self, selection_statistical_data=None):
+        self.stats_text.delete('1.0', tk.END)
+        statistical_data_str = f'File stats: {self.file_statistical_data_str}\n'
+        if selection_statistical_data:
+            statistical_data_str += f'Selected section stats: {selection_statistical_data}\n'
+        self.stats_text.insert(tk.END, statistical_data_str)
 
     def save_word_to_group_popup(self):
         try:
@@ -152,9 +195,8 @@ class RFCWindow(BaseWindow):
             self.show_error("No text selected!")
             return
 
-        # todo
-        print(len(selected_text))
-        print(len(selected_text.split()))
+        selection_statistical_data = self.get_statistical_data(selected_text)
+        self.fill_statistical_data_region(selection_statistical_data)
 
     def save_phrase_popup(self):
         try:
