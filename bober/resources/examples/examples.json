@@ -64,14 +64,6 @@
     ]
   },
   {
-    "num": 13,
-    "title": "",
-    "publish_at": "1969/08/20",
-    "authors": [
-      "Vint Cerf"
-    ]
-  },
-  {
     "num": 15,
     "title": "Network Subsystem for Time Sharing Hosts",
     "publish_at": "1969/09/25",
@@ -96,14 +88,6 @@
     ]
   },
   {
-    "num": 18,
-    "title": "",
-    "publish_at": "1969/09/01",
-    "authors": [
-      "Vint Cerf"
-    ]
-  },
-  {
     "num": 19,
     "title": "Two Protocol Suggestions to Reduce Congestion at Swap-Bound Nodes",
     "publish_at": "1969/10/07",
@@ -117,6 +101,179 @@
     "publish_at": "1998/04/01",
     "authors": [
       "L. Masinter"
+    ]
+  },
+  {
+    "num": 826,
+    "title": "An Ethernet Address Resolution Protocol: Or Converting Network Protocol Addresses to 48.bit Ethernet Address for Transmission on Ethernet Hardware",
+    "publish_at": "1982/11/01",
+    "authors": [
+      "D. Plummer"
+    ]
+  },
+  {
+    "num": 951,
+    "title": " Bootstrap Protocol ",
+    "publish_at": "1985/09/01",
+    "authors": [
+      "W.J. Croft",
+      "J. Gilmore"
+    ]
+  },
+  {
+    "num": 2131,
+    "title": " Dynamic Host Configuration Protocol ",
+    "publish_at": "1997/03/01",
+    "authors": [
+      "R. Droms"
+    ]
+  },
+  {
+    "num": 1034,
+    "title": " Domain names - concepts and facilities ",
+    "publish_at": "1987/11/01",
+    "authors": [
+      "P. Mockapetris"
+    ]
+  },
+  {
+    "num": 1035,
+    "title": "Domain names - implementation and specification ",
+    "publish_at": "1987/11/01",
+    "authors": [
+      "P. Mockapetris"
+    ]
+  },
+  {
+    "num": 959,
+    "title": "File Transfer Protocol ",
+    "publish_at": "1985/10/01",
+    "authors": [
+      "J. Postel",
+      "J. Reynolds"
+    ]
+  },
+  {
+    "num": 2068,
+    "title": " Hypertext Transfer Protocol -- HTTP/1.1 ",
+    "publish_at": "1997/01/01",
+    "authors": [
+      "R. Fielding",
+      "J. Gettys",
+      "J. Mogul",
+      "H. Frystyk",
+      "T. Berners-Lee"
+    ]
+  },
+  {
+    "num": 792,
+    "title": " Internet Control Message Protocol ",
+    "publish_at": "1981/09/01",
+    "authors": [
+      "J. Postel"
+    ]
+  },
+  {
+    "num": 791,
+    "title": " Internet Protocol ",
+    "publish_at": "1981/09/01",
+    "authors": [
+      "J. Postel"
+    ]
+  },
+  {
+    "num": 1001,
+    "title": " Protocol standard for a NetBIOS service on a TCP/UDP transport: Concepts and methods ",
+    "publish_at": "1987/03/01",
+    "authors": [
+      "NetBIOS Working Group in the Defense Advanced Research Projects Agency",
+      "Internet Activities Board",
+      "End-to-End Services Task Force"
+    ]
+  },
+  {
+    "num": 1002,
+    "title": " Protocol standard for a NetBIOS service on a TCP/UDP transport: Detailed specifications ",
+    "publish_at": "1987/03/01",
+    "authors": [
+      "NetBIOS Working Group in the Defense Advanced Research Projects Agency",
+      "Internet Activities Board",
+      "End-to-End Services Task Force"
+    ]
+  },
+  {
+    "num": 1014,
+    "title": " XDR: External Data Representation standard ",
+    "publish_at": "1987/06/01",
+    "authors": [
+      "Sun Microsystems"
+    ]
+  },
+  {
+    "num": 1057,
+    "title": " RPC: Remote Procedure Call Protocol specification: Version 2 ",
+    "publish_at": "1988/06/01",
+    "authors": [
+      "Sun Microsystems"
+    ]
+  },
+  {
+    "num": 1094,
+    "title": " NFS: Network File System Protocol specification ",
+    "publish_at": "1989/03/01",
+    "authors": [
+      "B. Nowicki"
+    ]
+  },
+  {
+    "num": 1813,
+    "title": " NFS Version 3 Protocol Specification ",
+    "publish_at": "1995/06/01",
+    "authors": [
+      "B. Callaghan",
+      "B. Pawlowski",
+      "P. Staubach"
+    ]
+  },
+  {
+    "num": 977,
+    "title": " Network News Transfer Protocol ",
+    "publish_at": "1986/02/01",
+    "authors": [
+      "B. Kantor",
+      "P. Lapsley"
+    ]
+  },
+  {
+    "num": 821,
+    "title": " Simple Mail Transfer Protocol ",
+    "publish_at": "1982/08/01",
+    "authors": [
+      "J. Postel"
+    ]
+  },
+  {
+    "num": 822,
+    "title": "STANDARD FOR THE FORMAT OF ARPA INTERNET TEXT MESSAGES",
+    "publish_at": "1982/08/01",
+    "authors": [
+      "D. Crocker"
+    ]
+  },
+  {
+    "num": 768,
+    "title": " User Datagram Protocol ",
+    "publish_at": "1980/08/01",
+    "authors": [
+      "J. Postel"
+    ]
+  },
+  {
+    "num": 793,
+    "title": "Transmission Control Protocol ",
+    "publish_at": "1981/09/01",
+    "authors": [
+      "J. Postel"
     ]
   }
 ]
