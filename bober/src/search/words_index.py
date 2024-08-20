@@ -14,18 +14,31 @@ from bober.src.db_models import (
     TokenPosition,
     TokenToGroup,
 )
+from bober.src.fe.utils import ellipsis_around
+from bober.src.search.positions import AbsPosition, RelativePosition
+
+
+@dataclass
+class TokenContext:
+    content: str
+    start_pos: int
+    end_pos: int
+
+    def shorten(self, max_length) -> str:
+        return ellipsis_around(
+            self.content,
+            self.start_pos,
+            self.end_pos,
+            max_length,
+        )
 
 
 @dataclass
 class TokenOccurrence:
-    abs_line: int
-    section_index: int
     page: int
-    line: int
-    start_position: int
-    end_position: int
-    index: int
-    context: str
+    abs_pos: AbsPosition
+    rel_pos: RelativePosition
+    context: TokenContext
 
 
 @dataclass
@@ -118,14 +131,15 @@ def fetch_occurrences(
             RfcLine.abs_line_number.label("abs_line"),
             Rfc.num.label("rfc_num"),
             Rfc.title.label("rfc_title"),
+            RfcLine.indentation,
             RfcSection.index.label('section_index'),
             RfcSection.page,
             RfcSection.row_start,
             RfcLine.line_number.label('line_in_section'),
             TokenPosition.start_position,
             TokenPosition.end_position,
-            TokenPosition.index,
-            RfcLine.line.label('context'),
+            TokenPosition.index.label("word_index"),
+            RfcLine.line.label('content'),
         )
         .join(Token.positions)
         .join(TokenPosition.line)
@@ -143,14 +157,22 @@ def fetch_occurrences(
             rfc_occurrences[res.rfc_num] = RfcOccurrences(title=res.rfc_title)
 
         occurrence = TokenOccurrence(
-            abs_line=res.abs_line,
-            section_index=res.section_index,
             page=res.page,
-            line=res.row_start + res.line_in_section,
-            context=res.context,
-            start_position=res.start_position,
-            end_position=res.end_position,
-            index=res.index,
+            abs_pos=AbsPosition(
+                line=res.abs_line,
+                column=res.indentation + res.start_position,
+                length=res.end_position - res.start_position,
+            ),
+            rel_pos=RelativePosition(
+                section=res.section_index,
+                line=res.row_start + res.line_in_section,
+                word=res.word_index,
+            ),
+            context=TokenContext(
+                content=res.content,
+                start_pos=res.start_position,
+                end_pos=res.end_position,
+            ),
         )
 
         rfc_occurrences[res.rfc_num].occurrences.append(occurrence)

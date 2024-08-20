@@ -53,7 +53,7 @@ def abs_position_search(
         query = query.where(Rfc.title.ilike(f"%{criteria.title}%"))
 
     if criteria.abs_line is not None:
-        query = query.where(RfcLine.abs_line_number == credits.abs_line)
+        query = query.where(RfcLine.abs_line_number == criteria.abs_line)
 
     if criteria.column is not None:
         query = query.where(

@@ -9,6 +9,7 @@ from bober.src.fe.handlers import (
     save_new_phrase,
 )
 from bober.src.fe.windows.base_window import BaseWindow
+from bober.src.search.positions import AbsPosition
 from bober.src.search.rfc_content import (
     get_absolute_positions,
     load_rfc_content,
@@ -43,7 +44,7 @@ class RFCWindow(BaseWindow):
             self.scroll_to_line(abs_line)
 
     def create_scroll_region(
-        self, initial_text: str, highlights: None | list = None
+        self, initial_text: str, highlights: None | list[AbsPosition] = None
     ):
         self.frame = ttk.Frame(self.main_frame, padding=10)
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -91,7 +92,7 @@ class RFCWindow(BaseWindow):
         if highlights:
             self.text_area.tag_config('highlight', background='yellow')
             for highlight in highlights:
-                start_idx = f"{highlight.line}.{highlight.start}"
+                start_idx = f"{highlight.line}.{highlight.column}"
                 end_idx = f"{start_idx}+{highlight.length}c"
                 self.text_area.tag_add('highlight', start_idx, end_idx)
 
