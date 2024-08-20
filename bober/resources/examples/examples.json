@@ -64,14 +64,6 @@
     ]
   },
   {
-    "num": 13,
-    "title": "",
-    "publish_at": "1969/08/20",
-    "authors": [
-      "Vint Cerf"
-    ]
-  },
-  {
     "num": 15,
     "title": "Network Subsystem for Time Sharing Hosts",
     "publish_at": "1969/09/25",
@@ -93,14 +85,6 @@
     "publish_at": "1969/08/27",
     "authors": [
       "J. Kreznar"
-    ]
-  },
-  {
-    "num": 18,
-    "title": "",
-    "publish_at": "1969/09/01",
-    "authors": [
-      "Vint Cerf"
     ]
   },
   {

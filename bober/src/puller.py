@@ -27,10 +27,10 @@ async def main(rfc_range: Iterable[int]) -> None:
             print(f"Error fetching RFC {rfc_number}: {e}")
             continue
 
-        with open(f"examples/{rfc_number}.txt", "w+") as f:
+        with open(f"bober/resources/examples/{rfc_number}.txt", "w") as f:
             f.write(rfc_content)
-        # print_rfc_head(rfc_number, rfc_content, top)
+
 
 
 if __name__ == "__main__":
-    asyncio.run(main(range(1, 20)))
+    asyncio.run(main(range(100, 200)))
