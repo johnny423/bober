@@ -23,12 +23,12 @@ from bober.src.word_groups.word_groups import (
 
 class RFCWindow(BaseWindow):
     def __init__(
-            self,
-            parent,
-            session: Session,
-            rfc: int,
-            stem: None | str = None,
-            abs_line: None | int = None,
+        self,
+        parent,
+        session: Session,
+        rfc: int,
+        stem: None | str = None,
+        abs_line: None | int = None,
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
@@ -56,17 +56,21 @@ class RFCWindow(BaseWindow):
         total_character_count = 0
         for line in content.split('\n'):
             total_character_count += len(line)
-            non_whitespace_character_count += len([char for char in line if not char.isspace()])
+            non_whitespace_character_count += len(
+                [char for char in line if not char.isspace()]
+            )
             words = get_words_for_line(line)
             word_count += len(words)
             word_character_count += sum([len(word) for word in words])
 
-        return (f'Word count: {word_count}; Word character count: {word_character_count}; '
-                f'Non-whitespace characters: {non_whitespace_character_count}; '
-                f'Total characters: {total_character_count}')
+        return (
+            f'Word count: {word_count}; Word character count: {word_character_count}; '
+            f'Non-whitespace characters: {non_whitespace_character_count}; '
+            f'Total characters: {total_character_count}'
+        )
 
     def create_scroll_region(
-            self, initial_text: str, highlights: None | list[AbsPosition] = None
+        self, initial_text: str, highlights: None | list[AbsPosition] = None
     ):
         self.frame = ttk.Frame(self.main_frame, padding=10)
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -136,7 +140,9 @@ class RFCWindow(BaseWindow):
         self.stats_text.delete('1.0', tk.END)
         statistical_data_str = f'File stats: {self.file_statistical_data_str}\n'
         if selection_statistical_data:
-            statistical_data_str += f'Selected section stats: {selection_statistical_data}\n'
+            statistical_data_str += (
+                f'Selected section stats: {selection_statistical_data}\n'
+            )
         self.stats_text.insert(tk.END, statistical_data_str)
 
     def save_word_to_group_popup(self):
