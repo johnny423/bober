@@ -89,7 +89,6 @@ def relative_position_search(
             RfcLine.abs_line_number.label("abs_line"),
             Token.token,
             Token.stem,
-            Rfc.title,
             RfcLine.line_number,
             TokenPosition.index.label("word_index"),
             RfcSection.index.label("section_index"),
