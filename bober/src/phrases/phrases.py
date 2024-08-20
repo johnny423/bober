@@ -98,7 +98,6 @@ def search_phrase(session: Session, phrase: str):
 
 
 def ordered_tokens_query():
-    # Define the query to get ordered tokens with row numbers
     ordered_tokens = (
         select(
             Token.token,
