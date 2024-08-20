@@ -5,10 +5,10 @@ from bober.src.fe.events import RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.index_search import (
-    Index1Criteria,
+    AbsPositionQuery,
     Index2Criteria,
     SearchResult,
-    index_1_search,
+    abs_position_search,
     index_2_search,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
@@ -69,15 +69,14 @@ class IndexSearchTab(BaseTab):
         )
 
 
-class Index1SearchTab(IndexSearchTab):
+class AbsPositionSearch(IndexSearchTab):
     def create_widgets(self):
         input_frame = ttk.Frame(self, padding="10")
         input_frame.pack(fill="x")
 
         self.rfc_dropdown = self.create_rfc_dropdown(input_frame)
-        self.page_entry = self.create_entry(input_frame, "Page:")
-        self.row_entry = self.create_entry(input_frame, "Row:")
-        self.position_entry = self.create_entry(input_frame, "Position:")
+        self.line_entry = self.create_entry(input_frame, "Line:")
+        self.column_entry = self.create_entry(input_frame, "Column:")
 
         results_frame = ttk.Frame(self, padding="10")
         results_frame.pack(fill="both", expand=True)
@@ -88,26 +87,22 @@ class Index1SearchTab(IndexSearchTab):
         )
 
         self.rfc_dropdown.bind("<<ComboboxSelected>>", self.search)
-        self.page_entry.bind("<KeyRelease>", self.search)
-        self.row_entry.bind("<KeyRelease>", self.search)
-        self.position_entry.bind("<KeyRelease>", self.search)
+        self.line_entry.bind("<KeyRelease>", self.search)
+        self.column_entry.bind("<KeyRelease>", self.search)
 
     def search(self, event=None):
-        criteria = Index1Criteria(
+        criteria = AbsPositionQuery(
             title=self.rfc_dropdown.get(),
-            page=(
-                int(self.page_entry.get()) if self.page_entry.get() else None
+            abs_line=(
+                int(self.line_entry.get()) if self.line_entry.get() else None
             ),
-            line_in_page=(
-                int(self.row_entry.get()) if self.row_entry.get() else None
-            ),
-            position_in_line=(
-                int(self.position_entry.get())
-                if self.position_entry.get()
+            column=(
+                int(self.column_entry.get())
+                if self.column_entry.get()
                 else None
             ),
         )
-        results = index_1_search(self.session, criteria)
+        results = abs_position_search(self.session, criteria)
         self.display_results(results)
 
 

@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 
-from bober.src.fe.tabs.index_search_tab import Index1SearchTab, Index2SearchTab
+from bober.src.fe.tabs.index_search_tab import (
+    AbsPositionSearch,
+    Index2SearchTab,
+)
 from bober.src.fe.tabs.load_file_tab import LoadFileTab
 from bober.src.fe.tabs.phrases_tab import PhrasesTab
 from bober.src.fe.tabs.search_file_tab import SearchFileTab
@@ -33,7 +36,8 @@ class MainApplication(tk.Tk):
         )
 
         self.notebook.add(
-            Index1SearchTab(self.notebook, self.session), text="Index1 Search"
+            AbsPositionSearch(self.notebook, self.session),
+            text="Absolute position Search",
         )
 
         self.notebook.add(
