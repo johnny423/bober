@@ -21,7 +21,7 @@ class TokenOccurrence:
     abs_line: int
     section_index: int
     page: int
-    row: int
+    line: int
     start_position: int
     end_position: int
     index: int
@@ -105,7 +105,7 @@ def query_filtered_words(
     query = query.order_by(order_by_clause).limit(limit)
     results = session.execute(query).fetchall()
 
-    limited_words = [(row[0], row[1]) for row in results]
+    limited_words = [(line[0], line[1]) for line in results]
     return limited_words
 
 
@@ -146,7 +146,7 @@ def fetch_occurrences(
             abs_line=res.abs_line,
             section_index=res.section_index,
             page=res.page,
-            row=res.row_start + res.line_in_section,
+            line=res.row_start + res.line_in_section,
             context=res.context,
             start_position=res.start_position,
             end_position=res.end_position,

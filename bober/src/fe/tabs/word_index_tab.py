@@ -6,6 +6,7 @@ from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.utils import ellipsis_around
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
+    RfcOccurrences,
     SortBy,
     SortOrder,
     fetch_occurrences,
@@ -110,7 +111,7 @@ class WordIndexTab(BaseTab):
         self._populate_tree(display, node)
 
     @staticmethod
-    def _to_display(stem, rfc_occurrences):
+    def _to_display(stem, rfc_occurrences: dict[int, RfcOccurrences]):
         display = {}
         for rfc_num, rfc_data in rfc_occurrences.items():
             formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
@@ -118,8 +119,8 @@ class WordIndexTab(BaseTab):
             for occurrence in rfc_data.occurrences:
                 position_key = (
                     f"section {occurrence.section_index}, "
-                    f"word {occurrence.index + 1} ; "
-                    f"page {occurrence.page}, row {occurrence.row}"
+                    f"word {occurrence.index} ; "
+                    f"page {occurrence.page}, line {occurrence.line}"
                 )
                 shorten = ellipsis_around(
                     occurrence.context,
