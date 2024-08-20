@@ -3,7 +3,6 @@ from tkinter import Label, ttk
 from typing import Any
 
 from bober.src.fe.tabs.base_tab import BaseTab
-from bober.src.fe.utils import ellipsis_around
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
     RfcOccurrences,
@@ -117,22 +116,12 @@ class WordIndexTab(BaseTab):
             formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
             display[formatted_title] = {}
             for occurrence in rfc_data.occurrences:
-                position_key = (
-                    f"section {occurrence.section_index}, "
-                    f"word {occurrence.index} ; "
-                    f"page {occurrence.page}, line {occurrence.line}"
-                )
-                shorten = ellipsis_around(
-                    occurrence.context,
-                    occurrence.start_position,
-                    occurrence.end_position,
-                    50,
-                )
+                position_key = f"{str(occurrence.abs_pos)}; {str(occurrence.rel_pos)}; page {occurrence.page}"
                 display[formatted_title][position_key] = (
-                    shorten,
+                    occurrence.context.shorten(50),
                     rfc_num,
                     stem,
-                    occurrence.abs_line,
+                    occurrence.abs_pos.line,
                 )
         return display
 

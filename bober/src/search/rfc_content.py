@@ -1,22 +1,9 @@
 from itertools import repeat
 
-from pydantic import BaseModel
 from sqlalchemy.orm import Session, selectinload
 
 from bober.src.db_models import RfcLine, RfcSection, Token, TokenPosition
-
-
-class AbsPosition(BaseModel):
-    """
-    This is a position of a word in the whole text
-        @line - the line count in the whole file (starting from 1)
-        @start - the index of the word within the given line
-        @length - the amount of characters after the starting position
-    """
-
-    line: int
-    start: int
-    length: int
+from bober.src.search.positions import AbsPosition
 
 
 def load_rfc_content(session: Session, rfc_num: int) -> str | None:
@@ -73,7 +60,7 @@ def get_absolute_positions(
     for pos in query.all():
         abs_position = AbsPosition(
             line=pos.line,
-            start=pos.indentation + pos.start_position,
+            column=pos.indentation + pos.start_position,
             length=pos.end_position - pos.start_position,
         )
         abs_pos.append(abs_position)
