@@ -4,13 +4,13 @@ This script uses asyncio to fetch the content simultaneously.
 """
 
 import asyncio
+import datetime
 import json
 from pathlib import Path
 from typing import Iterable
 
 import httpx
 from bs4 import BeautifulSoup
-import datetime
 
 EXAMPLES = Path("bober/resources/examples")
 
@@ -23,13 +23,16 @@ async def fetch_rfc_metadata(rfc_number: int) -> dict:
         response.raise_for_status()
 
         soup = BeautifulSoup(response.text, "html.parser")
-        
-        publication_date = soup.find("meta", {"name": "citation_publication_date"})["content"]
+
+        publication_date = soup.find(
+            "meta", {"name": "citation_publication_date"}
+        )["content"]
         publication_month, publication_year = publication_date.split(", ")
 
         # Convert the publication date to the desired format
-        publication_date = datetime.datetime.strptime(f"{publication_month} 1, {publication_year}", "%B %d, %Y").strftime("%Y/%m/%d")
-
+        publication_date = datetime.datetime.strptime(
+            f"{publication_month} 1, {publication_year}", "%B %d, %Y"
+        ).strftime("%Y/%m/%d")
 
         metadata = {
             "num": rfc_number,
@@ -106,4 +109,4 @@ FAMOUS_RFCS = [
 ]
 
 if __name__ == "__main__":
-    asyncio.run(update_metadata(range(100,200)))
+    asyncio.run(update_metadata(range(100, 200)))
