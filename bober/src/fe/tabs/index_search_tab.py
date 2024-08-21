@@ -102,6 +102,11 @@ class AbsPosSearchTab(IndexSearchTab):
                 else None
             ),
         )
+
+        if not criteria:
+            self.display_results([])
+            return
+
         results = abs_position_search(self.session, criteria)
         self.display_results(results)
 
@@ -143,5 +148,10 @@ class RelativePosSearchTab(IndexSearchTab):
                 int(self.word_entry.get()) if self.word_entry.get() else None
             ),
         )
+
+        if not criteria:
+            self.display_results([])
+            return 
+        
         results = relative_position_search(self.session, criteria)
         self.display_results(results)
