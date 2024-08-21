@@ -1,4 +1,6 @@
+import datetime
 import tkinter as tk
+from contextlib import contextmanager
 from tkinter import Label, ttk
 from typing import Any
 
@@ -6,11 +8,22 @@ from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
     RfcOccurrences,
+    RfcOccurrences2,
     SortBy,
     SortOrder,
     fetch_occurrences,
+    fetch_rfc_occurrences,
     query_filtered_words,
 )
+
+
+@contextmanager
+def time_me(name):
+    start = datetime.datetime.now()
+    yield
+    end = datetime.datetime.now()
+    delta = end - start
+    print(f"->> [{start}] Time {name} {delta.total_seconds()}")
 
 
 class WordIndexTab(BaseTab):
@@ -97,6 +110,10 @@ class WordIndexTab(BaseTab):
         rfc_title = self.rfc_titles_entry.get() or None
         return fetch_occurrences(self.session, stem, rfc_title)
 
+    def _fetch_rfc_occurrences(self, stem) -> list[RfcOccurrences2]:
+        rfc_title = self.rfc_titles_entry.get() or None
+        return fetch_rfc_occurrences(self.session, stem, rfc_title)
+
     def open_node(self, event=None):
         node = self.tree.focus()
         stem = self.lazy_nodes.pop(node, None)
@@ -105,9 +122,18 @@ class WordIndexTab(BaseTab):
             return
 
         self.tree.delete(self.tree.get_children(node))
-        rfc_occurrences = self._fetch_occurrences(stem)
-        display = self._to_display(stem, rfc_occurrences)
-        self._populate_tree(display, node)
+        with time_me("fetch"):
+            rfc_occurrences = self._fetch_rfc_occurrences(stem)
+
+        with time_me("populate"):
+            for c in rfc_occurrences:
+                self.tree.insert(node, 'end', text=f"{c.title} {c.count}")
+
+        # with time_me("to_display"):
+        #     display = self._to_display(stem, rfc_occurrences)
+
+        # with time_me("populate"):
+        #     self._populate_tree(display, node)
 
     @staticmethod
     def _to_display(stem, rfc_occurrences: dict[int, RfcOccurrences]):
