@@ -12,6 +12,9 @@ class AbsPositionQuery:
     abs_line: None | int = None
     column: None | int = None
 
+    def __bool__(self) -> bool:
+        return any(map(bool, self.__dict__.values()))
+
 
 @dataclass
 class RelativePositionQuery:
@@ -19,6 +22,9 @@ class RelativePositionQuery:
     section: None | int = None
     line_in_section: None | int = None
     word_in_line: None | int = None
+
+    def __bool__(self) -> bool:
+        return any(map(bool, self.__dict__.values()))
 
 
 @dataclass
