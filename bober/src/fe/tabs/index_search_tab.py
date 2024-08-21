@@ -151,7 +151,7 @@ class RelativePosSearchTab(IndexSearchTab):
 
         if not criteria:
             self.display_results([])
-            return 
-        
+            return
+
         results = relative_position_search(self.session, criteria)
         self.display_results(results)

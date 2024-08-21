@@ -26,6 +26,7 @@ class RelativePositionQuery:
     def __bool__(self) -> bool:
         return any(map(bool, self.__dict__.values()))
 
+
 @dataclass
 class SearchResult:
     rfc: int
