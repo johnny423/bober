@@ -10,6 +10,9 @@ class AbsPosition:
     def __str__(self) -> str:
         return f"Line {self.line} column {self.column} length: {self.length}"
 
+    def slice(self) -> slice:
+        return slice(self.column, self.column + self.length)
+
 
 @dataclass
 class RelativePosition:

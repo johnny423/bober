@@ -67,6 +67,7 @@ def db_session(test_db_url):
         meta = MetaData()
         meta.reflect(bind=engine)
         with engine.connect() as conn:
+            print(f"->> {meta.sorted_tables}")
             for table in reversed(meta.sorted_tables):
                 conn.execute(table.delete())
         session.close()

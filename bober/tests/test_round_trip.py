@@ -31,7 +31,6 @@ def load_rfc(db_session, rfc_num):
         },
     )
 
-
 def test_round_trip(db_session, rfc_num, load_rfc):
     """
     dump content into database and reload it should be the same
@@ -50,5 +49,5 @@ def test_abs_position(db_session, rfc_num, load_rfc):
     assert len(positions)
 
     for pos in positions:
-        value = original[pos.line - 1][pos.start : pos.start + pos.length]
+        value = original[pos.line - 1][pos.slice()]
         assert value.lower() in ["protocol", "protocols"]
