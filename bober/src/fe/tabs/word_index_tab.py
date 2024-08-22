@@ -80,8 +80,14 @@ class WordIndexTab(BaseTab):
 
         self.word_nodes = {}
         self.title_nodes = {}
-        for stem, count in self._query_words():
-            node = self.tree.insert('', 'end', text=f"{stem} ({count} occurrences)")
+        results, total = self._query_words()
+        self.words_count_label.config(
+            text=f"fetched {len(results)} tokens out of {total} matching"
+        )
+        for stem, count in results:
+            node = self.tree.insert(
+                '', 'end', text=f"{stem} ({count} occurrences)"
+            )
             self.tree.insert(node, 'end')
             self.word_nodes[node] = stem
 
