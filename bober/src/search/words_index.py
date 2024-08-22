@@ -156,8 +156,8 @@ def fetch_rfc_occurrences(
 
 
 def fetch_occurrences(
-    session: Session, stem: str, rfc_title: None | str = None
-) -> dict[int, RfcOccurrences]:
+    session: Session, stem: str, rfc_num: int
+) -> list[TokenOccurrence]:
     query = (
         select(
             Token.stem.label("token"),
@@ -179,16 +179,11 @@ def fetch_occurrences(
         .join(RfcLine.section)
         .join(RfcSection.rfc)
         .filter(Token.stem == stem)
+        .filter(Rfc.num == rfc_num)
     )
 
-    if rfc_title:
-        query = query.filter(Rfc.title.ilike(f"%{rfc_title}%"))
-
-    rfc_occurrences = {}
+    results = []
     for res in session.execute(query):
-        if res.rfc_num not in rfc_occurrences:
-            rfc_occurrences[res.rfc_num] = RfcOccurrences(title=res.rfc_title)
-
         occurrence = TokenOccurrence(
             page=res.page,
             abs_pos=AbsPosition(
@@ -208,6 +203,6 @@ def fetch_occurrences(
             ),
         )
 
-        rfc_occurrences[res.rfc_num].occurrences.append(occurrence)
+        results.append(occurrence)
 
-    return rfc_occurrences
+    return results
