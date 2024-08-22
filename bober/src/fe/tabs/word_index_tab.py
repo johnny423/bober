@@ -1,16 +1,26 @@
+import datetime
 import tkinter as tk
+from contextlib import contextmanager
 from tkinter import Label, ttk
-from typing import Any
 
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
-    RfcOccurrences,
     SortBy,
     SortOrder,
     fetch_occurrences,
+    fetch_rfc_occurrences,
     query_filtered_words,
 )
+
+
+@contextmanager
+def time_me(name):
+    start = datetime.datetime.now()
+    yield
+    end = datetime.datetime.now()
+    delta = end - start
+    print(f"->> [{start}] Time {name} {delta.total_seconds()}")
 
 
 class WordIndexTab(BaseTab):
@@ -65,17 +75,15 @@ class WordIndexTab(BaseTab):
         self.tree.heading("#0", text="word")
         self.tree.heading("Value", text="content")
         self.tree.pack(fill=tk.BOTH, expand=True)
-
-        self.lazy_nodes = {}
-        for stem, count in self._query_words():
-            text = f"{stem} ({count} occurrences)"
-            node = self.tree.insert('', 'end', text=text, open=False)
-            self.tree.insert(node, 'end')
-
-            self.lazy_nodes[node] = stem
-
         self.tree.bind('<<TreeviewOpen>>', self.open_node)
         self.tree.bind("<Double-1>", self.load_rfc_window)
+
+        self.word_nodes = {}
+        self.title_nodes = {}
+        for stem, count in self._query_words():
+            node = self.tree.insert('', 'end', text=f"{stem} ({count} occurrences)")
+            self.tree.insert(node, 'end')
+            self.word_nodes[node] = stem
 
     def _query_words(self):
         token_groups = self.token_groups_entry.get().split() or None
@@ -93,37 +101,44 @@ class WordIndexTab(BaseTab):
             sort_order,
         )
 
-    def _fetch_occurrences(self, stem):
-        rfc_title = self.rfc_titles_entry.get() or None
-        return fetch_occurrences(self.session, stem, rfc_title)
-
     def open_node(self, event=None):
         node = self.tree.focus()
-        stem = self.lazy_nodes.pop(node, None)
-        if not stem:
-            # node is already opened
+        if stem := self.word_nodes.pop(node, None):
+            self.tree.delete(self.tree.get_children(node))
+            rfc_title = self.rfc_titles_entry.get() or None
+            rfc_occurrences = fetch_rfc_occurrences(
+                self.session, stem, rfc_title
+            )
+
+            for occurrence in rfc_occurrences:
+                inner = self.tree.insert(
+                    node, 'end', text=f"{occurrence.title} {occurrence.count}"
+                )
+                self.tree.insert(inner, 'end')
+                self.title_nodes[inner] = (stem, occurrence.num)
+
             return
 
-        self.tree.delete(self.tree.get_children(node))
-        rfc_occurrences = self._fetch_occurrences(stem)
-        display = self._to_display(stem, rfc_occurrences)
-        self._populate_tree(display, node)
-
-    @staticmethod
-    def _to_display(stem, rfc_occurrences: dict[int, RfcOccurrences]):
-        display = {}
-        for rfc_num, rfc_data in rfc_occurrences.items():
-            formatted_title = f"{rfc_data.title} ({rfc_data.count} occurrences)"
-            display[formatted_title] = {}
-            for occurrence in rfc_data.occurrences:
-                position_key = f"{str(occurrence.abs_pos)}; {str(occurrence.rel_pos)}; page {occurrence.page}"
-                display[formatted_title][position_key] = (
-                    occurrence.context.shorten(50),
-                    rfc_num,
-                    stem,
-                    occurrence.abs_pos.line,
+        if pair := self.title_nodes.pop(node, None):
+            (stem, rfc_num) = pair
+            self.tree.delete(self.tree.get_children(node))
+            occurrences = fetch_occurrences(self.session, stem, rfc_num)
+            for occurrence in occurrences:
+                text = f"{str(occurrence.abs_pos)}; {str(occurrence.rel_pos)}; page {occurrence.page}"
+                inner = self.tree.insert(node, 'end', text=text)
+                self.tree.insert(
+                    inner,
+                    "end",
+                    text='',
+                    values=(
+                        occurrence.context.shorten(50),
+                        rfc_num,
+                        stem,
+                        occurrence.abs_pos.line,
+                    ),
+                    tags=("leaf",),
                 )
-        return display
+            return
 
     def load_rfc_window(self, event):
         item = self.tree.identify('item', event.x, event.y)
@@ -137,12 +152,3 @@ class WordIndexTab(BaseTab):
                 stem=token,
                 abs_line=int(abs_line),
             )
-
-    def _populate_tree(self, data: Any, parent: str = '') -> None:
-        if isinstance(data, dict):
-            for key, value in data.items():
-                node = self.tree.insert(parent, 'end', text=str(key))
-                self._populate_tree(value, node)
-        else:
-            node = self.tree.insert(parent, 'end', text='', values=data)
-            self.tree.item(node, tags=('leaf',))

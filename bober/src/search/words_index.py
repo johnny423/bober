@@ -41,6 +41,14 @@ class TokenOccurrence:
     context: TokenContext
 
 
+# todo: rename
+@dataclass
+class RfcOccurrences2:
+    title: str
+    num: int
+    count: int
+
+
 @dataclass
 class RfcOccurrences:
     title: str
@@ -122,9 +130,34 @@ def query_filtered_words(
     return limited_words
 
 
-def fetch_occurrences(
+def fetch_rfc_occurrences(
     session: Session, stem: str, rfc_title: None | str = None
-) -> dict[int, RfcOccurrences]:
+) -> list[RfcOccurrences2]:
+    query = (
+        select(RfcTokenCount.total_positions, Rfc.num, Rfc.title)
+        .select_from(RfcTokenCount)
+        .join(Token, Token.id == RfcTokenCount.token_id)
+        .join(Rfc, RfcTokenCount.rfc_num == Rfc.num)
+        .filter(Token.stem == stem)
+    )
+
+    if rfc_title:
+        query = query.filter(Rfc.title.ilike(f"%{rfc_title}%"))
+
+    results = []
+    for res in session.execute(query):
+        results.append(
+            RfcOccurrences2(
+                title=res.title, num=res.num, count=res.total_positions
+            )
+        )
+
+    return results
+
+
+def fetch_occurrences(
+    session: Session, stem: str, rfc_num: int
+) -> list[TokenOccurrence]:
     query = (
         select(
             Token.stem.label("token"),
@@ -146,16 +179,11 @@ def fetch_occurrences(
         .join(RfcLine.section)
         .join(RfcSection.rfc)
         .filter(Token.stem == stem)
+        .filter(Rfc.num == rfc_num)
     )
 
-    if rfc_title:
-        query = query.filter(Rfc.title.ilike(f"%{rfc_title}%"))
-
-    rfc_occurrences = {}
+    results = []
     for res in session.execute(query):
-        if res.rfc_num not in rfc_occurrences:
-            rfc_occurrences[res.rfc_num] = RfcOccurrences(title=res.rfc_title)
-
         occurrence = TokenOccurrence(
             page=res.page,
             abs_pos=AbsPosition(
@@ -175,6 +203,6 @@ def fetch_occurrences(
             ),
         )
 
-        rfc_occurrences[res.rfc_num].occurrences.append(occurrence)
+        results.append(occurrence)
 
-    return rfc_occurrences
+    return results
