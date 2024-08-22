@@ -87,7 +87,7 @@ def query_filtered_words(
     sort_by: SortBy = SortBy.ALPHABETICAL,
     sort_order: SortOrder = SortOrder.DESC,
     limit: int = 100,
-) -> list[tuple[str, int]]:
+) -> tuple[list[tuple[str, int]], int]:
     query = (
         select(
             Token.stem, func.sum(RfcTokenCount.total_positions).label('count')
@@ -112,13 +112,15 @@ def query_filtered_words(
     if partial_token is not None:
         query = query.filter(Token.token.ilike(f'%{partial_token}%'))
 
+    # Add GROUP BY to the base query
     query = query.group_by(Token.stem)
 
-    order_by_clause = (
-        func.sum(RfcTokenCount.total_positions)
-        if sort_by == SortBy.OCCURRENCES
-        else Token.stem
-    )
+    # Calculate total count
+    total_count_query = select(func.count()).select_from(query.subquery())
+    total_count = session.execute(total_count_query).scalar_one()
+
+    # Apply ordering to the main query
+    order_by_clause = 'count' if sort_by == SortBy.OCCURRENCES else Token.stem
 
     if sort_order == SortOrder.DESC:
         order_by_clause = desc(order_by_clause)
@@ -127,7 +129,7 @@ def query_filtered_words(
     results = session.execute(query).fetchall()
 
     limited_words = [(line[0], line[1]) for line in results]
-    return limited_words
+    return limited_words, total_count
 
 
 def fetch_rfc_occurrences(
