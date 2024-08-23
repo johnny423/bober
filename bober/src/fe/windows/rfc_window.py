@@ -42,8 +42,6 @@ class RFCWindow(BaseWindow):
         self.create_scroll_region(content, highlights)
 
         self.file_statistical_data_str = StringStatisticsManager(content).get_word_stats()  # todo make dynamic
-        self.create_statistical_data_region()
-        self.fill_statistical_data_region()
 
         if abs_line:
             self.scroll_to_line(abs_line)
@@ -79,14 +77,18 @@ class RFCWindow(BaseWindow):
 
         self.m = Menu(self.text_area, tearoff=0)
         self.m.add_command(
-            label="save as phrase", command=self.save_phrase_popup
+            label="Save as phrase", command=self.save_phrase_popup
         )
         self.m.add_command(
             label="Save word to group", command=self.save_word_to_group_popup
         )
         self.m.add_command(
-            label="Show statistical data",
+            label="Show statistical data for selection",
             command=self.show_statistical_data_selection,
+        )
+        self.m.add_command(
+            label="Show statistical data for file",
+            command=self.show_file_statistics,
         )
         self.text_area.bind("<Button-3>", self.command_popup)
 
@@ -104,36 +106,6 @@ class RFCWindow(BaseWindow):
                 start_idx = f"{highlight.line}.{highlight.column}"
                 end_idx = f"{start_idx}+{highlight.length}c"
                 self.text_area.tag_add('highlight', start_idx, end_idx)
-
-    def create_statistical_data_region(self):
-        # Create a new frame for the statistical data section
-        self.stats_frame = ttk.Frame(self.content_frame)
-        self.stats_frame.pack(side=tk.RIGHT, fill=tk.Y)
-
-        # Add a toggle button
-        self.toggle_button = ttk.Button(self.content_frame, text="Statistical data", command=self.toggle_stats)
-        self.toggle_button.pack(side=tk.TOP, padx=5, pady=5)
-
-        # Add a label and a text area for the statistical data
-        self.stats_label = ttk.Label(self.stats_frame, text="Statistical Data:")
-        self.stats_label.pack(side=tk.TOP, padx=5, pady=5)
-
-        self.stats_text = scrolledtext.ScrolledText(
-            self.stats_frame, wrap=tk.WORD, width=30, height=10, padx=4, pady=4
-        )
-        self.stats_text.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-        # Initially hide the stats
-        self.stats_frame.pack_forget()
-
-    def fill_statistical_data_region(self, selection_statistical_data=None):
-        self.stats_text.delete('1.0', tk.END)
-        statistical_data_str = f'File stats: {self.file_statistical_data_str}\n'
-        if selection_statistical_data:
-            statistical_data_str += (
-                f'Selected section stats: {selection_statistical_data}\n'
-            )
-        self.stats_text.insert(tk.END, statistical_data_str)
 
     def save_word_to_group_popup(self):
         try:
@@ -181,23 +153,6 @@ class RFCWindow(BaseWindow):
         create_word_group(self.parent, self.session, choice, [selected_word])
         self.show_info(f"Word '{selected_word}' added to new group '{choice}'")
 
-    def show_statistical_data_selection(self):
-        try:
-            selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
-        except TclError:
-            self.show_error("No text selected!")
-            return
-        if not selected_text:
-            self.show_error("No text selected!")
-            return
-
-        # Make sure the statistical data section is visible
-        if not self.stats_frame.winfo_viewable():
-            self.toggle_stats()
-
-        selection_statistical_data = StringStatisticsManager(selected_text).get_word_stats()  # todo make dynamic
-        self.fill_statistical_data_region(selection_statistical_data)
-
     def save_phrase_popup(self):
         try:
             selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
@@ -242,8 +197,35 @@ class RFCWindow(BaseWindow):
     def scroll_to_line(self, line_number: int):
         self.text_area.see(f"{line_number}.0")
 
-    def toggle_stats(self):
-        if self.stats_frame.winfo_viewable():
-            self.stats_frame.pack_forget()
-        else:
-            self.stats_frame.pack(side=tk.RIGHT, fill=tk.Y)
+    def show_file_statistics(self):
+        self.show_statistical_data_window("File statistical data", self.file_statistical_data_str)
+
+    def show_statistical_data_selection(self):
+        try:
+            selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
+        except TclError:
+            self.show_error("No text selected!")
+            return
+        if not selected_text:
+            self.show_error("No text selected!")
+            return
+
+        self.selection_statistical_data = StringStatisticsManager(selected_text).get_word_stats()  # todo make dynamic
+        self.show_statistical_data_window("Selection statistical data", self.selection_statistical_data)
+
+    def show_statistical_data_window(self, header, text):
+        stats_window = tk.Toplevel(self)
+        stats_window.title(header)
+
+        stats_text = scrolledtext.ScrolledText(
+            stats_window,
+            wrap=tk.WORD,
+            width=60,
+            height=10,
+            padx=4,
+            pady=4
+        )
+        stats_text.pack(fill=tk.BOTH, expand=True)
+
+        stats_text.insert(tk.END, text)
+        stats_text.config(state=tk.DISABLED)  # Make it read-only
