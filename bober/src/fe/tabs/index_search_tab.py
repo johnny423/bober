@@ -6,8 +6,8 @@ from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.index_search import (
     AbsPositionQuery,
+    PaginatedResults,
     RelativePositionQuery,
-    SearchResult,
     abs_position_search,
     relative_position_search,
 )
@@ -15,10 +15,11 @@ from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
 class IndexSearchTab(BaseTab):
-
     def __init__(self, parent, session):
         super().__init__(parent, session)
         self.winfo_toplevel().bind(RFC_ADDED_EVENT, self._update_rfcs)
+        self.current_page = 1
+        self.page_size = 50
 
     def create_rfc_dropdown(self, parent):
         frame = ttk.Frame(parent)
@@ -39,9 +40,9 @@ class IndexSearchTab(BaseTab):
         rfcs = search_rfcs(self.session, SearchRFCQuery())
         self.rfc_dropdown["values"] = [rfc.title for rfc in rfcs]
 
-    def display_results(self, results: list[SearchResult]):
+    def display_results(self, paginated_results: PaginatedResults):
         self.tree.delete(*self.tree.get_children())
-        for result in results:
+        for result in paginated_results.results:
             item = self.tree.insert(
                 "",
                 "end",
@@ -56,6 +57,7 @@ class IndexSearchTab(BaseTab):
             self.tree.item(item, tags=(item,))
 
         self.tree.bind("<Double-1>", self._on_item_click)
+        self.update_pagination_controls(paginated_results)
 
     def _on_item_click(self, event):
         item = self.tree.identify('item', event.x, event.y)
@@ -67,6 +69,50 @@ class IndexSearchTab(BaseTab):
             stem=stem,
             abs_line=int(abs_line),
         )
+
+    def create_pagination_controls(self, parent):
+        frame = ttk.Frame(parent)
+        frame.pack(fill="x", pady=5)
+
+        self.prev_button = ttk.Button(
+            frame, text="Previous", command=self.prev_page
+        )
+        self.prev_button.pack(side="left", padx=5)
+
+        self.page_label = ttk.Label(frame, text="Page 1")
+        self.page_label.pack(side="left", padx=5)
+
+        self.next_button = ttk.Button(
+            frame, text="Next", command=self.next_page
+        )
+        self.next_button.pack(side="left", padx=5)
+
+    def update_pagination_controls(self, paginated_results: PaginatedResults):
+        self.page_label.config(
+            text=f"Page {self.current_page} of {paginated_results.total_pages}"
+        )
+        self.prev_button.config(
+            state=tk.NORMAL if self.current_page > 1 else tk.DISABLED
+        )
+        self.next_button.config(
+            state=(
+                tk.NORMAL
+                if self.current_page < paginated_results.total_pages
+                else tk.DISABLED
+            )
+        )
+
+    def prev_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.search()
+
+    def next_page(self):
+        self.current_page += 1
+        self.search()
+
+    def reset_pagination(self):
+        self.current_page = 1
 
 
 class AbsPosSearchTab(IndexSearchTab):
@@ -86,9 +132,15 @@ class AbsPosSearchTab(IndexSearchTab):
             headings=("Word", "Link for source"),
         )
 
-        self.rfc_dropdown.bind("<<ComboboxSelected>>", self.search)
-        self.line_entry.bind("<KeyRelease>", self.search)
-        self.column_entry.bind("<KeyRelease>", self.search)
+        self.create_pagination_controls(self)
+
+        self.rfc_dropdown.bind("<<ComboboxSelected>>", self.reset_and_search)
+        self.line_entry.bind("<KeyRelease>", self.reset_and_search)
+        self.column_entry.bind("<KeyRelease>", self.reset_and_search)
+
+    def reset_and_search(self, event=None):
+        self.reset_pagination()
+        self.search()
 
     def search(self, event=None):
         criteria = AbsPositionQuery(
@@ -101,10 +153,14 @@ class AbsPosSearchTab(IndexSearchTab):
                 if self.column_entry.get()
                 else None
             ),
+            page=self.current_page,
+            page_size=self.page_size,
         )
 
         if not criteria:
-            self.display_results([])
+            self.display_results(
+                PaginatedResults(results=[], total_count=0, total_pages=0)
+            )
             return
 
         results = abs_position_search(self.session, criteria)
@@ -128,10 +184,16 @@ class RelativePosSearchTab(IndexSearchTab):
             headings=("Word", "Link for source"),
         )
 
-        self.rfc_dropdown.bind("<<ComboboxSelected>>", self.search)
-        self.section_entry.bind("<KeyRelease>", self.search)
-        self.line_entry.bind("<KeyRelease>", self.search)
-        self.word_entry.bind("<KeyRelease>", self.search)
+        self.create_pagination_controls(self)
+
+        self.rfc_dropdown.bind("<<ComboboxSelected>>", self.reset_and_search)
+        self.section_entry.bind("<KeyRelease>", self.reset_and_search)
+        self.line_entry.bind("<KeyRelease>", self.reset_and_search)
+        self.word_entry.bind("<KeyRelease>", self.reset_and_search)
+
+    def reset_and_search(self, event=None):
+        self.reset_pagination()
+        self.search()
 
     def search(self, event=None):
         criteria = RelativePositionQuery(
@@ -147,10 +209,14 @@ class RelativePosSearchTab(IndexSearchTab):
             word_in_line=(
                 int(self.word_entry.get()) if self.word_entry.get() else None
             ),
+            page=self.current_page,
+            page_size=self.page_size,
         )
 
         if not criteria:
-            self.display_results([])
+            self.display_results(
+                PaginatedResults(results=[], total_count=0, total_pages=0)
+            )
             return
 
         results = relative_position_search(self.session, criteria)

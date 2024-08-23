@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import StrEnum
 
 from sqlalchemy import desc, func, select
@@ -41,32 +41,11 @@ class TokenOccurrence:
     context: TokenContext
 
 
-# todo: rename
-@dataclass
-class RfcOccurrences2:
-    title: str
-    num: int
-    count: int
-
-
 @dataclass
 class RfcOccurrences:
     title: str
-    occurrences: list[TokenOccurrence] = field(default_factory=list)
-
-    @property
-    def count(self):
-        return len(self.occurrences)
-
-
-@dataclass
-class WordIndex:
-    token: str
-    rfc_occurrences: dict[int, RfcOccurrences] = field(default_factory=dict)
-
-    @property
-    def count_occurrences(self):
-        return sum(rfc.count for rfc in self.rfc_occurrences.values())
+    num: int
+    count: int
 
 
 class SortBy(StrEnum):
@@ -79,15 +58,26 @@ class SortOrder(StrEnum):
     DESC = "desc"
 
 
+@dataclass
+class QueryFilteredWordsParams:
+    token_groups: list[str] | None = None
+    rfc_title: str | None = None
+    partial_token: str | None = None
+    sort_by: SortBy = SortBy.ALPHABETICAL
+    sort_order: SortOrder = SortOrder.DESC
+    page: int = 1
+    page_size: int = 100
+
+
+@dataclass
+class QueryFilteredWordsResult:
+    words: list[tuple[str, int]]
+    total_count: int
+
+
 def query_filtered_words(
-    session: Session,
-    token_groups: list[str] | None = None,
-    rfc_title: str | None = None,
-    partial_token: str | None = None,
-    sort_by: SortBy = SortBy.ALPHABETICAL,
-    sort_order: SortOrder = SortOrder.DESC,
-    limit: int = 100,
-) -> tuple[list[tuple[str, int]], int]:
+    session: Session, params: QueryFilteredWordsParams
+) -> QueryFilteredWordsResult:
     query = (
         select(
             Token.stem, func.sum(RfcTokenCount.total_positions).label('count')
@@ -97,20 +87,20 @@ def query_filtered_words(
         .join(Rfc, RfcTokenCount.rfc_num == Rfc.num)
     )
 
-    if token_groups is not None:
+    if params.token_groups is not None:
         query = query.filter(
             Token.id.in_(
                 select(TokenToGroup.token_id)
                 .join(TokenGroup)
-                .filter(TokenGroup.group_name.in_(token_groups))
+                .filter(TokenGroup.group_name.in_(params.token_groups))
             )
         )
 
-    if rfc_title is not None:
-        query = query.filter(Rfc.title.ilike(f"%{rfc_title}%"))
+    if params.rfc_title is not None:
+        query = query.filter(Rfc.title.ilike(f"%{params.rfc_title}%"))
 
-    if partial_token is not None:
-        query = query.filter(Token.token.ilike(f'%{partial_token}%'))
+    if params.partial_token is not None:
+        query = query.filter(Token.token.ilike(f'%{params.partial_token}%'))
 
     # Add GROUP BY to the base query
     query = query.group_by(Token.stem)
@@ -120,21 +110,31 @@ def query_filtered_words(
     total_count = session.execute(total_count_query).scalar_one()
 
     # Apply ordering to the main query
-    order_by_clause = 'count' if sort_by == SortBy.OCCURRENCES else Token.stem
+    order_by_clause = (
+        'count' if params.sort_by == SortBy.OCCURRENCES else Token.stem
+    )
 
-    if sort_order == SortOrder.DESC:
+    if params.sort_order == SortOrder.DESC:
         order_by_clause = desc(order_by_clause)
 
-    query = query.order_by(order_by_clause).limit(limit)
+    # Calculate offset from page number and page size
+    offset = (params.page - 1) * params.page_size
+
+    query = (
+        query.order_by(order_by_clause).offset(offset).limit(params.page_size)
+    )
     results = session.execute(query).fetchall()
 
-    limited_words = [(line[0], line[1]) for line in results]
-    return limited_words, total_count
+    words = [(line[0], line[1]) for line in results]
+    return QueryFilteredWordsResult(
+        words=words,
+        total_count=total_count,
+    )
 
 
 def fetch_rfc_occurrences(
     session: Session, stem: str, rfc_title: None | str = None
-) -> list[RfcOccurrences2]:
+) -> list[RfcOccurrences]:
     query = (
         select(RfcTokenCount.total_positions, Rfc.num, Rfc.title)
         .select_from(RfcTokenCount)
@@ -149,7 +149,7 @@ def fetch_rfc_occurrences(
     results = []
     for res in session.execute(query):
         results.append(
-            RfcOccurrences2(
+            RfcOccurrences(
                 title=res.title, num=res.num, count=res.total_positions
             )
         )

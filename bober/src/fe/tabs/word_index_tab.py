@@ -6,6 +6,7 @@ from tkinter import Label, ttk
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.words_index import (
+    QueryFilteredWordsParams,
     SortBy,
     SortOrder,
     fetch_occurrences,
@@ -26,6 +27,8 @@ def time_me(name):
 class WordIndexTab(BaseTab):
     def __init__(self, parent, session):
         super().__init__(parent, session)
+        self.current_page = 1
+        self.page_size = 50
         self.update_results()
 
     def create_widgets(self):
@@ -53,14 +56,37 @@ class WordIndexTab(BaseTab):
         self.words_count_label = Label(self, text="")
         self.words_count_label.pack(pady=5)
 
-        # Bind entries and comboboxes to update results on change
-        self.token_groups_entry.bind("<KeyRelease>", self.update_results)
-        self.rfc_titles_entry.bind("<KeyRelease>", self.update_results)
-        self.partial_token_entry.bind("<KeyRelease>", self.update_results)
-        self.sort_by_combobox.bind("<<ComboboxSelected>>", self.update_results)
-        self.sort_order_combobox.bind(
-            "<<ComboboxSelected>>", self.update_results
+        # Add pagination controls
+        self.pagination_frame = ttk.Frame(self)
+        self.pagination_frame.pack(pady=5)
+
+        self.prev_button = ttk.Button(
+            self.pagination_frame, text="Previous", command=self.prev_page
         )
+        self.prev_button.pack(side=tk.LEFT, padx=5)
+
+        self.page_label = ttk.Label(self.pagination_frame, text="Page 1")
+        self.page_label.pack(side=tk.LEFT, padx=5)
+
+        self.next_button = ttk.Button(
+            self.pagination_frame, text="Next", command=self.next_page
+        )
+        self.next_button.pack(side=tk.LEFT, padx=5)
+
+        # Bind entries and comboboxes to update results on change
+        self.token_groups_entry.bind("<KeyRelease>", self.reset_and_update)
+        self.rfc_titles_entry.bind("<KeyRelease>", self.reset_and_update)
+        self.partial_token_entry.bind("<KeyRelease>", self.reset_and_update)
+        self.sort_by_combobox.bind(
+            "<<ComboboxSelected>>", self.reset_and_update
+        )
+        self.sort_order_combobox.bind(
+            "<<ComboboxSelected>>", self.reset_and_update
+        )
+
+    def reset_and_update(self, event=None):
+        self.current_page = 1
+        self.update_results()
 
     def update_results(self, event=None):
         for child in self.results_frame.winfo_children():
@@ -80,32 +106,52 @@ class WordIndexTab(BaseTab):
 
         self.word_nodes = {}
         self.title_nodes = {}
-        results, total = self._query_words()
+        results = self._query_words()
         self.words_count_label.config(
-            text=f"fetched {len(results)} tokens out of {total} matching"
+            text=f"fetched {len(results.words)} tokens out of {results.total_count} matching"
         )
-        for stem, count in results:
+        for stem, count in results.words:
             node = self.tree.insert(
                 '', 'end', text=f"{stem} ({count} occurrences)"
             )
             self.tree.insert(node, 'end')
             self.word_nodes[node] = stem
 
-    def _query_words(self):
-        token_groups = self.token_groups_entry.get().split() or None
-        rfc_title = self.rfc_titles_entry.get() or None
-        partial_token = self.partial_token_entry.get() or None
-        sort_by = SortBy(self.sort_by_combobox.get())
-        sort_order = SortOrder(self.sort_order_combobox.get())
+        self.update_pagination_controls(results.total_count)
 
-        return query_filtered_words(
-            self.session,
-            token_groups,
-            rfc_title,
-            partial_token,
-            sort_by,
-            sort_order,
+    def update_pagination_controls(self, total_count):
+        total_pages = (total_count + self.page_size - 1) // self.page_size
+        self.page_label.config(
+            text=f"Page {self.current_page} of {total_pages}"
         )
+        self.prev_button.config(
+            state=tk.NORMAL if self.current_page > 1 else tk.DISABLED
+        )
+        self.next_button.config(
+            state=tk.NORMAL if self.current_page < total_pages else tk.DISABLED
+        )
+
+    def prev_page(self):
+        if self.current_page > 1:
+            self.current_page -= 1
+            self.update_results()
+
+    def next_page(self):
+        self.current_page += 1
+        self.update_results()
+
+    def _query_words(self):
+        params = QueryFilteredWordsParams(
+            token_groups=self.token_groups_entry.get().split() or None,
+            rfc_title=self.rfc_titles_entry.get() or None,
+            partial_token=self.partial_token_entry.get() or None,
+            sort_by=SortBy(self.sort_by_combobox.get()),
+            sort_order=SortOrder(self.sort_order_combobox.get()),
+            page=self.current_page,
+            page_size=self.page_size,
+        )
+
+        return query_filtered_words(self.session, params)
 
     def open_node(self, event=None):
         node = self.tree.focus()
