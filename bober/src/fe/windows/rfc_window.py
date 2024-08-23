@@ -199,7 +199,9 @@ class RFCWindow(BaseWindow):
         self.text_area.see(f"{line_number}.0")
 
     def show_file_statistics(self):
-        self.show_statistical_data_window("File statistical data", self.file_statistical_data_manager)
+        self.show_statistical_data_window(
+            "File statistical data", self.file_statistical_data_manager
+        )
 
     def show_statistical_data_selection(self):
         try:
@@ -211,8 +213,13 @@ class RFCWindow(BaseWindow):
             self.show_error("No text selected!")
             return
 
-        self.selection_statistical_data_manager = StringStatisticsManager(selected_text)
-        self.show_statistical_data_window("Selection statistical data", self.selection_statistical_data_manager)
+        self.selection_statistical_data_manager = StringStatisticsManager(
+            selected_text
+        )
+        self.show_statistical_data_window(
+            "Selection statistical data",
+            self.selection_statistical_data_manager,
+        )
 
     def show_statistical_data_window(self, header, stats_manager):
         StatisticalDataWindow(

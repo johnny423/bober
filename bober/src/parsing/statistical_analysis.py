@@ -20,7 +20,9 @@ class StringStatistics:
             self.min_items = min(self.min_items, item_count)
             self.line_count += 1
 
-        self.avg_items = self.total_items / self.line_count if self.line_count > 0 else 0
+        self.avg_items = (
+            self.total_items / self.line_count if self.line_count > 0 else 0
+        )
 
     def __str__(self):
         return (
@@ -53,7 +55,9 @@ class StringStatisticsManager:  # todo maybe add page stats as well
         if not self.word_char_stats:
             self.word_char_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=lambda line: [char for word in get_words_for_line(line) for char in word],
+                split_function=lambda line: [
+                    char for word in get_words_for_line(line) for char in word
+                ],
                 split_description="Word characters",
             )
         return str(self.word_char_stats)
@@ -62,7 +66,9 @@ class StringStatisticsManager:  # todo maybe add page stats as well
         if not self.non_white_char_stats:
             self.non_white_char_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=lambda line: [char for char in line if not char.isspace()],
+                split_function=lambda line: [
+                    char for char in line if not char.isspace()
+                ],
                 split_description="Non white characters",
             )
         return str(self.non_white_char_stats)
@@ -71,7 +77,7 @@ class StringStatisticsManager:  # todo maybe add page stats as well
         if not self.all_char_stats:
             self.all_char_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=lambda line: [char for char in line],
+                split_function=lambda line: list(line),
                 split_description="All characters",
             )
         return str(self.all_char_stats)
