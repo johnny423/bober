@@ -32,7 +32,7 @@ class StringStatistics:
         )
 
 
-class StringStatisticsManager:
+class StringStatisticsManager:  # todo maybe add page stats as well
     def __init__(self, input_string):
         self.input_string = input_string
         self.word_stats = None
@@ -44,7 +44,7 @@ class StringStatisticsManager:
         if not self.word_stats:
             self.word_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=lambda x: x.split(),
+                split_function=get_words_for_line,
                 split_description="Words",
             )
         return str(self.word_stats)
@@ -53,7 +53,7 @@ class StringStatisticsManager:
         if not self.word_char_stats:
             self.word_char_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=lambda x: list(x),
+                split_function=lambda line: [char for word in get_words_for_line(line) for char in word],
                 split_description="Word characters",
             )
         return str(self.word_char_stats)
@@ -62,7 +62,7 @@ class StringStatisticsManager:
         if not self.non_white_char_stats:
             self.non_white_char_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=lambda x: [word for word in x.split() if len(word) > 3],
+                split_function=lambda line: [char for char in line if not char.isspace()],
                 split_description="Non white characters",
             )
         return str(self.non_white_char_stats)
@@ -71,7 +71,7 @@ class StringStatisticsManager:
         if not self.all_char_stats:
             self.all_char_stats = StringStatistics(
                 input_string=self.input_string,
-                split_function=get_words_for_line,
+                split_function=lambda line: [char for char in line],
                 split_description="All characters",
             )
-        return str(self.non_white_char_stats)
+        return str(self.all_char_stats)

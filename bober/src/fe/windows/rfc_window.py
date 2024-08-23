@@ -9,6 +9,7 @@ from bober.src.fe.handlers import (
     save_new_phrase,
 )
 from bober.src.fe.windows.base_window import BaseWindow
+from bober.src.fe.windows.statistical_data_window import StatisticalDataWindow
 from bober.src.parsing.statistical_analysis import StringStatisticsManager
 from bober.src.search.positions import AbsPosition
 from bober.src.search.rfc_content import (
@@ -41,7 +42,7 @@ class RFCWindow(BaseWindow):
 
         self.create_scroll_region(content, highlights)
 
-        self.file_statistical_data_str = StringStatisticsManager(content).get_word_stats()  # todo make dynamic
+        self.file_statistical_data_manager = StringStatisticsManager(content)
 
         if abs_line:
             self.scroll_to_line(abs_line)
@@ -198,7 +199,7 @@ class RFCWindow(BaseWindow):
         self.text_area.see(f"{line_number}.0")
 
     def show_file_statistics(self):
-        self.show_statistical_data_window("File statistical data", self.file_statistical_data_str)
+        self.show_statistical_data_window("File statistical data", self.file_statistical_data_manager)
 
     def show_statistical_data_selection(self):
         try:
@@ -210,22 +211,13 @@ class RFCWindow(BaseWindow):
             self.show_error("No text selected!")
             return
 
-        self.selection_statistical_data = StringStatisticsManager(selected_text).get_word_stats()  # todo make dynamic
-        self.show_statistical_data_window("Selection statistical data", self.selection_statistical_data)
+        self.selection_statistical_data_manager = StringStatisticsManager(selected_text)
+        self.show_statistical_data_window("Selection statistical data", self.selection_statistical_data_manager)
 
-    def show_statistical_data_window(self, header, text):
-        stats_window = tk.Toplevel(self)
-        stats_window.title(header)
-
-        stats_text = scrolledtext.ScrolledText(
-            stats_window,
-            wrap=tk.WORD,
-            width=60,
-            height=10,
-            padx=4,
-            pady=4
+    def show_statistical_data_window(self, header, stats_manager):
+        StatisticalDataWindow(
+            parent=self.winfo_toplevel(),
+            title=header,
+            stats_manager=stats_manager,
+            session=None,
         )
-        stats_text.pack(fill=tk.BOTH, expand=True)
-
-        stats_text.insert(tk.END, text)
-        stats_text.config(state=tk.DISABLED)  # Make it read-only
