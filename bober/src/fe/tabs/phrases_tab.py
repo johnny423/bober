@@ -99,7 +99,3 @@ class PhrasesTab(BaseTab):
             stem=None,
             abs_line=selected_occurrence.abs_line_number,
         )  # todo: make phrase highlight
-        # rfc_window.protocol(
-        #     "WM_DELETE_WINDOW",
-        #     lambda: (rfc_window.destroy(), self.load_phrases()),
-        # )

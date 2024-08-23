@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from bober.src.db import commit
 from bober.src.db_models import (
+    OrderedToken,
     Phrase,
     PhraseToken,
     Rfc,
@@ -57,31 +58,28 @@ def search_phrase(session: Session, phrase: str):
     tokens = phrase.lower().split()
     token_count = len(tokens)
 
-    ordered_tokens = ordered_tokens_query().subquery()
-
-    # Define the query to create token windows and search for the phrase
     token_windows_query = (
         select(
-            ordered_tokens.c.rfc_num,
-            ordered_tokens.c.rfc_title,
-            ordered_tokens.c.section_index,
-            ordered_tokens.c.page,
-            ordered_tokens.c.abs_line_number,
+            OrderedToken.rfc_num,
+            OrderedToken.rfc_title,
+            OrderedToken.section_index,
+            OrderedToken.page,
+            OrderedToken.abs_line_number,
             func.array_to_string(
-                func.array_agg(ordered_tokens.c.token).over(
+                func.array_agg(OrderedToken.token).over(
                     partition_by=[
-                        ordered_tokens.c.rfc_num,
-                        ordered_tokens.c.section_index,
+                        OrderedToken.rfc_num,
+                        OrderedToken.section_index,
                     ],
-                    order_by=[ordered_tokens.c.row_num],
+                    order_by=[OrderedToken.row_num],
                     rows=(0, token_count - 1),
                 ),
                 ' ',
             ).label('phrase'),
-        ).select_from(ordered_tokens)
+        )
+        .filter(func.lower(OrderedToken.token).in_(tokens))
     ).subquery()
 
-    # Define the query to filter the windows by the input phrase
     search_query = (
         select(
             token_windows_query.c.rfc_num,
@@ -94,37 +92,6 @@ def search_phrase(session: Session, phrase: str):
         .select_from(token_windows_query)
         .where(func.lower(token_windows_query.c.phrase) == phrase.lower())
     )
+
+    print(search_query)
     return session.execute(search_query).all()
-
-
-def ordered_tokens_query():
-    ordered_tokens = (
-        select(
-            Token.token,
-            Rfc.num.label('rfc_num'),
-            Rfc.title.label('rfc_title'),
-            RfcSection.index.label('section_index'),
-            RfcSection.page.label('page'),
-            RfcLine.line_number,
-            RfcLine.abs_line_number,
-            TokenPosition.index.label('token_index'),
-            TokenPosition.start_position,
-            TokenPosition.end_position,
-            func.row_number()
-            .over(
-                order_by=[
-                    Rfc.num,
-                    RfcSection.page,
-                    RfcSection.index,
-                    RfcLine.line_number,
-                    TokenPosition.index,
-                ]
-            )
-            .label('row_num'),
-        )
-        .join(TokenPosition, Token.id == TokenPosition.token_id)
-        .join(RfcLine, TokenPosition.line_id == RfcLine.id)
-        .join(RfcSection, RfcLine.section_id == RfcSection.id)
-        .join(Rfc, RfcSection.rfc_num == Rfc.num)
-    )
-    return ordered_tokens

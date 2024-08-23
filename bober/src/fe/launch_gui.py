@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from loguru import logger
+
 from bober.src.fe.tabs.index_search_tab import (
     AbsPosSearchTab,
     RelativePosSearchTab,
@@ -19,43 +21,28 @@ class MainApplication(tk.Tk):
         self.title("RFC Explorer")
         self.geometry("1000x750")
 
-        # Create the notebook (tab controller)
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill=tk.BOTH, expand=True)
 
-        # Create tabs
         self.create_tabs()
 
+    def create_tab(self, tab_cls, text):
+        self.notebook.add(tab_cls(self.notebook, self.session), text=text)
+
     def create_tabs(self):
-        self.notebook.add(
-            SearchFileTab(self.notebook, self.session), text="Search File"
-        )
+        tabs = [
+            (SearchFileTab, "Search File"),
+            (WordIndexTab, "Word Index"),
+            (AbsPosSearchTab, "Absolute Position Search"),
+            (RelativePosSearchTab, "Relative Position Search"),
+            (LoadFileTab, "Load File"),
+            (WordGroupTab, "Manage Groups"),
+            (PhrasesTab, "Manage Phrases"),
+        ]
 
-        self.notebook.add(
-            WordIndexTab(self.notebook, self.session), text="Word Index"
-        )
-
-        self.notebook.add(
-            AbsPosSearchTab(self.notebook, self.session),
-            text="Absolute Position Search",
-        )
-
-        self.notebook.add(
-            RelativePosSearchTab(self.notebook, self.session),
-            text="Relative Position Search",
-        )
-
-        self.notebook.add(
-            LoadFileTab(self.notebook, self.session), text="Load File"
-        )
-
-        self.notebook.add(
-            WordGroupTab(self.notebook, self.session), text="Manage Groups"
-        )
-
-        self.notebook.add(
-            PhrasesTab(self.notebook, self.session), text="Manage Phrases"
-        )
+        for tab_cls, text in tabs:
+            self.create_tab(tab_cls, text)
+            logger.info(f"Load tab '{text}' finished")
 
 
 def launch_gui(session):

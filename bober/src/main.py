@@ -32,16 +32,16 @@ if __name__ == "__main__":
 
     with Session() as session:
         if SHOULD_RELOAD_DATA:
-            logger.debug("Start reloading the data")
+            logger.info("Start reloading the data")
 
-            logger.debug("Start deleting existing tables")
+            logger.info("Start deleting existing tables")
             for tbl in reversed(Base.metadata.sorted_tables):
                 session.execute(tbl.delete())
             session.commit()
-            logger.debug("Ended deleting existing tables")
+            logger.info("Ended deleting existing tables")
 
-            logger.debug("Start loading examples")
+            logger.info("Start loading examples")
             load_examples(session)
-            logger.debug("Ended loading examples")
+            logger.info("Ended loading examples")
 
         launch_gui(session)

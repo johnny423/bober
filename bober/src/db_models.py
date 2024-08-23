@@ -204,3 +204,23 @@ class RfcTokenCount(Base):
 
     rfc: Mapped["Rfc"] = relationship("Rfc", back_populates="token_counts")
     token: Mapped["Token"] = relationship("Token", back_populates="rfc_counts")
+
+
+
+class OrderedToken(Base):
+    __tablename__ = 'ordered_tokens'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    token: Mapped[str] = mapped_column(String, index=True)
+    rfc_num: Mapped[int] = mapped_column(Integer, ForeignKey('rfc.num'))
+    rfc_title: Mapped[str] = mapped_column(String)
+    section_index: Mapped[int] = mapped_column(Integer)
+    page: Mapped[int] = mapped_column(Integer)
+    line_number: Mapped[int] = mapped_column(Integer)
+    abs_line_number: Mapped[int] = mapped_column(Integer)
+    token_index: Mapped[int] = mapped_column(Integer)
+    start_position: Mapped[int] = mapped_column(Integer)
+    end_position: Mapped[int] = mapped_column(Integer)
+    row_num: Mapped[int] = mapped_column(Integer)
+
+    rfc: Mapped["Rfc"] = relationship("Rfc")
