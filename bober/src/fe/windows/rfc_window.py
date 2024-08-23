@@ -9,7 +9,7 @@ from bober.src.fe.handlers import (
     save_new_phrase,
 )
 from bober.src.fe.windows.base_window import BaseWindow
-from bober.src.parsing.line_parser import get_words_for_line
+from bober.src.parsing.statistical_analysis import StringStatisticsManager
 from bober.src.search.positions import AbsPosition
 from bober.src.search.rfc_content import (
     get_absolute_positions,
@@ -41,33 +41,12 @@ class RFCWindow(BaseWindow):
 
         self.create_scroll_region(content, highlights)
 
-        self.file_statistical_data_str = self.get_statistical_data(content)
+        self.file_statistical_data_str = StringStatisticsManager(content).get_word_stats()  # todo make dynamic
         self.create_statistical_data_region()
         self.fill_statistical_data_region()
 
         if abs_line:
             self.scroll_to_line(abs_line)
-
-    @staticmethod
-    def get_statistical_data(content):
-        word_count = 0
-        word_character_count = 0
-        non_whitespace_character_count = 0
-        total_character_count = 0
-        for line in content.split('\n'):
-            total_character_count += len(line)
-            non_whitespace_character_count += len(
-                [char for char in line if not char.isspace()]
-            )
-            words = get_words_for_line(line)
-            word_count += len(words)
-            word_character_count += sum([len(word) for word in words])
-
-        return (
-            f'Word count: {word_count}; Word character count: {word_character_count}; '
-            f'Non-whitespace characters: {non_whitespace_character_count}; '
-            f'Total characters: {total_character_count}'
-        )
 
     def create_scroll_region(
         self, initial_text: str, highlights: None | list[AbsPosition] = None
@@ -216,7 +195,7 @@ class RFCWindow(BaseWindow):
         if not self.stats_frame.winfo_viewable():
             self.toggle_stats()
 
-        selection_statistical_data = self.get_statistical_data(selected_text)
+        selection_statistical_data = StringStatisticsManager(selected_text).get_word_stats()  # todo make dynamic
         self.fill_statistical_data_region(selection_statistical_data)
 
     def save_phrase_popup(self):
