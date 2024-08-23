@@ -132,7 +132,7 @@ class RFCWindow(BaseWindow):
         self.stats_frame.pack(side=tk.RIGHT, fill=tk.Y)
 
         # Add a toggle button
-        self.toggle_button = ttk.Button(self.content_frame, text="Toggle Stats", command=self.toggle_stats)
+        self.toggle_button = ttk.Button(self.content_frame, text="Statistical data", command=self.toggle_stats)
         self.toggle_button.pack(side=tk.TOP, padx=5, pady=5)
 
         # Add a label and a text area for the statistical data
