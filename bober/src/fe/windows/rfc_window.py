@@ -75,8 +75,12 @@ class RFCWindow(BaseWindow):
         self.frame = ttk.Frame(self.main_frame, padding=10)
         self.frame.pack(fill=tk.BOTH, expand=True)
 
-        self.text_frame = ttk.Frame(self.frame)
-        self.text_frame.pack(fill=tk.BOTH, expand=True)
+        # Create a new frame to hold text and stats side by side
+        self.content_frame = ttk.Frame(self.frame)
+        self.content_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.text_frame = ttk.Frame(self.content_frame)
+        self.text_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         self.line_numbers = tk.Text(
             self.text_frame,
@@ -124,17 +128,24 @@ class RFCWindow(BaseWindow):
 
     def create_statistical_data_region(self):
         # Create a new frame for the statistical data section
-        self.stats_frame = ttk.Frame(self.frame)
-        self.stats_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        self.stats_frame = ttk.Frame(self.content_frame)
+        self.stats_frame.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Add a toggle button
+        self.toggle_button = ttk.Button(self.content_frame, text="Toggle Stats", command=self.toggle_stats)
+        self.toggle_button.pack(side=tk.TOP, padx=5, pady=5)
 
         # Add a label and a text area for the statistical data
         self.stats_label = ttk.Label(self.stats_frame, text="Statistical Data:")
-        self.stats_label.pack(side=tk.LEFT, padx=5, pady=5)
+        self.stats_label.pack(side=tk.TOP, padx=5, pady=5)
 
         self.stats_text = scrolledtext.ScrolledText(
-            self.stats_frame, wrap=tk.NONE, width=60, height=5, padx=4, pady=4
+            self.stats_frame, wrap=tk.WORD, width=30, height=10, padx=4, pady=4
         )
-        self.stats_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.stats_text.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        # Initially hide the stats
+        self.stats_frame.pack_forget()
 
     def fill_statistical_data_region(self, selection_statistical_data=None):
         self.stats_text.delete('1.0', tk.END)
@@ -201,6 +212,10 @@ class RFCWindow(BaseWindow):
             self.show_error("No text selected!")
             return
 
+        # Make sure the statistical data section is visible
+        if not self.stats_frame.winfo_viewable():
+            self.toggle_stats()
+
         selection_statistical_data = self.get_statistical_data(selected_text)
         self.fill_statistical_data_region(selection_statistical_data)
 
@@ -247,3 +262,9 @@ class RFCWindow(BaseWindow):
 
     def scroll_to_line(self, line_number: int):
         self.text_area.see(f"{line_number}.0")
+
+    def toggle_stats(self):
+        if self.stats_frame.winfo_viewable():
+            self.stats_frame.pack_forget()
+        else:
+            self.stats_frame.pack(side=tk.RIGHT, fill=tk.Y)
