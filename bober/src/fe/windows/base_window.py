@@ -5,7 +5,7 @@ from bober.src.fe.base_ui import BaseUI
 
 
 class BaseWindow(tk.Toplevel, BaseUI):
-    def __init__(self, parent, title, session=None):
+    def __init__(self, parent, title, session=None, size="1000x750"):
         super().__init__(parent)
         self.parent = parent
         self.session = session
@@ -15,7 +15,7 @@ class BaseWindow(tk.Toplevel, BaseUI):
         self.transient(parent)
 
         # Set a default size
-        self.geometry("1000x750")
+        self.geometry(size)
 
         # Create a main frame to hold all widgets
         self.main_frame = ttk.Frame(self)

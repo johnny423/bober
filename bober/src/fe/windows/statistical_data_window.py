@@ -15,7 +15,7 @@ class StatisticalDataWindow(BaseWindow):
             stats_manager: StringStatisticsManager,
             session: Optional[Session] = None
     ):
-        super().__init__(parent, title, session)
+        super().__init__(parent, title, session, "500x200")
         self.stats_manager = stats_manager
         self.create_widgets()
 
@@ -41,6 +41,8 @@ class StatisticalDataWindow(BaseWindow):
         # Create scrolled text widget
         self.text_area = scrolledtext.ScrolledText(self.main_frame, wrap=tk.WORD, width=60, height=20)
         self.text_area.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        self.display_stats(self.stats_manager.get_word_stats())
 
     def display_stats(self, stats):
         self.text_area.delete('1.0', tk.END)  # Clear previous content
