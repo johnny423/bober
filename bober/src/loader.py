@@ -17,4 +17,6 @@ def load_examples(session: Session):
         file_path = example_dir_path / f"{rfc_num}.txt"
 
         load_single_file(session, file_path, rfc_metadata)
-        logger.info(f"Finish loading rfc {rfc_num} - {index}/{len(rfcs_metadata)}")
+        logger.info(
+            f"Finish loading rfc {rfc_num} - {index}/{len(rfcs_metadata)}"
+        )

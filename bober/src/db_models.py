@@ -206,7 +206,6 @@ class RfcTokenCount(Base):
     token: Mapped["Token"] = relationship("Token", back_populates="rfc_counts")
 
 
-
 class OrderedToken(Base):
     __tablename__ = 'ordered_tokens'
 
@@ -215,12 +214,8 @@ class OrderedToken(Base):
     rfc_num: Mapped[int] = mapped_column(Integer, ForeignKey('rfc.num'))
     rfc_title: Mapped[str] = mapped_column(String)
     section_index: Mapped[int] = mapped_column(Integer)
-    page: Mapped[int] = mapped_column(Integer)
-    line_number: Mapped[int] = mapped_column(Integer)
     abs_line_number: Mapped[int] = mapped_column(Integer)
-    token_index: Mapped[int] = mapped_column(Integer)
-    start_position: Mapped[int] = mapped_column(Integer)
-    end_position: Mapped[int] = mapped_column(Integer)
+    # todo: better name
     row_num: Mapped[int] = mapped_column(Integer)
 
     rfc: Mapped["Rfc"] = relationship("Rfc")

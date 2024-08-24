@@ -6,11 +6,7 @@ from bober.src.db_models import (
     OrderedToken,
     Phrase,
     PhraseToken,
-    Rfc,
-    RfcLine,
-    RfcSection,
     Token,
-    TokenPosition,
 )
 
 
@@ -63,7 +59,6 @@ def search_phrase(session: Session, phrase: str):
             OrderedToken.rfc_num,
             OrderedToken.rfc_title,
             OrderedToken.section_index,
-            OrderedToken.page,
             OrderedToken.abs_line_number,
             func.array_to_string(
                 func.array_agg(OrderedToken.token).over(
@@ -76,8 +71,7 @@ def search_phrase(session: Session, phrase: str):
                 ),
                 ' ',
             ).label('phrase'),
-        )
-        .filter(func.lower(OrderedToken.token).in_(tokens))
+        ).filter(func.lower(OrderedToken.token).in_(tokens))
     ).subquery()
 
     search_query = (
@@ -85,7 +79,6 @@ def search_phrase(session: Session, phrase: str):
             token_windows_query.c.rfc_num,
             token_windows_query.c.rfc_title,
             token_windows_query.c.section_index,
-            token_windows_query.c.page,
             token_windows_query.c.phrase,
             token_windows_query.c.abs_line_number,
         )
@@ -93,5 +86,4 @@ def search_phrase(session: Session, phrase: str):
         .where(func.lower(token_windows_query.c.phrase) == phrase.lower())
     )
 
-    print(search_query)
     return session.execute(search_query).all()
