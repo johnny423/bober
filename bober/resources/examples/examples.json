@@ -113,7 +113,7 @@
   },
   {
     "num": 951,
-    "title": " Bootstrap Protocol ",
+    "title": "Bootstrap Protocol ",
     "publish_at": "1985/09/01",
     "authors": [
       "W.J. Croft",
@@ -122,7 +122,7 @@
   },
   {
     "num": 2131,
-    "title": " Dynamic Host Configuration Protocol ",
+    "title": "Dynamic Host Configuration Protocol ",
     "publish_at": "1997/03/01",
     "authors": [
       "R. Droms"
@@ -130,7 +130,7 @@
   },
   {
     "num": 1034,
-    "title": " Domain names - concepts and facilities ",
+    "title": "Domain names - concepts and facilities ",
     "publish_at": "1987/11/01",
     "authors": [
       "P. Mockapetris"
@@ -155,7 +155,7 @@
   },
   {
     "num": 2068,
-    "title": " Hypertext Transfer Protocol -- HTTP/1.1 ",
+    "title": "Hypertext Transfer Protocol -- HTTP/1.1 ",
     "publish_at": "1997/01/01",
     "authors": [
       "R. Fielding",
@@ -167,7 +167,7 @@
   },
   {
     "num": 792,
-    "title": " Internet Control Message Protocol ",
+    "title": "Internet Control Message Protocol ",
     "publish_at": "1981/09/01",
     "authors": [
       "J. Postel"
@@ -175,7 +175,7 @@
   },
   {
     "num": 791,
-    "title": " Internet Protocol ",
+    "title": "Internet Protocol ",
     "publish_at": "1981/09/01",
     "authors": [
       "J. Postel"
@@ -183,7 +183,7 @@
   },
   {
     "num": 1001,
-    "title": " Protocol standard for a NetBIOS service on a TCP/UDP transport: Concepts and methods ",
+    "title": "Protocol standard for a NetBIOS service on a TCP/UDP transport: Concepts and methods ",
     "publish_at": "1987/03/01",
     "authors": [
       "NetBIOS Working Group in the Defense Advanced Research Projects Agency",
@@ -193,7 +193,7 @@
   },
   {
     "num": 1002,
-    "title": " Protocol standard for a NetBIOS service on a TCP/UDP transport: Detailed specifications ",
+    "title": "Protocol standard for a NetBIOS service on a TCP/UDP transport: Detailed specifications ",
     "publish_at": "1987/03/01",
     "authors": [
       "NetBIOS Working Group in the Defense Advanced Research Projects Agency",
@@ -203,7 +203,7 @@
   },
   {
     "num": 1014,
-    "title": " XDR: External Data Representation standard ",
+    "title": "XDR: External Data Representation standard ",
     "publish_at": "1987/06/01",
     "authors": [
       "Sun Microsystems"
@@ -211,7 +211,7 @@
   },
   {
     "num": 1057,
-    "title": " RPC: Remote Procedure Call Protocol specification: Version 2 ",
+    "title": "RPC: Remote Procedure Call Protocol specification: Version 2 ",
     "publish_at": "1988/06/01",
     "authors": [
       "Sun Microsystems"
@@ -219,7 +219,7 @@
   },
   {
     "num": 1094,
-    "title": " NFS: Network File System Protocol specification ",
+    "title": "NFS: Network File System Protocol specification ",
     "publish_at": "1989/03/01",
     "authors": [
       "B. Nowicki"
@@ -227,7 +227,7 @@
   },
   {
     "num": 1813,
-    "title": " NFS Version 3 Protocol Specification ",
+    "title": "NFS Version 3 Protocol Specification ",
     "publish_at": "1995/06/01",
     "authors": [
       "B. Callaghan",
@@ -237,7 +237,7 @@
   },
   {
     "num": 977,
-    "title": " Network News Transfer Protocol ",
+    "title": "Network News Transfer Protocol ",
     "publish_at": "1986/02/01",
     "authors": [
       "B. Kantor",
@@ -246,7 +246,7 @@
   },
   {
     "num": 821,
-    "title": " Simple Mail Transfer Protocol ",
+    "title": "Simple Mail Transfer Protocol ",
     "publish_at": "1982/08/01",
     "authors": [
       "J. Postel"
@@ -262,7 +262,7 @@
   },
   {
     "num": 768,
-    "title": " User Datagram Protocol ",
+    "title": "User Datagram Protocol ",
     "publish_at": "1980/08/01",
     "authors": [
       "J. Postel"

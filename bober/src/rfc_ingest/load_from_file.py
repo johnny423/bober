@@ -23,9 +23,10 @@ def load_single_file(
     content = Path(file_path).read_text()
     parsed_doc = parse_rfc(content)
 
+    rfc_num = rfc_metadata["num"]
     ingest_rfc(
         session,
-        rfc_num=rfc_metadata["num"],
+        rfc_num=rfc_num,
         rfc_title=rfc_metadata["title"],
         rfc_published_at=rfc_metadata["publish_at"],
         rfc_authors=rfc_metadata["authors"],

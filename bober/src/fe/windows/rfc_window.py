@@ -13,7 +13,6 @@ from bober.src.fe.windows.statistical_data_window import StatisticalDataWindow
 from bober.src.parsing.statistical_analysis import StringStatisticsManager
 from bober.src.search.positions import AbsPosition
 from bober.src.search.rfc_content import (
-    get_absolute_positions,
     load_rfc_content,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
@@ -28,17 +27,13 @@ class RFCWindow(BaseWindow):
         parent,
         session: Session,
         rfc: int,
-        stem: None | str = None,
+        highlights: None | list[AbsPosition] = None,
         abs_line: None | int = None,
     ):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
         super().__init__(parent, meta.title or "<nameless rfc>", session)
         content = load_rfc_content(self.session, rfc)
-
-        highlights = None
-        if stem:
-            highlights = get_absolute_positions(session, rfc, stem)
 
         self.create_scroll_region(content, highlights)
 

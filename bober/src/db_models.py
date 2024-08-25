@@ -122,7 +122,9 @@ class TokenPosition(Base):
     index: Mapped[int] = mapped_column(
         Integer
     )  # the number of the token in the line
-
+    abs_index: Mapped[int] = mapped_column(
+        Integer
+    )  # the number of the token in the whole file
     token: Mapped["Token"] = relationship("Token", back_populates="positions")
     line: Mapped["RfcLine"] = relationship(
         "RfcLine", back_populates="positions"

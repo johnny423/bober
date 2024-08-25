@@ -11,6 +11,7 @@ from bober.src.search.index_search import (
     abs_position_search,
     relative_position_search,
 )
+from bober.src.search.rfc_content import get_absolute_positions
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 
 
@@ -62,11 +63,13 @@ class IndexSearchTab(BaseTab):
     def _on_item_click(self, event):
         item = self.tree.identify('item', event.x, event.y)
         (*_, stem, rfc, abs_line) = self.tree.item(item, 'values')
+        highlights = get_absolute_positions(self.session, rfc, stem)
+
         RFCWindow(
             self.winfo_toplevel(),
             self.session,
             int(rfc),
-            stem=stem,
+            highlights=highlights,
             abs_line=int(abs_line),
         )
 

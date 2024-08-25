@@ -57,74 +57,60 @@ def search_phrase(session: Session, phrase: str):
     tokens = phrase.lower().split()
     token_count = len(tokens)
 
-    ordered_tokens = ordered_tokens_query().subquery()
-
-    # Define the query to create token windows and search for the phrase
-    token_windows_query = (
-        select(
-            ordered_tokens.c.rfc_num,
-            ordered_tokens.c.rfc_title,
-            ordered_tokens.c.section_index,
-            ordered_tokens.c.page,
-            ordered_tokens.c.abs_line_number,
-            func.array_to_string(
-                func.array_agg(ordered_tokens.c.token).over(
-                    partition_by=[
-                        ordered_tokens.c.rfc_num,
-                        ordered_tokens.c.section_index,
-                    ],
-                    order_by=[ordered_tokens.c.row_num],
-                    rows=(0, token_count - 1),
-                ),
-                ' ',
-            ).label('phrase'),
-        ).select_from(ordered_tokens)
-    ).subquery()
-
-    # Define the query to filter the windows by the input phrase
-    search_query = (
-        select(
-            token_windows_query.c.rfc_num,
-            token_windows_query.c.rfc_title,
-            token_windows_query.c.section_index,
-            token_windows_query.c.page,
-            token_windows_query.c.phrase,
-            token_windows_query.c.abs_line_number,
+    def aggregate(field):
+        return func.array_agg(field).over(
+            partition_by=[
+                RfcSection.rfc_num,
+                RfcSection.index,
+            ],
+            order_by=[TokenPosition.abs_index],
+            rows=(0, token_count - 1),
         )
-        .select_from(token_windows_query)
-        .where(func.lower(token_windows_query.c.phrase) == phrase.lower())
-    )
-    return session.execute(search_query).all()
 
-
-def ordered_tokens_query():
-    ordered_tokens = (
+    token_windows_query = (
         select(
             Token.token,
             Rfc.num.label('rfc_num'),
             Rfc.title.label('rfc_title'),
             RfcSection.index.label('section_index'),
-            RfcSection.page.label('page'),
-            RfcLine.line_number,
             RfcLine.abs_line_number,
-            TokenPosition.index.label('token_index'),
-            TokenPosition.start_position,
-            TokenPosition.end_position,
-            func.row_number()
-            .over(
-                order_by=[
-                    Rfc.num,
-                    RfcSection.page,
-                    RfcSection.index,
-                    RfcLine.line_number,
-                    TokenPosition.index,
-                ]
-            )
-            .label('row_num'),
+            RfcLine.indentation,
+            func.array_to_string(aggregate(Token.token), ' ').label('phrase'),
+            aggregate(TokenPosition.abs_index).label('indexes'),
+            aggregate(TokenPosition.start_position).label('start_pos'),
+            aggregate(TokenPosition.end_position).label('end_pos'),
         )
+        .filter(Token.token.in_(tokens))
         .join(TokenPosition, Token.id == TokenPosition.token_id)
         .join(RfcLine, TokenPosition.line_id == RfcLine.id)
         .join(RfcSection, RfcLine.section_id == RfcSection.id)
         .join(Rfc, RfcSection.rfc_num == Rfc.num)
+        .subquery()
     )
-    return ordered_tokens
+
+    search_query = (
+        select(
+            token_windows_query.c.rfc_num,
+            token_windows_query.c.rfc_title,
+            token_windows_query.c.section_index,
+            token_windows_query.c.phrase,
+            token_windows_query.c.abs_line_number,
+            token_windows_query.c.indentation,
+            token_windows_query.c.start_pos[1].label("start_pos"),
+            token_windows_query.c.end_pos[token_count].label("end_pos"),
+        )
+        .select_from(token_windows_query)
+        .where(
+            (func.lower(token_windows_query.c.phrase) == phrase.lower())
+            & (
+                func.array_length(token_windows_query.c.indexes, 1)
+                == (
+                    token_windows_query.c.indexes[token_count]
+                    - token_windows_query.c.indexes[1]
+                    + 1
+                )
+            )
+        )
+    )
+
+    return session.execute(search_query).all()
