@@ -50,5 +50,5 @@ def test_abs_position(db_session, rfc_num, load_rfc):
     assert len(positions)
 
     for pos in positions:
-        value = original[pos.line - 1][pos.start : pos.start + pos.length]
+        value = original[pos.line - 1][pos.column: pos.column + pos.length]
         assert value.lower() in ["protocol", "protocols"]
