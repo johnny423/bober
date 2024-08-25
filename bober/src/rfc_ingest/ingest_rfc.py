@@ -37,6 +37,7 @@ def ingest_rfc(
     parsed_tokens: dict[str, ParsedToken] = {}
     token_positions = defaultdict(list)
 
+    abs_index = 0
     for section_index, parsed_section in enumerate(parsed_doc.sections):
         section = RfcSection(
             rfc=rfc,
@@ -65,8 +66,10 @@ def ingest_rfc(
                         start_position=parsed_token.start,
                         end_position=parsed_token.end,
                         index=token_index,
+                        abs_index=abs_index,
                     )
                 )
+                abs_index += 1
 
     # tokens
     query_existing_tokens = session.execute(

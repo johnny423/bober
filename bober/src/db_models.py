@@ -122,7 +122,9 @@ class TokenPosition(Base):
     index: Mapped[int] = mapped_column(
         Integer
     )  # the number of the token in the line
-
+    abs_index: Mapped[int] = mapped_column(
+        Integer
+    )  # the number of the token in the whole file
     token: Mapped["Token"] = relationship("Token", back_populates="positions")
     line: Mapped["RfcLine"] = relationship(
         "RfcLine", back_populates="positions"
@@ -204,18 +206,3 @@ class RfcTokenCount(Base):
 
     rfc: Mapped["Rfc"] = relationship("Rfc", back_populates="token_counts")
     token: Mapped["Token"] = relationship("Token", back_populates="rfc_counts")
-
-
-class OrderedToken(Base):
-    __tablename__ = 'ordered_tokens'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    token: Mapped[str] = mapped_column(String, index=True)
-    rfc_num: Mapped[int] = mapped_column(Integer, ForeignKey('rfc.num'))
-    rfc_title: Mapped[str] = mapped_column(String)
-    section_index: Mapped[int] = mapped_column(Integer)
-    abs_line_number: Mapped[int] = mapped_column(Integer)
-    # todo: better name
-    row_num: Mapped[int] = mapped_column(Integer)
-
-    rfc: Mapped["Rfc"] = relationship("Rfc")
