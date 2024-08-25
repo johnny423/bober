@@ -7,6 +7,7 @@ from bober.src.fe.handlers import save_new_phrase
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.phrases.phrases import find_phrase_occurrences
+from bober.src.search.positions import AbsPosition
 
 
 class PhrasesTab(BaseTab):
@@ -91,11 +92,18 @@ class PhrasesTab(BaseTab):
         index = self.occurrences_list.curselection()[0]
         display_text = self.occurrences_list.get(index)
         item_id = display_text.split(":")[0].strip()
-        selected_occurrence = self.occurrences_id_mapping[item_id]
+        occurrence = self.occurrences_id_mapping[item_id]
+
         RFCWindow(
             self.winfo_toplevel(),
             self.session,
-            selected_occurrence.rfc_num,
-            stem=None,
-            abs_line=selected_occurrence.abs_line_number,
-        )  # todo: make phrase highlight
+            occurrence.rfc_num,
+            highlights=[
+                AbsPosition(
+                    line=occurrence.abs_line_number,
+                    column=occurrence.indentation + occurrence.start_pos,
+                    length=occurrence.end_pos - occurrence.start_pos,
+                )
+            ],
+            abs_line=occurrence.abs_line_number,
+        )

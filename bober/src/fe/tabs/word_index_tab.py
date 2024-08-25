@@ -5,6 +5,7 @@ from tkinter import Label, ttk
 
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
+from bober.src.search.rfc_content import get_absolute_positions
 from bober.src.search.words_index import (
     QueryFilteredWordsParams,
     SortBy,
@@ -196,11 +197,12 @@ class WordIndexTab(BaseTab):
         item = self.tree.identify('item', event.x, event.y)
         if item and 'leaf' in self.tree.item(item, 'tags'):
             values = self.tree.item(item, 'values')
-            (_, rfc, token, abs_line) = values
+            (_, rfc, stem, abs_line) = values
+            highlights = get_absolute_positions(self.session, rfc, stem)
             RFCWindow(
                 self.winfo_toplevel(),
                 self.session,
                 int(rfc),
-                stem=token,
+                highlights=highlights,
                 abs_line=int(abs_line),
             )

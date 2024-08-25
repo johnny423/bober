@@ -57,40 +57,28 @@ def search_phrase(session: Session, phrase: str):
     tokens = phrase.lower().split()
     token_count = len(tokens)
 
+    def aggregate(field):
+        return func.array_agg(field).over(
+            partition_by=[
+                RfcSection.rfc_num,
+                RfcSection.index,
+            ],
+            order_by=[TokenPosition.abs_index],
+            rows=(0, token_count - 1),
+        )
+
     token_windows_query = (
         select(
             Token.token,
             Rfc.num.label('rfc_num'),
             Rfc.title.label('rfc_title'),
             RfcSection.index.label('section_index'),
-            RfcSection.page.label('page'),
-            RfcLine.line_number,
             RfcLine.abs_line_number,
-            TokenPosition.index.label('token_index'),
-            TokenPosition.start_position,
-            TokenPosition.end_position,
-            TokenPosition.abs_index,
-            func.array_to_string(
-                func.array_agg(Token.token).over(
-                    partition_by=[
-                        RfcSection.rfc_num,
-                        RfcSection.index,
-                    ],
-                    order_by=[TokenPosition.abs_index],
-                    rows=(0, token_count - 1),
-                ),
-                ' ',
-            ).label('phrase'),
-            func.array_agg(TokenPosition.abs_index)
-            .over(
-                partition_by=[
-                    RfcSection.rfc_num,
-                    RfcSection.index,
-                ],
-                order_by=[TokenPosition.abs_index],
-                rows=(0, token_count - 1),
-            )
-            .label('indexes'),
+            RfcLine.indentation,
+            func.array_to_string(aggregate(Token.token), ' ').label('phrase'),
+            aggregate(TokenPosition.abs_index).label('indexes'),
+            aggregate(TokenPosition.start_position).label('start_pos'),
+            aggregate(TokenPosition.end_position).label('end_pos'),
         )
         .filter(Token.token.in_(tokens))
         .join(TokenPosition, Token.id == TokenPosition.token_id)
@@ -107,8 +95,9 @@ def search_phrase(session: Session, phrase: str):
             token_windows_query.c.section_index,
             token_windows_query.c.phrase,
             token_windows_query.c.abs_line_number,
-            token_windows_query.c.start_position,
-            token_windows_query.c.indexes,
+            token_windows_query.c.indentation,
+            token_windows_query.c.start_pos[1].label("start_pos"),
+            token_windows_query.c.end_pos[token_count].label("end_pos"),
         )
         .select_from(token_windows_query)
         .where(
@@ -124,6 +113,4 @@ def search_phrase(session: Session, phrase: str):
         )
     )
 
-    results = session.execute(search_query).all()
-    print(results)
-    return results
+    return session.execute(search_query).all()
