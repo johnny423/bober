@@ -13,19 +13,28 @@ class StringStatistics:
         line_count = 0
 
         lines = input_string.split('\n')
-        starting_line = min(line_to_page_mapping.keys())
-        for i, line in enumerate(lines):
+        curr_line_index = min(line_to_page_mapping.keys())
+        found_not_empty = False
+        # skip first lines until not empty line found
+        # TODO fix issue here
+        for line in lines:
+            line_count += 1
             items = split_function(line)
             item_count = len(items)
-            if not item_count:
+            if item_count:
+                if not found_not_empty:
+                    found_not_empty = True
+            elif found_not_empty:
+                curr_line_index += 1
+            if not found_not_empty and not item_count:
                 continue
 
             self.total_items += item_count
             self.max_items_line = max(self.max_items_line, item_count)
             self.min_items_line = min(self.min_items_line, item_count)
-            page_number = line_to_page_mapping[starting_line + i]
+            page_number = line_to_page_mapping[curr_line_index]
             items_per_page[page_number] += item_count
-            line_count += 1
+            curr_line_index += 1
 
         self.avg_items_per_line = (
             self.total_items / line_count if line_count > 0 else 0
@@ -38,14 +47,13 @@ class StringStatistics:
 
     def __str__(self):
         return (
-            f"Split type: {self.split_description}\n"
-            f"Total items: {self.total_items}\n"
-            f"Maximum items in a line: {self.max_items_line}\n"
-            f"Maximum items in a page: {self.max_items_page}\n"
-            f"Minimum items in a line: {self.min_items_line}\n"
-            f"Minimum items in a page: {self.min_items_page}\n"
-            f"Average items per line: {self.avg_items_per_line:.2f}\n"
-            f"Average items per page: {self.avg_items_page:.2f}\n"
+            f"Total {self.split_description.lower()}: {self.total_items}\n"
+            f"Maximum {self.split_description.lower()} in a line: {self.max_items_line}\n"
+            f"Maximum {self.split_description.lower()} in a page: {self.max_items_page}\n"
+            f"Minimum {self.split_description.lower()} in a line: {self.min_items_line}\n"
+            f"Minimum {self.split_description.lower()} in a page: {self.min_items_page}\n"
+            f"Average {self.split_description.lower()} per line: {self.avg_items_per_line:.2f}\n"
+            f"Average {self.split_description.lower()} per page: {self.avg_items_page:.2f}\n"
         )
 
 
