@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from loguru import logger
 from sqlalchemy import create_engine
+from sqlalchemy import MetaData
 from sqlalchemy.orm import sessionmaker
 
 from bober.src.db_models import Base
@@ -10,6 +11,7 @@ from bober.src.fe.launch_gui import launch_gui
 from bober.src.loader import load_examples
 
 SHOULD_RELOAD_DATA = False
+SHOULD_RELOAD_SCHEMA = False
 
 
 def get_database_uel():
@@ -22,9 +24,18 @@ def get_database_uel():
     return f"{POSTGRES_SCHEMA}://{POSTGRES_USERNAME}:{POSTGRES_PASSWORD}@localhost:{POSTGRES_PORT}/{POSTGRES_DB}"
 
 
+def drop_schema(engine):
+    metadata = MetaData()
+    metadata.reflect(bind=engine)
+    metadata.drop_all(bind=engine)
+
+
 if __name__ == "__main__":
     database_url = get_database_uel()
     engine = create_engine(database_url)
+    if SHOULD_RELOAD_SCHEMA:
+        logger.info("Dropping the schema per user request")
+        drop_schema(engine)
 
     Base.metadata.create_all(engine)
 
