@@ -13,28 +13,19 @@ class StringStatistics:
         line_count = 0
 
         lines = input_string.split('\n')
-        curr_line_index = min(line_to_page_mapping.keys())
-        found_not_empty = False
-        # skip first lines until not empty line found
-        # TODO fix issue here
-        for line in lines:
-            line_count += 1
+        starting_line = min(line_to_page_mapping.keys())
+        for i, line in enumerate(lines):  # todo start enumeration later
             items = split_function(line)
             item_count = len(items)
-            if item_count:
-                if not found_not_empty:
-                    found_not_empty = True
-            elif found_not_empty:
-                curr_line_index += 1
-            if not found_not_empty and not item_count:
+            if not item_count:
                 continue
 
             self.total_items += item_count
             self.max_items_line = max(self.max_items_line, item_count)
             self.min_items_line = min(self.min_items_line, item_count)
-            page_number = line_to_page_mapping[curr_line_index]
+            page_number = line_to_page_mapping[starting_line + i]
             items_per_page[page_number] += item_count
-            curr_line_index += 1
+            line_count += 1
 
         self.avg_items_per_line = (
             self.total_items / line_count if line_count > 0 else 0

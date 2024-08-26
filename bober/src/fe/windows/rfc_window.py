@@ -40,6 +40,7 @@ class RFCWindow(BaseWindow):
         self.create_scroll_region(content, highlights)
 
         line_to_page_mapping = get_pages_for_line_numbers(session, rfc, 1, len(content.split('\n')))  # todo maybe start with 0
+        self.infer_page_for_first_empty_lines(line_to_page_mapping, 1)
         self.file_statistical_data_manager = StringStatisticsManager(content, line_to_page_mapping)
 
         if abs_line:
@@ -217,6 +218,7 @@ class RFCWindow(BaseWindow):
             return
 
         line_to_page_mapping = get_pages_for_line_numbers(self.session, self.rfc, start_row, end_row)  # todo check if start and end are good
+        self.infer_page_for_first_empty_lines(line_to_page_mapping, start_row)
         self.selection_statistical_data_manager = StringStatisticsManager(
             selected_text,
             line_to_page_mapping,
@@ -233,3 +235,13 @@ class RFCWindow(BaseWindow):
             stats_manager=stats_manager,
             session=None,
         )
+
+    def infer_page_for_first_empty_lines(self, line_to_page_mapping, start_row):
+        if not line_to_page_mapping:
+            self.show_error("Cannot select empty text")
+        first_line = min(line_to_page_mapping.keys())
+        if first_line <= start_row:
+            return line_to_page_mapping
+        first_page = min(line_to_page_mapping.values())
+        for line in range(start_row, first_line):
+            line_to_page_mapping[line] = first_page
