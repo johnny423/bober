@@ -1,8 +1,8 @@
 from itertools import repeat
+from typing import Dict
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session, selectinload
-from typing import Dict
 
 from bober.src.db_models import RfcLine, RfcSection, Token, TokenPosition
 from bober.src.search.positions import AbsPosition
@@ -69,21 +69,25 @@ def get_absolute_positions(
     return abs_pos
 
 
-def get_pages_for_line_numbers(session: Session, rfc_num: int, start_line: int, end_line: int) -> Dict[int, int]:
+def get_pages_for_line_numbers(
+    session: Session, rfc_num: int, start_line: int, end_line: int
+) -> Dict[int, int]:
     result = {}
 
     # Query the RfcLine and RfcSection tables
-    lines = session.query(RfcLine.abs_line_number, RfcSection.page) \
-        .join(RfcSection, RfcLine.section_id == RfcSection.id) \
+    lines = (
+        session.query(RfcLine.abs_line_number, RfcSection.page)
+        .join(RfcSection, RfcLine.section_id == RfcSection.id)
         .filter(
-        and_(
-            RfcSection.rfc_num == rfc_num,
-            RfcLine.abs_line_number >= start_line,
-            RfcLine.abs_line_number <= end_line
+            and_(
+                RfcSection.rfc_num == rfc_num,
+                RfcLine.abs_line_number >= start_line,
+                RfcLine.abs_line_number <= end_line,
+            )
         )
-    ) \
-        .order_by(RfcLine.abs_line_number) \
+        .order_by(RfcLine.abs_line_number)
         .all()
+    )
 
     # Process the results
     for line_number, page in lines:

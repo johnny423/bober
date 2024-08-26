@@ -4,7 +4,13 @@ from bober.src.parsing.line_parser import get_words_for_line
 
 
 class StringStatistics:
-    def __init__(self, input_string, line_to_page_mapping, split_function, split_description):
+    def __init__(
+        self,
+        input_string,
+        line_to_page_mapping,
+        split_function,
+        split_description,
+    ):
         self.split_description = split_description
         self.total_items = 0
         self.max_items_line = 0
@@ -31,10 +37,16 @@ class StringStatistics:
             self.total_items / line_count if line_count > 0 else 0
         )
         self.avg_items_page = (
-            self.total_items / len(items_per_page) if len(items_per_page) > 0 else 0
+            self.total_items / len(items_per_page)
+            if len(items_per_page) > 0
+            else 0
         )
-        self.min_items_page = min(items_per_page.values()) if len(items_per_page) > 0 else 0
-        self.max_items_page = max(items_per_page.values()) if len(items_per_page) > 0 else 0
+        self.min_items_page = (
+            min(items_per_page.values()) if len(items_per_page) > 0 else 0
+        )
+        self.max_items_page = (
+            max(items_per_page.values()) if len(items_per_page) > 0 else 0
+        )
 
     def __str__(self):
         return (
