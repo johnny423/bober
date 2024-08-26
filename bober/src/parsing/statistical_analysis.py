@@ -14,7 +14,7 @@ class StringStatistics:
 
         lines = input_string.split('\n')
         starting_line = min(line_to_page_mapping.keys())
-        for i, line in enumerate(lines):  # todo start enumeration later
+        for i, line in enumerate(lines, start=starting_line):
             items = split_function(line)
             item_count = len(items)
             if not item_count:
@@ -23,7 +23,7 @@ class StringStatistics:
             self.total_items += item_count
             self.max_items_line = max(self.max_items_line, item_count)
             self.min_items_line = min(self.min_items_line, item_count)
-            page_number = line_to_page_mapping[starting_line + i]
+            page_number = line_to_page_mapping[i]
             items_per_page[page_number] += item_count
             line_count += 1
 
