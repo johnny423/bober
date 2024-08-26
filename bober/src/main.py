@@ -14,7 +14,7 @@ SHOULD_RELOAD_DATA = False
 SHOULD_RELOAD_SCHEMA = False
 
 
-def get_database_uel():
+def get_database_url():
     load_dotenv()
     POSTGRES_DB = os.getenv("POSTGRES_DB")
     POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
@@ -31,7 +31,7 @@ def drop_schema(engine):
 
 
 if __name__ == "__main__":
-    database_url = get_database_uel()
+    database_url = get_database_url()
     engine = create_engine(database_url)
     if SHOULD_RELOAD_SCHEMA:
         logger.info("Dropping the schema per user request")
