@@ -13,6 +13,7 @@ from bober.src.fe.windows.statistical_data_window import StatisticalDataWindow
 from bober.src.parsing.statistical_analysis import StringStatisticsManager
 from bober.src.search.positions import AbsPosition
 from bober.src.search.rfc_content import (
+    get_pages_for_line_numbers,
     load_rfc_content,
 )
 from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
@@ -33,11 +34,18 @@ class RFCWindow(BaseWindow):
         [meta] = search_rfcs(session, SearchRFCQuery(num=rfc))
 
         super().__init__(parent, meta.title or "<nameless rfc>", session)
+        self.rfc = rfc
         content = load_rfc_content(self.session, rfc)
 
         self.create_scroll_region(content, highlights)
 
-        self.file_statistical_data_manager = StringStatisticsManager(content)
+        line_to_page_mapping = get_pages_for_line_numbers(
+            session, rfc, 1, len(content.split('\n'))
+        )  # todo maybe start with 0
+        self.infer_page_for_first_empty_lines(line_to_page_mapping, 1)
+        self.file_statistical_data_manager = StringStatisticsManager(
+            content, line_to_page_mapping
+        )
 
         if abs_line:
             self.scroll_to_line(abs_line)
@@ -201,6 +209,11 @@ class RFCWindow(BaseWindow):
     def show_statistical_data_selection(self):
         try:
             selected_text = self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST)
+            start_index = self.text_area.index(tk.SEL_FIRST)
+            end_index = self.text_area.index(tk.SEL_LAST)
+
+            start_row, _ = map(int, start_index.split('.'))
+            end_row, _ = map(int, end_index.split('.'))
         except TclError:
             self.show_error("No text selected!")
             return
@@ -208,8 +221,13 @@ class RFCWindow(BaseWindow):
             self.show_error("No text selected!")
             return
 
+        line_to_page_mapping = get_pages_for_line_numbers(
+            self.session, self.rfc, start_row, end_row
+        )  # todo check if start and end are good
+        self.infer_page_for_first_empty_lines(line_to_page_mapping, start_row)
         self.selection_statistical_data_manager = StringStatisticsManager(
-            selected_text
+            selected_text,
+            line_to_page_mapping,
         )
         self.show_statistical_data_window(
             "Selection statistical data",
@@ -223,3 +241,13 @@ class RFCWindow(BaseWindow):
             stats_manager=stats_manager,
             session=None,
         )
+
+    def infer_page_for_first_empty_lines(self, line_to_page_mapping, start_row):
+        if not line_to_page_mapping:
+            self.show_error("Cannot select empty text")
+        first_line = min(line_to_page_mapping.keys())
+        if first_line <= start_row:
+            return line_to_page_mapping
+        first_page = min(line_to_page_mapping.values())
+        for line in range(start_row, first_line):
+            line_to_page_mapping[line] = first_page
