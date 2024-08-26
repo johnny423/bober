@@ -63,6 +63,7 @@ def abs_position_search(
     query = (
         select(
             Rfc.num,
+            Rfc.title,
             RfcLine.abs_line_number.label("abs_line"),
             Token.token,
             Token.stem,
@@ -109,7 +110,7 @@ def abs_position_search(
             abs_line=result.abs_line,
             stem=result.stem,
             word=result.token,
-            context=f"Line {result.abs_line}, Start Column {result.indentation + result.start_position}",
+            context=f"{result.title} - Line {result.abs_line}, Start Column {result.indentation + result.start_position}",
         )
         for result in results
     ]
@@ -127,6 +128,7 @@ def relative_position_search(
     query = (
         select(
             Rfc.num,
+            Rfc.title,
             RfcLine.abs_line_number.label("abs_line"),
             Token.token,
             Token.stem,
@@ -165,7 +167,7 @@ def relative_position_search(
             abs_line=result.abs_line,
             stem=result.stem,
             word=result.token,
-            context=f"Section {result.section_index}, Line {result.line_number}, Word {result.word_index}",
+            context=f"{result.title} - Section {result.section_index}, Line {result.line_number}, Word {result.word_index}",
         )
         for result in results
     ]

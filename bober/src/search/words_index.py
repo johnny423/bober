@@ -136,11 +136,16 @@ def fetch_rfc_occurrences(
     session: Session, stem: str, rfc_title: None | str = None
 ) -> list[RfcOccurrences]:
     query = (
-        select(RfcTokenCount.total_positions, Rfc.num, Rfc.title)
+        select(
+            Rfc.num,
+            Rfc.title,
+            func.sum(RfcTokenCount.total_positions).label("count"),
+        )
         .select_from(RfcTokenCount)
         .join(Token, Token.id == RfcTokenCount.token_id)
         .join(Rfc, RfcTokenCount.rfc_num == Rfc.num)
         .filter(Token.stem == stem)
+        .group_by(Rfc.num, Rfc.title)
     )
 
     if rfc_title:
@@ -149,9 +154,7 @@ def fetch_rfc_occurrences(
     results = []
     for res in session.execute(query):
         results.append(
-            RfcOccurrences(
-                title=res.title, num=res.num, count=res.total_positions
-            )
+            RfcOccurrences(title=res.title, num=res.num, count=res.count)
         )
 
     return results
@@ -182,6 +185,7 @@ def fetch_occurrences(
         .join(RfcSection.rfc)
         .filter(Token.stem == stem)
         .filter(Rfc.num == rfc_num)
+        .order_by(TokenPosition.abs_index.asc())
     )
 
     results = []

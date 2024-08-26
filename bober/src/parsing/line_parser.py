@@ -16,6 +16,10 @@ def parse_line(line: str, abs_num: int) -> ParsedLine:
     tokens = []
     current_position = 0
     for word in words:
+        if not any(char.isalnum() for char in word):
+            # skip words without numeric or alpha
+            continue
+
         start = stripped.index(word, current_position)
         token = ParsedToken(
             word=word,
