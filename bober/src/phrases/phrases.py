@@ -80,7 +80,7 @@ def search_phrase(session: Session, phrase: str):
             aggregate(TokenPosition.start_position).label('start_pos'),
             aggregate(TokenPosition.end_position).label('end_pos'),
         )
-        .filter(Token.token.in_(tokens))
+        .filter(func.lower(Token.token).in_(tokens))
         .join(TokenPosition, Token.id == TokenPosition.token_id)
         .join(RfcLine, TokenPosition.line_id == RfcLine.id)
         .join(RfcSection, RfcLine.section_id == RfcSection.id)

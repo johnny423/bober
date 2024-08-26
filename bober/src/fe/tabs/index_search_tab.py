@@ -21,6 +21,9 @@ class IndexSearchTab(BaseTab):
         self.winfo_toplevel().bind(RFC_ADDED_EVENT, self._update_rfcs)
         self.current_page = 1
         self.page_size = 50
+        self.update_pagination_controls(
+            PaginatedResults(results=[], total_count=0, total_pages=0)
+        )
 
     def create_rfc_dropdown(self, parent):
         frame = ttk.Frame(parent)
