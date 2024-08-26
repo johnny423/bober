@@ -1,7 +1,11 @@
 from sqlalchemy import Float, func
 from sqlalchemy.orm import Query, Session
 
-from bober.src.db_models import Rfc, RfcLine, RfcSection, Token, TokenPosition
+from bober.src.db_models import (
+    Rfc,
+    RfcTokenCount,
+    Token,
+)
 from bober.src.parsing.parsed_types import STEMMER
 
 
@@ -10,25 +14,21 @@ def build_tfid_query(session: Session, tokens: list[str]) -> Query:
 
     term_frequency = (
         session.query(
-            RfcLine.section_id,
             Token.stem,
-            func.count(TokenPosition.id).label('tf'),
+            RfcTokenCount.rfc_num,
+            RfcTokenCount.total_positions.label('tf'),
         )
-        .join(TokenPosition.token)
-        .join(TokenPosition.line)
+        .join(Token.rfc_counts)
         .filter(Token.stem.in_(stems))
-        .group_by(RfcLine.section_id, Token.stem)
         .subquery()
     )
 
     document_frequency = (
         session.query(
             Token.stem,
-            func.count(func.distinct(RfcSection.rfc_num)).label('df'),
+            func.count(func.distinct(RfcTokenCount.rfc_num)).label('df'),
         )
-        .join(Token.positions)
-        .join(TokenPosition.line)
-        .join(RfcLine.section)
+        .join(Token.rfc_counts)
         .filter(Token.stem.in_(stems))
         .group_by(Token.stem)
         .subquery()
@@ -38,7 +38,7 @@ def build_tfid_query(session: Session, tokens: list[str]) -> Query:
 
     tfidf = (
         session.query(
-            RfcSection.rfc_num,
+            Rfc.num.label("rfc_num"),
             term_frequency.c.stem,
             term_frequency.c.tf,
             document_frequency.c.df,
@@ -46,11 +46,12 @@ def build_tfid_query(session: Session, tokens: list[str]) -> Query:
             (
                 term_frequency.c.tf
                 * func.log(
-                    total_documents.cast(Float) / document_frequency.c.df
+                    total_documents.cast(Float)
+                    / document_frequency.c.df.cast(Float)
                 )
             ).label('tfidf_score'),
         )
-        .join(RfcSection, RfcSection.id == term_frequency.c.section_id)
+        .join(Rfc, Rfc.num == term_frequency.c.rfc_num)
         .join(
             document_frequency,
             term_frequency.c.stem == document_frequency.c.stem,
