@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from sqlalchemy import desc, func, select
+from sqlalchemy import desc, func, select, or_
 from sqlalchemy.orm import Session
 
 from bober.src.db_models import (
@@ -80,7 +80,7 @@ def query_filtered_words(
 ) -> QueryFilteredWordsResult:
     query = (
         select(
-            Token.stem, func.sum(RfcTokenCount.total_positions).label('count')
+            Token.token, func.sum(RfcTokenCount.total_positions).label('count')
         )
         .select_from(Token)
         .join(RfcTokenCount, Token.id == RfcTokenCount.token_id)
@@ -100,10 +100,17 @@ def query_filtered_words(
         query = query.filter(Rfc.title.ilike(f"%{params.rfc_title}%"))
 
     if params.partial_token is not None:
-        query = query.filter(Token.token.ilike(f'%{params.partial_token}%'))
+        # todo maybe get the stems of all tokens that have this substring and filter by these stems
+        # todo (in addition to stem containing the substring)
+        query = query.filter(
+            or_(
+                Token.token.ilike(f'%{params.partial_token}%'),
+                Token.stem.ilike(f'%{params.partial_token}%'),
+            )
+        )
 
     # Add GROUP BY to the base query
-    query = query.group_by(Token.stem)
+    query = query.group_by(Token.token)
 
     # Calculate total count
     total_count_query = select(func.count()).select_from(query.subquery())
@@ -111,7 +118,7 @@ def query_filtered_words(
 
     # Apply ordering to the main query
     order_by_clause = (
-        'count' if params.sort_by == SortBy.OCCURRENCES else Token.stem
+        'count' if params.sort_by == SortBy.OCCURRENCES else Token.token
     )
 
     if params.sort_order == SortOrder.DESC:
@@ -133,7 +140,7 @@ def query_filtered_words(
 
 
 def fetch_rfc_occurrences(
-    session: Session, stem: str, rfc_title: None | str = None
+    session: Session, token: str, rfc_title: None | str = None
 ) -> list[RfcOccurrences]:
     query = (
         select(
@@ -144,7 +151,7 @@ def fetch_rfc_occurrences(
         .select_from(RfcTokenCount)
         .join(Token, Token.id == RfcTokenCount.token_id)
         .join(Rfc, RfcTokenCount.rfc_num == Rfc.num)
-        .filter(Token.stem == stem)
+        .filter(Token.token == token)
         .group_by(Rfc.num, Rfc.title)
     )
 
@@ -161,11 +168,11 @@ def fetch_rfc_occurrences(
 
 
 def fetch_occurrences(
-    session: Session, stem: str, rfc_num: int
+    session: Session, token: str, rfc_num: int
 ) -> list[TokenOccurrence]:
     query = (
         select(
-            Token.stem.label("token"),
+            Token.token.label("token"),
             RfcLine.abs_line_number.label("abs_line"),
             Rfc.num.label("rfc_num"),
             Rfc.title.label("rfc_title"),
@@ -183,7 +190,7 @@ def fetch_occurrences(
         .join(TokenPosition.line)
         .join(RfcLine.section)
         .join(RfcSection.rfc)
-        .filter(Token.stem == stem)
+        .filter(Token.token == token)
         .filter(Rfc.num == rfc_num)
         .order_by(TokenPosition.abs_index.asc())
     )

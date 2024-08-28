@@ -111,12 +111,12 @@ class WordIndexTab(BaseTab):
         self.words_count_label.config(
             text=f"fetched {len(results.words)} tokens out of {results.total_count} matching"
         )
-        for stem, count in results.words:
+        for token, count in results.words:
             node = self.tree.insert(
-                '', 'end', text=f"{stem} ({count} occurrences)"
+                '', 'end', text=f"{token} ({count} occurrences)"
             )
             self.tree.insert(node, 'end')
-            self.word_nodes[node] = stem
+            self.word_nodes[node] = token
 
         self.update_pagination_controls(results.total_count)
 
@@ -156,11 +156,11 @@ class WordIndexTab(BaseTab):
 
     def open_node(self, event=None):
         node = self.tree.focus()
-        if stem := self.word_nodes.pop(node, None):
+        if token := self.word_nodes.pop(node, None):
             self.tree.delete(self.tree.get_children(node))
             rfc_title = self.rfc_titles_entry.get() or None
             rfc_occurrences = fetch_rfc_occurrences(
-                self.session, stem, rfc_title
+                self.session, token, rfc_title
             )
 
             for occurrence in rfc_occurrences:
@@ -168,14 +168,14 @@ class WordIndexTab(BaseTab):
                     node, 'end', text=f"{occurrence.title} {occurrence.count}"
                 )
                 self.tree.insert(inner, 'end')
-                self.title_nodes[inner] = (stem, occurrence.num)
+                self.title_nodes[inner] = (token, occurrence.num)
 
             return
 
         if pair := self.title_nodes.pop(node, None):
-            (stem, rfc_num) = pair
+            (token, rfc_num) = pair
             self.tree.delete(self.tree.get_children(node))
-            occurrences = fetch_occurrences(self.session, stem, rfc_num)
+            occurrences = fetch_occurrences(self.session, token, rfc_num)
             for occurrence in occurrences:
                 text = f"{str(occurrence.abs_pos)}; {str(occurrence.rel_pos)}; page {occurrence.page}"
                 inner = self.tree.insert(node, 'end', text=text)
@@ -186,7 +186,7 @@ class WordIndexTab(BaseTab):
                     values=(
                         occurrence.context.shorten(50),
                         rfc_num,
-                        stem,
+                        token,
                         occurrence.abs_pos.line,
                     ),
                     tags=("leaf",),
@@ -197,8 +197,8 @@ class WordIndexTab(BaseTab):
         item = self.tree.identify('item', event.x, event.y)
         if item and 'leaf' in self.tree.item(item, 'tags'):
             values = self.tree.item(item, 'values')
-            (_, rfc, stem, abs_line) = values
-            highlights = get_absolute_positions(self.session, rfc, stem)
+            (_, rfc, token, abs_line) = values
+            highlights = get_absolute_positions(self.session, rfc, token)
             RFCWindow(
                 self.winfo_toplevel(),
                 self.session,
