@@ -115,7 +115,7 @@ class RFCWindow(BaseWindow):
         try:
             selected_word = self.text_area.get(
                 tk.SEL_FIRST, tk.SEL_LAST
-            ).strip()
+            ).strip().lower()
         except TclError:
             self.show_error("No word selected!")
             return
@@ -139,7 +139,7 @@ class RFCWindow(BaseWindow):
             "Save Word to Group",
             f"Enter an existing group name or a new group name for '{selected_word}':\n\nExisting groups: {', '.join(existing_groups)}",
             parent=self.frame,
-        )
+        ).lower()
 
         if not choice:
             return  # User cancelled
@@ -169,10 +169,10 @@ class RFCWindow(BaseWindow):
             return
 
         def _on_submit():
-            phrase_name = name_entry.get()
+            phrase_name = name_entry.get().lower()
             if phrase_name:
                 save_new_phrase(
-                    self.parent, self.session, phrase_name, phrase=selected_text
+                    self.parent, self.session, phrase_name, phrase=selected_text.lower()
                 )
                 popup.destroy()
             else:
