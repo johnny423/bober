@@ -22,7 +22,7 @@ def parse_line(line: str, abs_num: int) -> ParsedLine:
 
         start = stripped.index(word, current_position)
         token = ParsedToken(
-            word=word,
+            word=word.lower(),
             start=start,
         )
         tokens.append(token)
