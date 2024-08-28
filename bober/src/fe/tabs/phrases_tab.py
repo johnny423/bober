@@ -40,8 +40,8 @@ class PhrasesTab(BaseTab):
         )
 
     def create_phrase(self):
-        phrase_name = self.phrase_name_entry.get().strip()
-        phrase_content = self.phrase_entry.get().strip()
+        phrase_name = self.phrase_name_entry.get().strip().lower()
+        phrase_content = self.phrase_entry.get().strip().lower()
 
         if not phrase_name or not phrase_content:
             self.show_warning("Please enter both a phrase name and content.")
@@ -82,7 +82,7 @@ class PhrasesTab(BaseTab):
         if region != "cell":
             return
         item_id = self.phrases_tree.identify_row(event.y)
-        phrase_name = self.phrases_tree.item(item_id)['values'][0]
+        phrase_name = self.phrases_tree.item(item_id)['values'][0].lower()
         self.search_occurrences(phrase_name)
 
     def on_occurrence_select(self, event=None):

@@ -8,7 +8,7 @@ class TestParseLine:
         assert result.text == "This is a simple line"
         assert result.indentation == 0
         assert len(result.tokens) == 5
-        assert result.tokens[0].word == "This"
+        assert result.tokens[0].word == "this"
         assert result.tokens[0].start == 0
 
     def test_indented_line(self):
@@ -63,13 +63,13 @@ class TestParseLine:
         line = "Special chars_lala: @#$%^&*()+"
         result = parse_line(line, 0)
         assert len(result.tokens) == 2
-        assert result.tokens[0].word == "Special"
+        assert result.tokens[0].word == "special"
         assert result.tokens[1].word == "chars_lala"
 
     def test_line_with_mixed_case(self):
         line = "MixEd CaSe WoRdS"
         result = parse_line(line, 0)
         assert len(result.tokens) == 3
-        assert result.tokens[0].word == "MixEd"
-        assert result.tokens[1].word == "CaSe"
-        assert result.tokens[2].word == "WoRdS"
+        assert result.tokens[0].word == "mixed"
+        assert result.tokens[1].word == "case"
+        assert result.tokens[2].word == "words"

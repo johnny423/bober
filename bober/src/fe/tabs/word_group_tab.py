@@ -55,7 +55,7 @@ class WordGroupTab(BaseTab):
         self.winfo_toplevel().bind(GROUP_UPDATED_EVENT, self.on_group_select)
 
     def create_group(self):
-        group_name = self.group_name_entry.get().strip()
+        group_name = self.group_name_entry.get().strip().lower()
         if group_name:
             create_word_group(
                 self.winfo_toplevel(), self.session, group_name, []
@@ -70,7 +70,7 @@ class WordGroupTab(BaseTab):
             self.show_warning("Please select a group.")
             return
 
-        word = self.word_entry.get().strip()
+        word = self.word_entry.get().strip().lower()
         if not word:
             self.show_warning("Please enter a word.")
             return
