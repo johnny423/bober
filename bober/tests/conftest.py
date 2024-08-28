@@ -3,7 +3,7 @@ import os
 import psycopg2
 import pytest
 from dotenv import load_dotenv
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 from bober.src.db_models import Base
@@ -60,14 +60,16 @@ def db_session(test_db_url):
     Session = scoped_session(sessionmaker(bind=engine))
     session = Session()
 
+    # Start a transaction
+    connection = engine.connect()
+    transaction = connection.begin()
+    session.bind = connection
+
     try:
         yield session
     finally:
-        # Clear the tables
-        meta = MetaData()
-        meta.reflect(bind=engine)
-        with engine.connect() as conn:
-            for table in reversed(meta.sorted_tables):
-                conn.execute(table.delete())
+        # Roll back the transaction after the test
         session.close()
+        transaction.rollback()
+        connection.close()
         Session.remove()
