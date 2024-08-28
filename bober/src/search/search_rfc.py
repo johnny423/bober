@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import Integer, and_, desc, func
+from sqlalchemy import Integer, or_, desc, func, and_, distinct, select, case
 from sqlalchemy.orm import Session, selectinload
 
 from bober.src.db_models import Author, Rfc
@@ -33,11 +33,33 @@ def search_rfcs(
         query = query.filter(Rfc.num == search_query.num)
 
     if search_query.authors:
-        author_filters = [
-            Author.author_name.ilike(f"%{author}%")
-            for author in search_query.authors
-        ]
-        query = query.join(Rfc.authors).filter(and_(*author_filters))
+        author_subquery = (
+            select(Author.rfc_num)
+            .where(
+                or_(
+                    *[Author.author_name.ilike(f"%{author}%")
+                      for author in search_query.authors]
+                )
+            )
+            .group_by(Author.rfc_num)
+            .having(
+                and_(
+                    *[
+                        func.count(
+                            distinct(
+                                case(
+                                    (Author.author_name.ilike(f"%{author}%"), 1),
+                                    else_=None
+                                )
+                            )
+                        ) > 0
+                        for author in search_query.authors
+                    ]
+                )
+            )
+        )
+
+        query = query.filter(Rfc.num.in_(author_subquery))
 
     if search_query.date_range:
         start_date, end_date = search_query.date_range

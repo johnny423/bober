@@ -98,7 +98,7 @@ class SearchFileTab(BaseTab):
         published_after = self.published_after_cal.selection_get()
         published_before = self.published_before_cal.selection_get()
         tokens = self.contains_tokens.get().split()
-        authors = [s.strip() for s in self.author_entry.get().split(',')]
+        authors = [s.strip() for s in self.author_entry.get().split()]
 
         search_query = SearchRFCQuery(
             num=rfc_num or None,
