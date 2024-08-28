@@ -16,6 +16,3 @@ class BaseTab(ttk.Frame, BaseUI):
 
     def reload_tab(self):
         pass
-
-    def register(self, event, callback):
-        self.winfo_toplevel().bind(event, callable)

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from bober.src.fe.event_system import EVENT_SYSTEM
 from bober.src.fe.events import (
     GROUP_UPDATED_EVENT,
     NEW_GROUP_EVENT,
@@ -19,34 +20,34 @@ from bober.src.word_groups.word_groups import (
 )
 
 
-def save_new_phrase(widget, session, phrase_name, phrase):
+def save_new_phrase(session, phrase_name, phrase):
     _save_new_phrase(session, phrase_name, phrase)
-    widget.event_generate(NEW_PHRASE_EVENT, when="tail")
+    EVENT_SYSTEM.publish(NEW_PHRASE_EVENT)
 
 
 def create_word_group(
-    widget, session: Session, group_name: str, words: list[str]
+    session: Session, group_name: str, words: list[str]
 ):
     _create_word_group(session, group_name, words)
-    widget.event_generate(NEW_GROUP_EVENT, when="tail")
+    EVENT_SYSTEM.publish(NEW_GROUP_EVENT)
 
 
 def add_words_to_group(
-    widget, session: Session, group_name: str, words: list[str]
+    session: Session, group_name: str, words: list[str]
 ):
     _add_words_to_groups(session, group_name, words)
-    widget.event_generate(GROUP_UPDATED_EVENT, when="tail")
+    EVENT_SYSTEM.publish(GROUP_UPDATED_EVENT)
 
 
 def remove_words_from_group(
-    widget, session: Session, group_name: str, words: list[str]
+    session: Session, group_name: str, words: list[str]
 ):
     _remove_words_from_group(session, group_name, words)
-    widget.event_generate(GROUP_UPDATED_EVENT, when="tail")
+    EVENT_SYSTEM.publish(GROUP_UPDATED_EVENT)
 
 
 def add_rfc(
-    widget, session: Session, file_path: str, rfc_metadata: RFCMetadata
+   session: Session, file_path: str, rfc_metadata: RFCMetadata
 ):
     load_single_file(session, file_path, rfc_metadata)
-    widget.event_generate(RFC_ADDED_EVENT, when="tail")
+    EVENT_SYSTEM.publish(RFC_ADDED_EVENT)

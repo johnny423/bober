@@ -1,11 +1,12 @@
-import datetime
 import tkinter as tk
-from contextlib import contextmanager
 from tkinter import Label, ttk
 
+from bober.src.fe.event_system import EVENT_SYSTEM
+from bober.src.fe.events import NEW_GROUP_EVENT, RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
 from bober.src.search.rfc_content import get_absolute_positions
+from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 from bober.src.search.words_index import (
     QueryFilteredWordsParams,
     SortBy,
@@ -14,15 +15,7 @@ from bober.src.search.words_index import (
     fetch_rfc_occurrences,
     query_filtered_words,
 )
-
-
-@contextmanager
-def time_me(name):
-    start = datetime.datetime.now()
-    yield
-    end = datetime.datetime.now()
-    delta = end - start
-    print(f"->> [{start}] Time {name} {delta.total_seconds()}")
+from bober.src.word_groups.word_groups import list_groups
 
 
 class WordIndexTab(BaseTab):
@@ -31,13 +24,32 @@ class WordIndexTab(BaseTab):
         self.current_page = 1
         self.page_size = 50
         self.update_results()
+        EVENT_SYSTEM.subscribe(NEW_GROUP_EVENT, self._update_groups)
+        EVENT_SYSTEM.subscribe(RFC_ADDED_EVENT, self._update_rfcs)
+
+    def _update_rfcs(self, event=None):
+        print("->>update rfcs")
+        rfcs = search_rfcs(self.session, SearchRFCQuery())
+        self.rfc_titles_entry["values"] = [rfc.title for rfc in rfcs]
+
+    def _update_groups(self, event=None):
+        print("->>update groups")
+        groups = list_groups(self.session)
+        self.token_groups_entry["values"] = [
+            group.group_name for group in groups
+        ]
 
     def create_widgets(self):
-        # todo: load options from existing groups and update when group changes
-        self.token_groups_entry = self.create_entry(self, "Token Groups:")
+        groups = list_groups(self.session)
+        self.token_groups_entry = self.create_combobox(
+            self, "Token Groups:", [group.group_name for group in groups]
+        )
 
-        # todo: load options from existing rfcs and update when added
-        self.rfc_titles_entry = self.create_entry(self, "RFC Titles:")
+        rfcs = search_rfcs(self.session, SearchRFCQuery())
+        self.rfc_titles_entry = self.create_combobox(
+            self, "RFC Titles:", [rfc.title for rfc in rfcs]
+        )
+
         self.partial_token_entry = self.create_entry(self, "Token/Stem:")
 
         self.sort_by_combobox = self.create_combobox(
@@ -75,8 +87,12 @@ class WordIndexTab(BaseTab):
         self.next_button.pack(side=tk.LEFT, padx=5)
 
         # Bind entries and comboboxes to update results on change
-        self.token_groups_entry.bind("<KeyRelease>", self.reset_and_update)
-        self.rfc_titles_entry.bind("<KeyRelease>", self.reset_and_update)
+        self.token_groups_entry.bind(
+            "<<ComboboxSelected>>", self.reset_and_update
+        )
+        self.rfc_titles_entry.bind(
+            "<<ComboboxSelected>>", self.reset_and_update
+        )
         self.partial_token_entry.bind("<KeyRelease>", self.reset_and_update)
         self.sort_by_combobox.bind(
             "<<ComboboxSelected>>", self.reset_and_update
