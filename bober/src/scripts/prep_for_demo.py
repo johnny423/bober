@@ -35,34 +35,42 @@ def add_phrases(session):
         "Security Considerations",
         "PROTOCOL DEFINITION",
         "source address",
-        # "The internet society",  # todo re-add this after we fix adding non existing tokens
+        "The internet society",  # todo re-add this after we fix adding non existing tokens
+        "Sun Microsystems",
     ]
     for phrase in phrases_to_add:
-        logger.info(f"Adding phrase {phrase}")
-        save_new_phrase(session, phrase.lower(), phrase)
+        logger.info(f"Adding phrase {phrase.lower()}")
+        save_new_phrase(session, phrase.lower(), phrase.lower())
 
 
 def add_groups(session):
     groups_to_add = {
-        # "Universities": [  # todo looks like a bug but crashes
-        #     "UCLA ",
-        # ],
+        "Universities": [
+            "UCLA",
+            "DEC",
+            "MIT",
+            "SRI",
+            "Stanford",
+            "Bucknell",
+        ],
         "protocols": [
             "ethernet",
             "http",
             "ip",
             "tcp",
-            # "udp",
-            # "nfs",
-            # "smtp",
-            # "nntp",
-            # "dns",
+            "UDP",
+            "nfs",
+            "SMTP",
+            "NNTP",
+            "dns",
         ],
     }
 
     for group_name, group_items in groups_to_add.items():
-        logger.info(f"Adding group {group_name}: {group_items}")
-        create_word_group(session, group_name, group_items)
+        lower_group_name = group_name.lower()
+        lower_group_items = [x.lower() for x in group_items]
+        logger.info(f"Adding group {lower_group_name}: {lower_group_items}")
+        create_word_group(session, lower_group_name, lower_group_items)
 
 
 def main():
