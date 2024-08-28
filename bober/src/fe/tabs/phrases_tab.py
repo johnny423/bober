@@ -35,7 +35,9 @@ class PhrasesTab(BaseTab):
         self.phrases_tree.bind("<Button-1>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
         self.occurrences_list.bind('<Double-1>', self.on_occurrence_select)
-        self.register(NEW_PHRASE_EVENT, lambda event: self.load_phrases())
+        self.winfo_toplevel().bind(
+            NEW_PHRASE_EVENT, lambda event: self.load_phrases()
+        )
 
     def create_phrase(self):
         phrase_name = self.phrase_name_entry.get().strip().lower()

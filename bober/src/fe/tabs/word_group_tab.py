@@ -49,8 +49,10 @@ class WordGroupTab(BaseTab):
         )
         self.groups_tree.bind("<<TreeviewSelect>>", self.on_group_select)
         self.words_list = self.create_listbox(right_frame)
-        self.register(NEW_GROUP_EVENT, lambda event: self.load_word_groups())
-        self.register(GROUP_UPDATED_EVENT, self.on_group_select)
+        self.winfo_toplevel().bind(
+            NEW_GROUP_EVENT, lambda event: self.load_word_groups()
+        )
+        self.winfo_toplevel().bind(GROUP_UPDATED_EVENT, self.on_group_select)
 
     def create_group(self):
         group_name = self.group_name_entry.get().strip().lower()

@@ -34,8 +34,8 @@ class WordIndexTab(BaseTab):
         self.current_page = 1
         self.page_size = 50
         self.update_results()
-        self.register(RFC_ADDED_EVENT, self._update_rfcs)
-        self.register(NEW_GROUP_EVENT, self._update_groups)
+        self.winfo_toplevel().bind(RFC_ADDED_EVENT, self._update_rfcs)
+        self.winfo_toplevel().bind(NEW_GROUP_EVENT, self._update_groups)
 
     def _update_rfcs(self, event=None):
         rfcs = search_rfcs(self.session, SearchRFCQuery())
