@@ -32,7 +32,7 @@ def add_words_to_group(
 
     new_tokens = []
     for word in words:
-        if word  in existing_token_dict:
+        if word in existing_token_dict:
             continue
 
         new_token = Token(token=word, stem=STEMMER.stem(word))

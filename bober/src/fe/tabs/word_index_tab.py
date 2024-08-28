@@ -96,7 +96,7 @@ class WordIndexTab(BaseTab):
         self.rfc_titles_entry.bind("<KeyRelease>", self.reset_and_update)
 
         self.partial_token_entry.bind("<KeyRelease>", self.reset_and_update)
-        
+
         self.sort_by_combobox.bind(
             "<<ComboboxSelected>>", self.reset_and_update
         )

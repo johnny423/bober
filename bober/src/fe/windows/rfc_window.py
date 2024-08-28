@@ -146,9 +146,7 @@ class RFCWindow(BaseWindow):
         choice = choice.lower()
 
         if choice in existing_groups:
-            add_words_to_group(
-                self.session, choice, [selected_word]
-            )
+            add_words_to_group(self.session, choice, [selected_word])
             self.show_info(
                 f"Word '{selected_word}' added to existing group '{choice}'"
             )

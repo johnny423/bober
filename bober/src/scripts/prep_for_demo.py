@@ -66,7 +66,7 @@ def add_groups(session):
         ],
         "types": [
             "avian",
-        ]
+        ],
     }
 
     for group_name, group_items in groups_to_add.items():
