@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
 
-from sqlalchemy import desc, func, select, or_
+from sqlalchemy import desc, func, or_, select
 from sqlalchemy.orm import Session
 
 from bober.src.db_models import (
@@ -80,7 +80,9 @@ def query_filtered_words(
 ) -> QueryFilteredWordsResult:
     query = (
         select(
-            Token.token, Token.stem, func.sum(RfcTokenCount.total_positions).label('count')
+            Token.token,
+            Token.stem,
+            func.sum(RfcTokenCount.total_positions).label('count'),
         )
         .select_from(Token)
         .join(RfcTokenCount, Token.id == RfcTokenCount.token_id)
