@@ -43,7 +43,7 @@ def load_rfc_content(session: Session, rfc_num: int) -> str | None:
 
 
 def get_absolute_positions(
-    session: Session, rfc_num: int, stem: str
+    session: Session, rfc_num: int, token: str
 ) -> list[AbsPosition]:
     query = (
         session.query(
@@ -55,7 +55,7 @@ def get_absolute_positions(
         .join(TokenPosition, TokenPosition.line_id == RfcLine.id)
         .join(Token, Token.id == TokenPosition.token_id)
         .join(RfcSection, RfcSection.id == RfcLine.section_id)
-        .filter(Token.stem == stem)
+        .filter(Token.token == token)
         .filter(RfcSection.rfc_num == rfc_num)
     )
     abs_pos = []
