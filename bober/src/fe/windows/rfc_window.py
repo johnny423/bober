@@ -113,9 +113,9 @@ class RFCWindow(BaseWindow):
 
     def save_word_to_group_popup(self):
         try:
-            selected_word = self.text_area.get(
-                tk.SEL_FIRST, tk.SEL_LAST
-            ).strip().lower()
+            selected_word = (
+                self.text_area.get(tk.SEL_FIRST, tk.SEL_LAST).strip().lower()
+            )
         except TclError:
             self.show_error("No word selected!")
             return
@@ -172,7 +172,10 @@ class RFCWindow(BaseWindow):
             phrase_name = name_entry.get().lower()
             if phrase_name:
                 save_new_phrase(
-                    self.parent, self.session, phrase_name, phrase=selected_text.lower()
+                    self.parent,
+                    self.session,
+                    phrase_name,
+                    phrase=selected_text.lower(),
                 )
                 popup.destroy()
             else:
