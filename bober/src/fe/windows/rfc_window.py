@@ -78,7 +78,7 @@ class RFCWindow(BaseWindow):
         )
         self.text_area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         self.text_area.insert(tk.END, initial_text)
-
+        self.text_area.config(state='disabled')  # Make the text area read-only
         self.m = Menu(self.text_area, tearoff=0)
         self.m.add_command(
             label="Save as phrase", command=self.save_phrase_popup
