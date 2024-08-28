@@ -139,10 +139,11 @@ class RFCWindow(BaseWindow):
             "Save Word to Group",
             f"Enter an existing group name or a new group name for '{selected_word}':\n\nExisting groups: {', '.join(existing_groups)}",
             parent=self.frame,
-        ).lower()
+        )
 
         if not choice:
             return  # User cancelled
+        choice = choice.lower()
 
         if choice in existing_groups:
             add_words_to_group(
