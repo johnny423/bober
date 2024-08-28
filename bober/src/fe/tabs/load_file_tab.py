@@ -99,7 +99,7 @@ class LoadFileTab(BaseTab):
             "publish_at": published_at,
             "authors": authors,
         }
-        add_rfc(self.winfo_toplevel(), self.session, self.filepath, metadata)
+        add_rfc(self, self.session, self.filepath, metadata)
         self.clear_fields()
 
     def clear_fields(self):

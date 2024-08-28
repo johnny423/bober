@@ -28,7 +28,6 @@ def create_word_group(
     widget, session: Session, group_name: str, words: list[str]
 ):
     _create_word_group(session, group_name, words)
-    print(widget, id(widget))
     widget.event_generate(NEW_GROUP_EVENT, when="tail")
 
 

@@ -19,23 +19,14 @@ from bober.src.search.words_index import (
 from bober.src.word_groups.word_groups import list_groups
 
 
-@contextmanager
-def time_me(name):
-    start = datetime.datetime.now()
-    yield
-    end = datetime.datetime.now()
-    delta = end - start
-    print(f"->> [{start}] Time {name} {delta.total_seconds()}")
-
-
 class WordIndexTab(BaseTab):
     def __init__(self, parent, session):
         super().__init__(parent, session)
         self.current_page = 1
         self.page_size = 50
         self.update_results()
-        self.winfo_toplevel().bind_all(RFC_ADDED_EVENT, self._update_rfcs)
-        self.winfo_toplevel().bind_all(NEW_GROUP_EVENT, self._update_groups)
+        self.bind_all(RFC_ADDED_EVENT, self._update_rfcs)
+        self.bind_all(NEW_GROUP_EVENT, self._update_groups)
 
     def _update_rfcs(self, event=None):
         print("->>update rfcs")

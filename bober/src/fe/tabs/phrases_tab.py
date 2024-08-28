@@ -35,7 +35,7 @@ class PhrasesTab(BaseTab):
         self.phrases_tree.bind("<Button-1>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
         self.occurrences_list.bind('<Double-1>', self.on_occurrence_select)
-        self.winfo_toplevel().bind_all(
+        self.bind_all(
             NEW_PHRASE_EVENT, lambda event: self.load_phrases()
         )
 
@@ -49,7 +49,7 @@ class PhrasesTab(BaseTab):
 
         try:
             save_new_phrase(
-                self.winfo_toplevel(), self.session, phrase_name, phrase_content
+                self, self.session, phrase_name, phrase_content
             )
             self.phrase_name_entry.delete(0, tk.END)
             self.phrase_entry.delete(0, tk.END)

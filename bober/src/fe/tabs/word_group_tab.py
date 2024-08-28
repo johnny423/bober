@@ -49,10 +49,10 @@ class WordGroupTab(BaseTab):
         )
         self.groups_tree.bind("<<TreeviewSelect>>", self.on_group_select)
         self.words_list = self.create_listbox(right_frame)
-        self.winfo_toplevel().bind_all(
+        self.bind(
             NEW_GROUP_EVENT, lambda event: self.load_word_groups()
         )
-        self.winfo_toplevel().bind_all(
+        self.bind(
             GROUP_UPDATED_EVENT, self.on_group_select
         )
 
@@ -60,7 +60,7 @@ class WordGroupTab(BaseTab):
         group_name = self.group_name_entry.get().strip().lower()
         if group_name:
             create_word_group(
-                self.winfo_toplevel(), self.session, group_name, []
+                self, self.session, group_name, []
             )
             self.group_name_entry.delete(0, tk.END)
         else:
@@ -80,7 +80,7 @@ class WordGroupTab(BaseTab):
         group_name = self.groups_tree.item(selected_items[0])['values'][0]
         try:
             add_words_to_group(
-                self.winfo_toplevel(), self.session, group_name, [word]
+                self, self.session, group_name, [word]
             )
         except ValueError as e:
             self.show_error(e)
@@ -103,7 +103,7 @@ class WordGroupTab(BaseTab):
 
         try:
             remove_words_from_group(
-                self.winfo_toplevel(), self.session, group_name, [word]
+                self, self.session, group_name, [word]
             )
         except Exception as e:
             self.show_error(str(e))
