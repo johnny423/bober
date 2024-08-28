@@ -25,16 +25,12 @@ def save_new_phrase(session, phrase_name, phrase):
     EVENT_SYSTEM.publish(NEW_PHRASE_EVENT)
 
 
-def create_word_group(
-    session: Session, group_name: str, words: list[str]
-):
+def create_word_group(session: Session, group_name: str, words: list[str]):
     _create_word_group(session, group_name, words)
     EVENT_SYSTEM.publish(NEW_GROUP_EVENT)
 
 
-def add_words_to_group(
-    session: Session, group_name: str, words: list[str]
-):
+def add_words_to_group(session: Session, group_name: str, words: list[str]):
     _add_words_to_groups(session, group_name, words)
     EVENT_SYSTEM.publish(GROUP_UPDATED_EVENT)
 
@@ -46,8 +42,6 @@ def remove_words_from_group(
     EVENT_SYSTEM.publish(GROUP_UPDATED_EVENT)
 
 
-def add_rfc(
-   session: Session, file_path: str, rfc_metadata: RFCMetadata
-):
+def add_rfc(session: Session, file_path: str, rfc_metadata: RFCMetadata):
     load_single_file(session, file_path, rfc_metadata)
     EVENT_SYSTEM.publish(RFC_ADDED_EVENT)

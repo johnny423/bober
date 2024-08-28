@@ -11,28 +11,30 @@ from bober.src.db_models import (
     Token,
     TokenPosition,
 )
+from bober.src.parsing.parsed_types import STEMMER
 
 
 @commit
 def save_new_phrase(session: Session, phrase_name: str, phrase: str):
-    words = phrase.split()
+    words = phrase.lower().split()
 
     existing_tokens = {
-        token.token: token.id
+        token.token: token
         for token in session.query(Token)
         .filter(Token.token.in_(set(words)))
         .all()
     }
 
     phrase_tokens = []
-    for index, token in enumerate(words):
-        token_id = existing_tokens.get(token, None)
-        if token_id is None:
-            raise ValueError(
-                f"The word {token} does not exist in the database."
-            )
+    new_tokens = []
+    for index, word in enumerate(words):
+        token = existing_tokens.get(word, None)
+        if token is None:
+            token = Token(token=word, stem=STEMMER.stem(word))
+            new_tokens.append(token)
+            existing_tokens[word] = token
 
-        phrase_token = PhraseToken(token_id=token_id, index=index)
+        phrase_token = PhraseToken(token=token, index=index)
         phrase_tokens.append(phrase_token)
 
     new_phrase = Phrase(
