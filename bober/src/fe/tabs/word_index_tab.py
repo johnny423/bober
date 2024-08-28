@@ -38,7 +38,7 @@ class WordIndexTab(BaseTab):
 
         # todo: load options from existing rfcs and update when added
         self.rfc_titles_entry = self.create_entry(self, "RFC Titles:")
-        self.partial_token_entry = self.create_entry(self, "Partial Token:")
+        self.partial_token_entry = self.create_entry(self, "Token/Stem:")
 
         self.sort_by_combobox = self.create_combobox(
             self, "Sort By:", list(SortBy)
