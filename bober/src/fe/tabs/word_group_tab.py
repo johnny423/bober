@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+from bober.src.fe.event_system import EVENT_SYSTEM
 from bober.src.fe.events import GROUP_UPDATED_EVENT, NEW_GROUP_EVENT
 from bober.src.fe.handlers import (
     add_words_to_group,
@@ -49,19 +50,13 @@ class WordGroupTab(BaseTab):
         )
         self.groups_tree.bind("<<TreeviewSelect>>", self.on_group_select)
         self.words_list = self.create_listbox(right_frame)
-        self.bind(
-            NEW_GROUP_EVENT, lambda event: self.load_word_groups()
-        )
-        self.bind(
-            GROUP_UPDATED_EVENT, self.on_group_select
-        )
+        EVENT_SYSTEM.subscribe(NEW_GROUP_EVENT, self.load_word_groups)
+        EVENT_SYSTEM.subscribe(GROUP_UPDATED_EVENT, self.on_group_select)
 
     def create_group(self):
         group_name = self.group_name_entry.get().strip().lower()
         if group_name:
-            create_word_group(
-                self, self.session, group_name, []
-            )
+            create_word_group(self.session, group_name, [])
             self.group_name_entry.delete(0, tk.END)
         else:
             self.show_warning("Please enter a group name.")
@@ -79,9 +74,7 @@ class WordGroupTab(BaseTab):
 
         group_name = self.groups_tree.item(selected_items[0])['values'][0]
         try:
-            add_words_to_group(
-                self, self.session, group_name, [word]
-            )
+            add_words_to_group(self.session, group_name, [word])
         except ValueError as e:
             self.show_error(e)
         else:
@@ -102,9 +95,7 @@ class WordGroupTab(BaseTab):
         word = self.words_list.get(selected_words[0])
 
         try:
-            remove_words_from_group(
-                self, self.session, group_name, [word]
-            )
+            remove_words_from_group(self.session, group_name, [word])
         except Exception as e:
             self.show_error(str(e))
 

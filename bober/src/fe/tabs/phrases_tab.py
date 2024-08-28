@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from bober.src.db_models import Phrase
+from bober.src.fe.event_system import EVENT_SYSTEM
 from bober.src.fe.events import NEW_PHRASE_EVENT
 from bober.src.fe.handlers import save_new_phrase
 from bober.src.fe.tabs.base_tab import BaseTab
@@ -35,7 +36,7 @@ class PhrasesTab(BaseTab):
         self.phrases_tree.bind("<Button-1>", self.on_phrase_select)
         self.occurrences_list = self.create_listbox(right_frame)
         self.occurrences_list.bind('<Double-1>', self.on_occurrence_select)
-        self.bind_all(
+        EVENT_SYSTEM.subscribe(
             NEW_PHRASE_EVENT, lambda event: self.load_phrases()
         )
 
@@ -48,9 +49,7 @@ class PhrasesTab(BaseTab):
             return
 
         try:
-            save_new_phrase(
-                self, self.session, phrase_name, phrase_content
-            )
+            save_new_phrase(self.session, phrase_name, phrase_content)
             self.phrase_name_entry.delete(0, tk.END)
             self.phrase_entry.delete(0, tk.END)
         except ValueError as e:

@@ -4,6 +4,7 @@ from tkinter import ttk
 
 from tkcalendar import Calendar
 
+from bober.src.fe.event_system import EVENT_SYSTEM
 from bober.src.fe.events import RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
@@ -48,7 +49,7 @@ class SearchFileTab(BaseTab):
         )
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
         self.author_entry.bind("<KeyRelease>", self.search_files)
-        self.bind_all(RFC_ADDED_EVENT, self.search_files)
+        EVENT_SYSTEM.subscribe(RFC_ADDED_EVENT, self.search_files)
 
         self.search_files()
 

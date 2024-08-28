@@ -147,7 +147,7 @@ class RFCWindow(BaseWindow):
 
         if choice in existing_groups:
             add_words_to_group(
-                self.parent, self.session, choice, [selected_word]
+                self.session, choice, [selected_word]
             )
             self.show_info(
                 f"Word '{selected_word}' added to existing group '{choice}'"
@@ -155,7 +155,7 @@ class RFCWindow(BaseWindow):
             return
 
         # new group case
-        create_word_group(self.parent, self.session, choice, [selected_word])
+        create_word_group(self.session, choice, [selected_word])
         self.show_info(f"Word '{selected_word}' added to new group '{choice}'")
 
     def save_phrase_popup(self):
@@ -173,7 +173,6 @@ class RFCWindow(BaseWindow):
             phrase_name = name_entry.get().lower()
             if phrase_name:
                 save_new_phrase(
-                    self.parent,
                     self.session,
                     phrase_name,
                     phrase=selected_text.lower(),

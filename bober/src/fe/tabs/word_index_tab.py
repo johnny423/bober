@@ -1,8 +1,7 @@
-import datetime
 import tkinter as tk
-from contextlib import contextmanager
 from tkinter import Label, ttk
 
+from bober.src.fe.event_system import EVENT_SYSTEM
 from bober.src.fe.events import NEW_GROUP_EVENT, RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
@@ -25,8 +24,8 @@ class WordIndexTab(BaseTab):
         self.current_page = 1
         self.page_size = 50
         self.update_results()
-        self.bind_all(RFC_ADDED_EVENT, self._update_rfcs)
-        self.bind_all(NEW_GROUP_EVENT, self._update_groups)
+        EVENT_SYSTEM.subscribe(NEW_GROUP_EVENT, self._update_groups)
+        EVENT_SYSTEM.subscribe(RFC_ADDED_EVENT, self._update_rfcs)
 
     def _update_rfcs(self, event=None):
         print("->>update rfcs")
@@ -45,10 +44,12 @@ class WordIndexTab(BaseTab):
         self.token_groups_entry = self.create_combobox(
             self, "Token Groups:", [group.group_name for group in groups]
         )
+
         rfcs = search_rfcs(self.session, SearchRFCQuery())
         self.rfc_titles_entry = self.create_combobox(
             self, "RFC Titles:", [rfc.title for rfc in rfcs]
         )
+
         self.partial_token_entry = self.create_entry(self, "Token/Stem:")
 
         self.sort_by_combobox = self.create_combobox(

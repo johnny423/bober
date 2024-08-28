@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+from bober.src.fe.event_system import EVENT_SYSTEM
 from bober.src.fe.events import RFC_ADDED_EVENT
 from bober.src.fe.tabs.base_tab import BaseTab
 from bober.src.fe.windows.rfc_window import RFCWindow
@@ -18,7 +19,7 @@ from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 class IndexSearchTab(BaseTab):
     def __init__(self, parent, session):
         super().__init__(parent, session)
-        self.bind_all(RFC_ADDED_EVENT, self._update_rfcs)
+        EVENT_SYSTEM.subscribe(RFC_ADDED_EVENT, self._update_rfcs)
         self.current_page = 1
         self.page_size = 50
         self.update_pagination_controls(
