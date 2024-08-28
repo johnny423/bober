@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from bober.src.rfc_ingest.ingest_rfc import rfc_exists
 from bober.src.rfc_ingest.load_from_file import load_single_file
 from bober.src.search.rfc_content import (
     get_absolute_positions,
@@ -20,6 +21,9 @@ def rfc_num():
 
 @pytest.fixture
 def load_rfc(db_session, rfc_num):
+    if rfc_exists(db_session, rfc_num):
+        print(f'Rfc {rfc_num} exists, skipping the load')
+        return
     load_single_file(
         db_session,
         DOC_TO_TEST,

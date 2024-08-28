@@ -1,7 +1,7 @@
 import datetime
 from collections import defaultdict
 
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from bober.src.db_models import (
@@ -104,3 +104,7 @@ def ingest_rfc(
 
     session.flush()
     return rfc
+
+
+def rfc_exists(session: Session, rfc_num: int) -> bool:
+    return session.query(exists().where(Rfc.num == rfc_num)).scalar()
