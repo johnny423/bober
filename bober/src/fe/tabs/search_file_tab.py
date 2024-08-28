@@ -48,7 +48,7 @@ class SearchFileTab(BaseTab):
         )
         self.contains_tokens.bind("<KeyRelease>", self.search_files)
         self.author_entry.bind("<KeyRelease>", self.search_files)
-        self.winfo_toplevel().bind(RFC_ADDED_EVENT, self.search_files)
+        self.winfo_toplevel().bind_all(RFC_ADDED_EVENT, self.search_files)
 
         self.search_files()
 

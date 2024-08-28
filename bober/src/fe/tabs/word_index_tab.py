@@ -34,15 +34,16 @@ class WordIndexTab(BaseTab):
         self.current_page = 1
         self.page_size = 50
         self.update_results()
-        self.winfo_toplevel().bind(RFC_ADDED_EVENT, self._update_rfcs)
-        self.winfo_toplevel().bind(NEW_GROUP_EVENT, self._update_groups)
+        self.winfo_toplevel().bind_all(RFC_ADDED_EVENT, self._update_rfcs)
+        self.winfo_toplevel().bind_all(NEW_GROUP_EVENT, self._update_groups)
 
     def _update_rfcs(self, event=None):
+        print("->>update rfcs")
         rfcs = search_rfcs(self.session, SearchRFCQuery())
         self.rfc_titles_entry["values"] = [rfc.title for rfc in rfcs]
 
     def _update_groups(self, event=None):
-        print("update groups")
+        print("->>update groups")
         groups = list_groups(self.session)
         self.token_groups_entry["values"] = [
             group.group_name for group in groups

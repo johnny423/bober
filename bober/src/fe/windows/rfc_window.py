@@ -96,7 +96,7 @@ class RFCWindow(BaseWindow):
         )
         self.text_area.bind("<Button-3>", self.command_popup)
 
-        self.winfo_toplevel().bind("<Button-1>", self.hide_menu)
+        self.winfo_toplevel().bind_all("<Button-1>", self.hide_menu)
 
         self.h_scrollbar = ttk.Scrollbar(
             self.frame, orient=tk.HORIZONTAL, command=self.text_area.xview

@@ -18,7 +18,7 @@ from bober.src.search.search_rfc import SearchRFCQuery, search_rfcs
 class IndexSearchTab(BaseTab):
     def __init__(self, parent, session):
         super().__init__(parent, session)
-        self.winfo_toplevel().bind(RFC_ADDED_EVENT, self._update_rfcs)
+        self.winfo_toplevel().bind_all(RFC_ADDED_EVENT, self._update_rfcs)
         self.current_page = 1
         self.page_size = 50
         self.update_pagination_controls(
