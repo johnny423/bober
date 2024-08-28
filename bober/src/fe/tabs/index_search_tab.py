@@ -65,8 +65,8 @@ class IndexSearchTab(BaseTab):
 
     def _on_item_click(self, event):
         item = self.tree.identify('item', event.x, event.y)
-        (*_, stem, rfc, abs_line) = self.tree.item(item, 'values')
-        highlights = get_absolute_positions(self.session, rfc, stem)
+        (token, _, _, rfc, abs_line) = self.tree.item(item, 'values')
+        highlights = get_absolute_positions(self.session, rfc, token)
 
         RFCWindow(
             self.winfo_toplevel(),
