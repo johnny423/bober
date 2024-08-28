@@ -71,7 +71,7 @@ class QueryFilteredWordsParams:
 
 @dataclass
 class QueryFilteredWordsResult:
-    words: list[tuple[str, int]]
+    words: list[tuple[str, str, int]]
     total_count: int
 
 
@@ -80,7 +80,7 @@ def query_filtered_words(
 ) -> QueryFilteredWordsResult:
     query = (
         select(
-            Token.token, func.sum(RfcTokenCount.total_positions).label('count')
+            Token.token, Token.stem, func.sum(RfcTokenCount.total_positions).label('count')
         )
         .select_from(Token)
         .join(RfcTokenCount, Token.id == RfcTokenCount.token_id)
@@ -110,7 +110,7 @@ def query_filtered_words(
         )
 
     # Add GROUP BY to the base query
-    query = query.group_by(Token.token)
+    query = query.group_by(Token.token, Token.stem)
 
     # Calculate total count
     total_count_query = select(func.count()).select_from(query.subquery())
@@ -132,7 +132,7 @@ def query_filtered_words(
     )
     results = session.execute(query).fetchall()
 
-    words = [(line[0], line[1]) for line in results]
+    words = [(line[0], line[1], line[2]) for line in results]
     return QueryFilteredWordsResult(
         words=words,
         total_count=total_count,

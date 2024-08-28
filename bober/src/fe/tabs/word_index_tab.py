@@ -111,9 +111,9 @@ class WordIndexTab(BaseTab):
         self.words_count_label.config(
             text=f"fetched {len(results.words)} tokens out of {results.total_count} matching"
         )
-        for token, count in results.words:
+        for token, stem, count in results.words:
             node = self.tree.insert(
-                '', 'end', text=f"{token} ({count} occurrences)"
+                '', 'end', text=f"{token}({stem}): {count} occurrences"
             )
             self.tree.insert(node, 'end')
             self.word_nodes[node] = token
