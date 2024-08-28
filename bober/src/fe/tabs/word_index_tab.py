@@ -28,12 +28,10 @@ class WordIndexTab(BaseTab):
         EVENT_SYSTEM.subscribe(RFC_ADDED_EVENT, self._update_rfcs)
 
     def _update_rfcs(self, event=None):
-        print("->>update rfcs")
         rfcs = search_rfcs(self.session, SearchRFCQuery())
         self.rfc_titles_entry["values"] = [rfc.title for rfc in rfcs]
 
     def _update_groups(self, event=None):
-        print("->>update groups")
         groups = list_groups(self.session)
         self.token_groups_entry["values"] = [
             group.group_name for group in groups
@@ -90,10 +88,15 @@ class WordIndexTab(BaseTab):
         self.token_groups_entry.bind(
             "<<ComboboxSelected>>", self.reset_and_update
         )
+        self.token_groups_entry.bind("<KeyRelease>", self.reset_and_update)
+
         self.rfc_titles_entry.bind(
             "<<ComboboxSelected>>", self.reset_and_update
         )
+        self.rfc_titles_entry.bind("<KeyRelease>", self.reset_and_update)
+
         self.partial_token_entry.bind("<KeyRelease>", self.reset_and_update)
+        
         self.sort_by_combobox.bind(
             "<<ComboboxSelected>>", self.reset_and_update
         )

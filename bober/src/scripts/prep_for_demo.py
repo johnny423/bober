@@ -30,13 +30,13 @@ def load_examples(session):
 def add_phrases(session):
     phrases_to_add = [
         "coffee pot",
-        # "Avian Carriers",  # todo re-add this after we fix adding non existing tokens
-        # "scroll of paper",  # todo re-add this after we fix adding non existing tokens
-        "Security Considerations",
-        "PROTOCOL DEFINITION",
+        "avian carriers",
+        "scroll of paper",
+        "security considerations",
+        "protocol definition",
         "source address",
-        "The internet society",  # todo re-add this after we fix adding non existing tokens
-        "Sun Microsystems",
+        "the internet society",
+        "sun microsystems",
     ]
     for phrase in phrases_to_add:
         logger.info(f"Adding phrase {phrase.lower()}")
@@ -64,9 +64,9 @@ def add_groups(session):
             "NNTP",
             "dns",
         ],
-        # "pokemon types": [  # todo add after fixing adding non-existing tokens
-        #     "avian"
-        # ]
+        "types": [
+            "avian",
+        ]
     }
 
     for group_name, group_items in groups_to_add.items():

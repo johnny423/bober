@@ -14,7 +14,7 @@ def load_examples(session: Session):
     with open(example_dir_path / "examples.json") as f:
         rfcs_metadata = json.load(f)
 
-    for index, rfc_metadata in enumerate(rfcs_metadata, 1):
+    for index, rfc_metadata in enumerate(rfcs_metadata[:10], 1):
         rfc_num = int(rfc_metadata["num"])
         file_path = example_dir_path / f"{rfc_num}.txt"
 

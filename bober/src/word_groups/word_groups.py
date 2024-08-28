@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from bober.src.db import commit
 from bober.src.db_models import Token, TokenGroup, TokenToGroup
+from bober.src.parsing.parsed_types import STEMMER
 
 
 @commit
@@ -21,14 +22,25 @@ def create_word_group(
 def add_words_to_group(
     session: Session, group_name: str, words: list[str]
 ) -> None:
+    words = [word.lower() for word in words]
     group = session.query(TokenGroup).filter_by(group_name=group_name).first()
     if not group:
         raise ValueError(f"Group '{group_name}' does not exist")
 
-    # Get existing tokens
-    # currently ignoring non-existing tokens!
     existing_tokens = session.query(Token).filter(Token.token.in_(words)).all()
     existing_token_dict = {token.token: token for token in existing_tokens}
+
+    new_tokens = []
+    for word in words:
+        if word  in existing_token_dict:
+            continue
+
+        new_token = Token(token=word, stem=STEMMER.stem(word))
+        new_tokens.append(new_token)
+        existing_token_dict[word] = new_token
+
+    session.add_all(new_tokens)
+    session.flush()
 
     # Get existing associations
     existing_associations = (
@@ -47,9 +59,6 @@ def add_words_to_group(
 
     new_associations = []
     for word in words:
-        if word not in existing_token_dict:
-            raise ValueError(f"Word '{word}' doesn't exists in text")
-
         if (
             existing_token_dict[word].id,
             group.id,

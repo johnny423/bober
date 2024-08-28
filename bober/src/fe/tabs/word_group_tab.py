@@ -99,7 +99,7 @@ class WordGroupTab(BaseTab):
         except Exception as e:
             self.show_error(str(e))
 
-    def load_word_groups(self):
+    def load_word_groups(self, event=None):
         self.groups_tree.delete(*self.groups_tree.get_children())
         groups = list_groups(self.session)
         for group in groups:
