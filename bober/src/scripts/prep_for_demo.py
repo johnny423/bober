@@ -64,6 +64,9 @@ def add_groups(session):
             "NNTP",
             "dns",
         ],
+        # "pokemon types": [  # todo add after fixing adding non-existing tokens
+        #     "avian"
+        # ]
     }
 
     for group_name, group_items in groups_to_add.items():
