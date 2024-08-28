@@ -100,11 +100,14 @@ def query_filtered_words(
         query = query.filter(Rfc.title.ilike(f"%{params.rfc_title}%"))
 
     if params.partial_token is not None:
-        # todo maybe get the stems of all tokens that have this substring and filter by these stems
-        # todo (in addition to stem containing the substring)
+        subquery = (
+            select(Token.stem)
+            .filter(Token.token.ilike(f'%{params.partial_token}%'))
+            .distinct()
+        )
         query = query.filter(
             or_(
-                Token.token.ilike(f'%{params.partial_token}%'),
+                Token.stem.in_(subquery),
                 Token.stem.ilike(f'%{params.partial_token}%'),
             )
         )

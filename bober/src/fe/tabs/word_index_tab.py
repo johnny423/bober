@@ -113,7 +113,7 @@ class WordIndexTab(BaseTab):
         )
         for token, stem, count in results.words:
             node = self.tree.insert(
-                '', 'end', text=f"{token}({stem}): {count} occurrences"
+                '', 'end', text=f"{token} ({stem=} ; {count} occurrences)"
             )
             self.tree.insert(node, 'end')
             self.word_nodes[node] = token
