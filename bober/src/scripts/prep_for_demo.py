@@ -1,11 +1,11 @@
+from loguru import logger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from loguru import logger
 
+from bober.src.db import drop_schema, get_database_url
 from bober.src.db_models import Base
-from bober.src.main import get_database_url, drop_schema
 from bober.src.phrases.phrases import save_new_phrase
-from bober.src.loader import load_examples as _load_examples
+from bober.src.scripts.loader import load_examples as _load_examples
 from bober.src.word_groups.word_groups import create_word_group
 
 
